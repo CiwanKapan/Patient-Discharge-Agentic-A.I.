@@ -18,8 +18,8 @@ The primary objective is to evaluate whether a supervised agentic architecture o
 ## 👥 Project Team & Mentorship
 
 - **Project Mentor:** Khem Poudel
-- **Student Members:** Ciwan Kapan, Julio Clavasquin, Mason McDowell, Dominic
-- **Proposal Level:** URECA Team / Scholar Project
+- **Student Members:** Ciwan Kapan, Julio Clavasquin, Mason McDowell, Dominic Zeferin
+- **Project:** URECA Team Project
 
 ---
 
