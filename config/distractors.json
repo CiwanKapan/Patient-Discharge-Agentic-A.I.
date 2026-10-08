@@ -1,0 +1,2289 @@
+{
+  "meta": {
+    "name": "Discharge Coordinator AI — Distractor Reference List",
+    "source": "Distractor_Reference_List.docx",
+    "definition": "A detail that looks like a discharge problem but is actually fine. A careful system ignores it; flagging it is a false positive.",
+    "phrase_count": 126,
+    "source_corrections": [
+      "B-S02T -> B-S07",
+      "duplicate quick-lookup row for B-S07 merged",
+      "Source header says 140 phrases; groups A-F actually contain 126 (Group G holds prompt templates, not phrases)."
+    ]
+  },
+  "usage_rules": {
+    "distractors_per_difficulty": {
+      "easy": [
+        0,
+        0
+      ],
+      "medium": [
+        1,
+        1
+      ],
+      "hard": [
+        1,
+        2
+      ]
+    },
+    "hard_two_distractors_must_differ_in_group": true,
+    "no_overlap": "A phrase may not be used if any of its avoid_if_barriers is in the case's barrier list.",
+    "theme_guidance": "groups[].theme_avoid_barriers is advisory (the sheet's 'use when' line); phrases marked safe_with_all_barriers may still be used.",
+    "condition_fit": "The case's condition must be in suitable_conditions.",
+    "copy_exactly": "Phrases are inserted verbatim into the case's distractors field.",
+    "ai_generated_allowed": "Group G templates may be used; check the output does not describe a real barrier.",
+    "precedence": "Per-phrase avoid_if_barriers is authoritative; quick_lookup is a convenience guide."
+  },
+  "groups": [
+    {
+      "id": "A",
+      "title": "A test result that looked worrying but is now resolved",
+      "theme_avoid_barriers": [
+        "B-C07",
+        "B-C02",
+        "B-C03"
+      ],
+      "phrase_count": 28
+    },
+    {
+      "id": "B",
+      "title": "A medication detail that looks notable but is fine",
+      "theme_avoid_barriers": [
+        "B-C01",
+        "B-E01",
+        "B-E02"
+      ],
+      "phrase_count": 20
+    },
+    {
+      "id": "C",
+      "title": "A past medical history item that is resolved and has no current impact",
+      "theme_avoid_barriers": [],
+      "phrase_count": 20
+    },
+    {
+      "id": "D",
+      "title": "A social or lifestyle detail that looks like a concern but is fine",
+      "theme_avoid_barriers": [
+        "B-F03",
+        "B-S02",
+        "B-S03"
+      ],
+      "phrase_count": 20
+    },
+    {
+      "id": "E",
+      "title": "A routine clinical check or procedure that is complete",
+      "theme_avoid_barriers": [],
+      "phrase_count": 20
+    },
+    {
+      "id": "F",
+      "title": "A condition-specific distractor",
+      "theme_avoid_barriers": [],
+      "phrase_count": 18
+    },
+    {
+      "id": "G",
+      "title": "Free-text distractor (AI prompt templates)",
+      "theme_avoid_barriers": [],
+      "phrase_count": 0,
+      "templates": [
+        {
+          "id": "D-G-T1",
+          "purpose": "General (works for any condition)",
+          "template": "I am writing a synthetic hospital discharge case for a research dataset. The patient has [CONDITION NAME] and the real discharge barriers already in this case are: [LIST YOUR BARRIER LABELS IN PLAIN ENGLISH, e.g., 'medication reconciliation incomplete, follow-up not scheduled']. Write me one short sentence, under 30 words, describing a small medical detail about this patient that looks notable but is actually resolved and fine. Do not describe anything related to the barriers I listed. Write only the sentence, nothing else."
+        },
+        {
+          "id": "D-G-T2",
+          "purpose": "For a social or logistical distractor",
+          "template": "I am writing a synthetic hospital discharge case for a research dataset. The patient has [CONDITION NAME] and already has these discharge barriers: [LIST YOUR BARRIER LABELS]. Write me one sentence describing a social or personal detail about this patient that initially looks like it could be a concern but turns out to be fine and not a barrier to discharge. Under 30 words. Write only the sentence."
+        },
+        {
+          "id": "D-G-T3",
+          "purpose": "If you need two distractors (for hard cases)",
+          "template": "I am writing a hard synthetic hospital discharge case for a research dataset. The patient has [CONDITION NAME] and already has these discharge barriers: [LIST YOUR BARRIER LABELS]. Write me exactly two short sentences. Each sentence describes a different detail about this patient that looks notable but is actually fine and resolved. The two details should be about different topics (for example, one clinical and one social). Each sentence under 30 words. Write only the two sentences, nothing else."
+        }
+      ]
+    }
+  ],
+  "phrases": [
+    {
+      "id": "D-A01",
+      "group": "A",
+      "text": "Patient's potassium was mildly low on day 2 of admission but was corrected with an oral supplement. It was rechecked on day 3 and returned to the normal range.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C02 (pending labs) is a barrier"
+    },
+    {
+      "id": "D-A02",
+      "group": "A",
+      "text": "Mild anaemia was found on admission blood work. It has been stable throughout the stay and does not affect discharge readiness.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C02 is a barrier"
+    },
+    {
+      "id": "D-A03",
+      "group": "A",
+      "text": "Blood pressure was elevated on arrival. It has been consistently within the normal range for the past 48 hours.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 (medical instability) is a barrier"
+    },
+    {
+      "id": "D-A04",
+      "group": "A",
+      "text": "A slight elevation in liver enzymes was noted on day 1. The test was repeated on day 3 and the result returned to normal. No action is needed.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C02 is a barrier"
+    },
+    {
+      "id": "D-A05",
+      "group": "A",
+      "text": "A single brief episode of an irregular heart rate was observed on the bedside monitor on day 2. It did not repeat. The cardiology team reviewed it and confirmed no concern.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-A06",
+      "group": "A",
+      "text": "Urine output was slightly lower than expected on the first night of admission. It has been normal and consistent since then.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-A07",
+      "group": "A",
+      "text": "A chest X-ray taken on admission showed mild changes. A repeat X-ray on day 3 shows significant improvement and the radiologist has cleared the patient for discharge.",
+      "suitable_conditions": [
+        "CO",
+        "PN"
+      ],
+      "avoid_if_barriers": [
+        "B-C03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C03 (pending imaging) is a barrier"
+    },
+    {
+      "id": "D-A08",
+      "group": "A",
+      "text": "Sodium level was mildly below normal on the first blood draw. A repeat test the following morning showed it had corrected without any treatment.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C02 is a barrier"
+    },
+    {
+      "id": "D-A09",
+      "group": "A",
+      "text": "Mild dehydration was noted on admission. The patient was given fluids and hydration levels have been normal for the past 24 hours.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-A10",
+      "group": "A",
+      "text": "A low-grade temperature of 37.6 degrees was recorded on day 1. It resolved by day 2 without any treatment and has not returned.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-A11",
+      "group": "A",
+      "text": "A blood sugar reading was briefly elevated on the morning of day 2. The patient's insulin was adjusted slightly and all subsequent readings have been within the target range.",
+      "suitable_conditions": [
+        "HF",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C02 is a barrier"
+    },
+    {
+      "id": "D-A12",
+      "group": "A",
+      "text": "A mild rash appeared briefly at the IV insertion site on day 2. It was assessed as a minor irritation, treated with a topical cream, and has fully resolved.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-A13",
+      "group": "A",
+      "text": "White blood cell count was mildly elevated on admission, which was consistent with the acute illness. The count has been trending down and is now within the normal range.",
+      "suitable_conditions": [
+        "PN",
+        "CO"
+      ],
+      "avoid_if_barriers": [
+        "B-C02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C02 is a barrier"
+    },
+    {
+      "id": "D-A14",
+      "group": "A",
+      "text": "Oxygen saturation briefly dipped to 93 percent during a period of exertion on day 2. The patient was rested and saturation returned to 97 percent. No change to the oxygen plan was needed.",
+      "suitable_conditions": [
+        "HF",
+        "CO"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-A15",
+      "group": "A",
+      "text": "A repeat echocardiogram was performed to recheck the ejection fraction. The result was slightly better than on admission. No change to the discharge plan is needed.",
+      "suitable_conditions": [
+        "HF"
+      ],
+      "avoid_if_barriers": [
+        "B-C04"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C04 (pending consult) is a barrier"
+    },
+    {
+      "id": "D-A16",
+      "group": "A",
+      "text": "Creatinine was elevated on day 1 but trended back to the patient's known baseline by day 3. Renal function is at the patient's expected level.",
+      "suitable_conditions": [
+        "HF",
+        "OR"
+      ],
+      "avoid_if_barriers": [
+        "B-C02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C02 is a barrier"
+    },
+    {
+      "id": "D-A17",
+      "group": "A",
+      "text": "The patient reported mild nausea on the morning of day 2. This was managed with a standard anti-nausea medication and the patient has been eating and drinking normally since.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-A18",
+      "group": "A",
+      "text": "A routine ECG was performed on day 3. The result showed no changes compared to the admission ECG. No clinical action is needed.",
+      "suitable_conditions": [
+        "HF",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-A19",
+      "group": "A",
+      "text": "Platelet count was mildly low on the first blood test. A repeat test on day 2 showed it had returned to the normal range without any treatment.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C02 is a barrier"
+    },
+    {
+      "id": "D-A20",
+      "group": "A",
+      "text": "The patient experienced one episode of dizziness when first standing on day 1. This resolved with slow mobilisation guidance from the physiotherapist and has not recurred.",
+      "suitable_conditions": [
+        "OR",
+        "ST",
+        "HF"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-A21",
+      "group": "A",
+      "text": "Mild swelling was noted in the patient's ankles on examination. This is an expected baseline finding for this condition and is not a new or worsening problem.",
+      "suitable_conditions": [
+        "HF",
+        "CO"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-A22",
+      "group": "A",
+      "text": "The patient's blood test on day 1 showed a borderline vitamin D level. A supplement was prescribed and the patient was educated. This does not affect discharge readiness.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-A23",
+      "group": "A",
+      "text": "Pulse oximetry briefly read 94 percent during a deep sleep period overnight. Daytime readings have consistently been above 96 percent and no clinical concern was raised.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-A24",
+      "group": "A",
+      "text": "The patient reported mild back pain on day 2. This was assessed as positional discomfort from bed rest. Pain resolved with repositioning and a mild pain reliever. No further concern.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-A25",
+      "group": "A",
+      "text": "A urine culture sent on admission returned a result showing a minor bacterial growth. The infectious disease team reviewed it and confirmed it does not require treatment.",
+      "suitable_conditions": [
+        "PN",
+        "OR"
+      ],
+      "avoid_if_barriers": [
+        "B-C02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C02 is a barrier"
+    },
+    {
+      "id": "D-A26",
+      "group": "A",
+      "text": "The patient experienced mild constipation during the stay. This was managed with a standard laxative and resolved before discharge. No further action is needed.",
+      "suitable_conditions": [
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-A27",
+      "group": "A",
+      "text": "The patient was started on a short course of a blood thinner during admission as a preventive measure. The course is now complete and no further doses are needed after discharge.",
+      "suitable_conditions": [
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 (medication reconciliation) is a barrier"
+    },
+    {
+      "id": "D-A28",
+      "group": "A",
+      "text": "A screening blood test for thyroid function was added on day 2 as part of a routine check. The result came back normal. No clinical action is required.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C02 is a barrier"
+    },
+    {
+      "id": "D-B01",
+      "group": "B",
+      "text": "A new cholesterol-lowering tablet was started during the stay. It was correctly prescribed, the patient was educated about it, and it has no known interactions with the patient's other medications.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01",
+        "B-E01",
+        "B-E02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01, B-E01, or B-E02 is a barrier"
+    },
+    {
+      "id": "D-B02",
+      "group": "B",
+      "text": "The patient's regular vitamin D supplement was temporarily paused during the hospital stay. It has been restarted in the discharge plan with no change to the dose.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 is a barrier"
+    },
+    {
+      "id": "D-B03",
+      "group": "B",
+      "text": "One regular medication was briefly changed to an intravenous form during the early days of the stay for faster absorption. It was switched back to the oral form on day 3 and is reconciled in the discharge plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 is a barrier"
+    },
+    {
+      "id": "D-B04",
+      "group": "B",
+      "text": "The dose of a blood pressure medication was reviewed during the stay. The previous dose was confirmed to be appropriate and no change was made.",
+      "suitable_conditions": [
+        "HF",
+        "ST",
+        "CO"
+      ],
+      "avoid_if_barriers": [
+        "B-C01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 is a barrier"
+    },
+    {
+      "id": "D-B05",
+      "group": "B",
+      "text": "A mild sleeping tablet was used on the first two nights to help the patient rest. It will not be continued after discharge. This is documented in the discharge plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 is a barrier"
+    },
+    {
+      "id": "D-B06",
+      "group": "B",
+      "text": "The patient is prescribed a weekly tablet that was already due during the hospital stay. It was given at the correct time and no change to the schedule is needed.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 is a barrier"
+    },
+    {
+      "id": "D-B07",
+      "group": "B",
+      "text": "A new type of antacid was started to protect the stomach while the patient was taking a short course of anti-inflammatory medication. The course is now complete and the antacid will continue for two more weeks as planned.",
+      "suitable_conditions": [
+        "OR",
+        "PN"
+      ],
+      "avoid_if_barriers": [
+        "B-C01",
+        "B-E01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 or B-E01 is a barrier"
+    },
+    {
+      "id": "D-B08",
+      "group": "B",
+      "text": "An aspirin dose adjustment was made during the stay, from 81mg to 100mg. This was reconciled and the patient was educated about the change.",
+      "suitable_conditions": [
+        "HF",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01",
+        "B-E01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 or B-E01 is a barrier"
+    },
+    {
+      "id": "D-B09",
+      "group": "B",
+      "text": "The patient takes an over-the-counter antihistamine at home for seasonal allergies. This was reviewed during the stay and confirmed to be safe to continue with no interactions.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 is a barrier"
+    },
+    {
+      "id": "D-B10",
+      "group": "B",
+      "text": "A short course of a mild pain reliever was prescribed during the stay for comfort. The course is now complete and no pain medication has been added to the discharge plan.",
+      "suitable_conditions": [
+        "OR",
+        "PN"
+      ],
+      "avoid_if_barriers": [
+        "B-C01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 is a barrier"
+    },
+    {
+      "id": "D-B11",
+      "group": "B",
+      "text": "The patient was briefly placed on a fluid restriction during the first two days. The restriction has been lifted and the patient is now taking fluids freely as expected.",
+      "suitable_conditions": [
+        "HF"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-B12",
+      "group": "B",
+      "text": "An iron supplement was prescribed during the stay for mild anaemia. The patient was educated about it, it is in the discharge plan, and no clinical concern exists.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01",
+        "B-E01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 or B-E01 is a barrier"
+    },
+    {
+      "id": "D-B13",
+      "group": "B",
+      "text": "The patient's regular heartburn medication was changed to a different brand during the stay due to supply. The patient was told about this, and both brands are the same medication at the same dose.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01",
+        "B-E01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 or B-E01 is a barrier"
+    },
+    {
+      "id": "D-B14",
+      "group": "B",
+      "text": "A standard antibiotic eye drop was prescribed for a mild eye irritation noted on day 2. The course is nearly complete and has no impact on the discharge plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-B15",
+      "group": "B",
+      "text": "The patient's regular inhaler was reviewed by the respiratory team during the stay. Technique was confirmed to be correct and no change to the inhaler or the dose was needed.",
+      "suitable_conditions": [
+        "CO",
+        "PN"
+      ],
+      "avoid_if_barriers": [
+        "B-E06"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-E06 (medical device education) is a barrier"
+    },
+    {
+      "id": "D-B16",
+      "group": "B",
+      "text": "A topical cream was prescribed during the stay for mild skin dryness. It is a simple moisturiser with no clinical significance for the discharge plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-B17",
+      "group": "B",
+      "text": "The patient requested information about a herbal supplement they take at home. The pharmacist reviewed it and confirmed it is safe to continue with no interactions.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 is a barrier"
+    },
+    {
+      "id": "D-B18",
+      "group": "B",
+      "text": "A new probiotic was recommended to the patient to support gut health after antibiotic use during the stay. It is available over the counter and does not require a prescription.",
+      "suitable_conditions": [
+        "PN",
+        "OR"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-B19",
+      "group": "B",
+      "text": "The patient is on a controlled medication that requires a special prescription. This was prepared and reviewed by the pharmacist before discharge, and everything is in order.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01",
+        "B-E02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 or B-E02 is a barrier"
+    },
+    {
+      "id": "D-B20",
+      "group": "B",
+      "text": "A short course of a steroid tablet was used during the admission to reduce inflammation. The course is complete. No steroid has been added to the discharge medication list.",
+      "suitable_conditions": [
+        "CO",
+        "PN"
+      ],
+      "avoid_if_barriers": [
+        "B-C01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 is a barrier"
+    },
+    {
+      "id": "D-C01",
+      "group": "C",
+      "text": "The patient has a well-healed surgical scar on the abdomen from an operation several years ago. No wound care is needed and this has no impact on the discharge plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C06"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C06 (wound concern) is a barrier"
+    },
+    {
+      "id": "D-C02",
+      "group": "C",
+      "text": "The patient experienced a fall at home approximately six months ago. There have been no falls during this admission. Home safety was assessed and no concerns were identified.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-S03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-S03 (home safety) is a barrier"
+    },
+    {
+      "id": "D-C03",
+      "group": "C",
+      "text": "The patient had a previous hospital admission for the same condition eighteen months ago. That episode was fully resolved and is not relevant to the current discharge plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C04",
+      "group": "C",
+      "text": "The patient has a history of a kidney stone several years ago. They have had no recurrence since then and this is not relevant to the current admission.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C05",
+      "group": "C",
+      "text": "The patient reported a mild reaction to a type of antibiotic many years ago. This is documented in the records. The antibiotic used in this admission is from a different family and no reaction occurred.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C06",
+      "group": "C",
+      "text": "The patient underwent a minor procedure to remove a skin lesion two years ago. The site healed fully and this has no bearing on the current discharge plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C06"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C06 is a barrier"
+    },
+    {
+      "id": "D-C07",
+      "group": "C",
+      "text": "The patient experienced a brief episode of anxiety approximately one year ago. They recovered fully, are not currently on any treatment for it, and no anxiety was observed during this stay.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C08",
+      "group": "C",
+      "text": "The patient had a fractured wrist five years ago that healed completely. No ongoing treatment is needed and this does not affect the current plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C09",
+      "group": "C",
+      "text": "The patient had a brief episode of a urinary tract infection earlier this year. It was treated with a short course of antibiotics and fully resolved.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C10",
+      "group": "C",
+      "text": "The patient had a short course of physiotherapy two years ago for a mild back strain. The strain fully resolved and no physiotherapy is indicated in the current discharge plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-F04"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-F04 (outpatient therapy) is a barrier"
+    },
+    {
+      "id": "D-C11",
+      "group": "C",
+      "text": "The patient had a food intolerance diagnosed several years ago and has adjusted their diet accordingly. This is well managed at home and has no impact on the discharge plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-E04"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-E04 (diet education) is a barrier"
+    },
+    {
+      "id": "D-C12",
+      "group": "C",
+      "text": "The patient had a cataract removed from one eye two years ago. The result was successful. Vision in both eyes is stable and this has no current clinical significance.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C13",
+      "group": "C",
+      "text": "The patient reports a mild seasonal allergy that is well controlled with an over-the-counter antihistamine. This was noted and confirmed to have no interaction with current medications.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C14",
+      "group": "C",
+      "text": "The patient had a mild case of COVID-19 approximately eighteen months ago and recovered fully. No long-term effects have been identified and this is not relevant to the current admission.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C15",
+      "group": "C",
+      "text": "The patient underwent a colonoscopy as part of routine screening last year. The result was normal. No follow-up is required.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C16",
+      "group": "C",
+      "text": "The patient experienced a brief episode of chest pain two years ago that was investigated and determined to be musculoskeletal, not cardiac. The issue fully resolved and has not returned.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-C17",
+      "group": "C",
+      "text": "The patient has a long-standing history of mild hearing loss that is managed with a hearing aid. They have their own hearing aid at home and this does not affect the discharge plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C18",
+      "group": "C",
+      "text": "The patient had a wisdom tooth extracted under general anaesthetic three years ago with no complications. This is not relevant to the current admission.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C19",
+      "group": "C",
+      "text": "The patient was treated for shingles approximately two years ago. The condition fully resolved and no residual effects were noted during this admission.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-C20",
+      "group": "C",
+      "text": "The patient had a hernia repaired surgically four years ago. The repair was successful and the patient has had no recurrence. This is not relevant to the current discharge plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-D01",
+      "group": "D",
+      "text": "The patient lives alone but has confirmed a daily check-in from a neighbour who has agreed to visit each morning. No safety concern was identified.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-F03",
+        "B-S03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-F03 (caregiver) or B-S03 (home safety) is a barrier"
+    },
+    {
+      "id": "D-D02",
+      "group": "D",
+      "text": "The patient initially expressed reluctance about taking a new medication. After a longer conversation with the nurse, they understood the reason for it and agreed to take it as prescribed.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-E01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-E01 (medication education) is a barrier"
+    },
+    {
+      "id": "D-D03",
+      "group": "D",
+      "text": "The patient's family members attended the discharge education session and asked many questions. All questions were answered. The family expressed confidence in the care plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-E03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-E03 (patient education) is a barrier"
+    },
+    {
+      "id": "D-D04",
+      "group": "D",
+      "text": "The patient uses a walking stick at home. They brought it to the hospital. They have been using it during all mobilisation sessions this week and are comfortable with it.",
+      "suitable_conditions": [
+        "OR",
+        "ST",
+        "HF"
+      ],
+      "avoid_if_barriers": [
+        "B-E05"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-E05 (mobility device education) is a barrier"
+    },
+    {
+      "id": "D-D05",
+      "group": "D",
+      "text": "The patient expressed mild anxiety about returning home. This was discussed with the nurse and the social worker. Coping strategies were reviewed. No clinical concern was identified.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-D06",
+      "group": "D",
+      "text": "The patient's primary language is not English. A hospital interpreter was present for all key conversations during the stay, including all education sessions. All discharge information was provided in the patient's preferred language.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-D07",
+      "group": "D",
+      "text": "The patient lives in a first-floor flat with no stairs. A home visit assessment was completed last year and confirmed the environment is safe and accessible.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-S03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-S03 (home safety) is a barrier"
+    },
+    {
+      "id": "D-D08",
+      "group": "D",
+      "text": "The patient mentioned that they have been stressed at work recently. This was noted. It does not affect the clinical discharge plan and the patient confirmed they feel ready to go home.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-D09",
+      "group": "D",
+      "text": "The patient is a smoker. Smoking cessation advice was offered and accepted. A referral to a cessation support service was made. This does not block discharge.",
+      "suitable_conditions": [
+        "CO",
+        "PN"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-D10",
+      "group": "D",
+      "text": "The patient requested to be discharged in the afternoon rather than the morning for personal preference. This was noted and accommodated. It does not represent a barrier.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-S07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-S02T (transport timing conflict) is a barrier"
+    },
+    {
+      "id": "D-D11",
+      "group": "D",
+      "text": "The patient's spouse was present for most of the stay and is well-informed about the care plan. They expressed no concerns and are ready to support the patient at home.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-F03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-F03 (caregiver) is a barrier"
+    },
+    {
+      "id": "D-D12",
+      "group": "D",
+      "text": "The patient has a pet at home that requires daily feeding. This was discussed and the patient confirmed a neighbour has agreed to help with the pet until the patient is fully mobile.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-D13",
+      "group": "D",
+      "text": "The patient reads with glasses. All written discharge materials were provided in large print at the patient's request. The patient confirmed they could read and understand everything.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-E03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-E03 (patient education) is a barrier"
+    },
+    {
+      "id": "D-D14",
+      "group": "D",
+      "text": "The patient mentioned they prefer to manage their own health independently and initially declined some education materials. After a brief conversation, they accepted and engaged with all materials.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-E03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-E03 is a barrier"
+    },
+    {
+      "id": "D-D15",
+      "group": "D",
+      "text": "The patient expressed concern about the cost of one medication. The pharmacist confirmed this medication is covered by their insurance and is available at their regular pharmacy at no additional cost.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-S01",
+        "B-E02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-S01 (financial) or B-E02 (medication availability) is a barrier"
+    },
+    {
+      "id": "D-D16",
+      "group": "D",
+      "text": "The patient mentioned they do not have a car. Their daughter has confirmed she is available to drive them home on the planned discharge day and is familiar with the care plan.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-S02"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-S02 (transport) is a barrier"
+    },
+    {
+      "id": "D-D17",
+      "group": "D",
+      "text": "The patient practices fasting for religious reasons on certain days of the week. The clinical team was made aware and confirmed this does not conflict with the medication schedule.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-D18",
+      "group": "D",
+      "text": "The patient mentioned they have a long-standing dislike of hospitals and was keen to leave as soon as possible. They were reassured and all discharge steps were completed on schedule.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-D19",
+      "group": "D",
+      "text": "The patient receives home care visits twice a week for personal care. This existing service was confirmed as still in place and the home-care provider has been notified of the discharge date.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-F03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-F03 (caregiver) is a barrier"
+    },
+    {
+      "id": "D-D20",
+      "group": "D",
+      "text": "The patient has a close friend who visits weekly and helps with shopping. This was noted as a positive social support factor. No concerns were raised about the patient's social situation.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-F03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-F03 (caregiver) is a barrier"
+    },
+    {
+      "id": "D-E01",
+      "group": "E",
+      "text": "A routine falls risk assessment was completed on admission and scored the patient as low risk. No special precautions were required.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-S03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-S03 (home safety) is a barrier"
+    },
+    {
+      "id": "D-E02",
+      "group": "E",
+      "text": "A standard nutritional screening was performed on admission. The patient scored within the normal range and no specialist dietitian input was required.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-E04"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-E04 (diet education) is a barrier"
+    },
+    {
+      "id": "D-E03",
+      "group": "E",
+      "text": "A venous thromboembolism risk assessment was completed on admission as per standard protocol. The patient received appropriate preventive measures during the stay. These are no longer needed after discharge.",
+      "suitable_conditions": [
+        "OR",
+        "HF",
+        "PN"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-E04",
+      "group": "E",
+      "text": "A skin integrity check was performed on admission as per standard protocol. No pressure sores or skin concerns were identified during the stay.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C06"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C06 (wound concern) is a barrier"
+    },
+    {
+      "id": "D-E05",
+      "group": "E",
+      "text": "An occupational therapy assessment was requested on day 2 to check functional ability. The therapist confirmed the patient is able to manage daily activities independently at home.",
+      "suitable_conditions": [
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C05",
+        "B-F04"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C05 (physical limitations) or B-F04 (outpatient therapy) is a barrier"
+    },
+    {
+      "id": "D-E06",
+      "group": "E",
+      "text": "A routine hearing and vision screening was offered to the patient as part of a standard assessment. Both results were within the normal range.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-E07",
+      "group": "E",
+      "text": "A pharmacist conducted a regular medication review on day 2 as part of standard care. No issues were identified and no changes to the medication plan were recommended.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 (medication reconciliation) is a barrier"
+    },
+    {
+      "id": "D-E08",
+      "group": "E",
+      "text": "A routine blood glucose monitoring schedule was completed during the stay. All readings were within the acceptable range and no changes to the diabetes management plan were needed.",
+      "suitable_conditions": [
+        "HF",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-E09",
+      "group": "E",
+      "text": "A standard swallowing assessment was completed by the speech and language therapist on day 1. The patient passed the assessment and is on a normal diet.",
+      "suitable_conditions": [
+        "ST",
+        "PN"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-E10",
+      "group": "E",
+      "text": "A routine palliative care screening question was included in the admission assessment as per standard protocol. The patient did not meet the criteria for a palliative care referral.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-E11",
+      "group": "E",
+      "text": "A standard pain assessment was completed each morning. The patient consistently reported a comfortable pain level and no change to pain management was required.",
+      "suitable_conditions": [
+        "OR",
+        "PN"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-E12",
+      "group": "E",
+      "text": "A routine cognitive screening test was offered and completed. The patient scored within the normal range. No memory or cognitive concerns were identified.",
+      "suitable_conditions": [
+        "ST",
+        "HF"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-E13",
+      "group": "E",
+      "text": "An infection control nurse completed a routine review of the patient's room and care on day 3. No concerns were identified and standard precautions are all in place.",
+      "suitable_conditions": [
+        "PN",
+        "CO"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-E14",
+      "group": "E",
+      "text": "A daily review of the patient's fluid balance was conducted as part of standard monitoring. Fluid intake and output have been well balanced throughout the stay.",
+      "suitable_conditions": [
+        "HF",
+        "PN"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-E15",
+      "group": "E",
+      "text": "A routine delirium screening was performed each morning as per standard protocol. The patient scored zero on every assessment and showed no signs of confusion.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-E16",
+      "group": "E",
+      "text": "A standard physiotherapy mobility session was completed on days 2 and 3. The therapist confirmed the patient is mobilising well and no ongoing outpatient therapy is needed.",
+      "suitable_conditions": [
+        "OR",
+        "HF"
+      ],
+      "avoid_if_barriers": [
+        "B-C05",
+        "B-F04"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C05 (physical limitations) or B-F04 (outpatient therapy) is a barrier"
+    },
+    {
+      "id": "D-E17",
+      "group": "E",
+      "text": "A routine review of the patient's long-term conditions was completed by the attending physician. No new diagnoses were made and no changes to ongoing management were recommended.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-E18",
+      "group": "E",
+      "text": "A standard discharge checklist was started on day 3 to confirm all routine steps had been completed. All items on the checklist were confirmed as done.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-S06"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-S06 (discharge paperwork pending) is a barrier"
+    },
+    {
+      "id": "D-E19",
+      "group": "E",
+      "text": "A standard social work screening was completed on admission. The patient did not meet the criteria for a social work referral and no further input was needed.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-F03",
+        "B-S01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-F03 (caregiver) or B-S01 (financial) is a barrier"
+    },
+    {
+      "id": "D-E20",
+      "group": "E",
+      "text": "A routine review of the patient's vaccination history was completed. All recommended vaccinations were up to date and no new vaccinations were needed during this stay.",
+      "suitable_conditions": [
+        "CO",
+        "PN"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all barriers"
+    },
+    {
+      "id": "D-F01",
+      "group": "F",
+      "text": "The patient's weight was recorded each morning during the stay. Weight was stable across the last three days, which is an expected sign of successful fluid management.",
+      "suitable_conditions": [
+        "HF"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-F02",
+      "group": "F",
+      "text": "The patient already has a home blood pressure monitor and has been using it correctly for several months. No new equipment or education was needed for self-monitoring.",
+      "suitable_conditions": [
+        "HF"
+      ],
+      "avoid_if_barriers": [
+        "B-E06"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-E06 (medical device education) is a barrier"
+    },
+    {
+      "id": "D-F03",
+      "group": "F",
+      "text": "The patient's ejection fraction was rechecked on day 3 and found to be slightly improved from the admission value. This is a positive finding and does not change the discharge plan.",
+      "suitable_conditions": [
+        "HF"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all HF barriers"
+    },
+    {
+      "id": "D-F04",
+      "group": "F",
+      "text": "The patient demonstrated correct inhaler technique to the nurse on day 3. Technique was confirmed as good and no further inhaler education was needed.",
+      "suitable_conditions": [
+        "CO"
+      ],
+      "avoid_if_barriers": [
+        "B-E06"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-E06 is a barrier"
+    },
+    {
+      "id": "D-F05",
+      "group": "F",
+      "text": "A peak flow reading was taken each morning. The values have consistently been above the patient's personal best and the respiratory team confirmed the patient is at their baseline.",
+      "suitable_conditions": [
+        "CO"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-F06",
+      "group": "F",
+      "text": "The patient mentioned they have a COPD action plan at home that was written by their GP. They confirmed they are familiar with it and know when to seek help.",
+      "suitable_conditions": [
+        "CO"
+      ],
+      "avoid_if_barriers": [
+        "B-E03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-E03 (patient education) is a barrier"
+    },
+    {
+      "id": "D-F07",
+      "group": "F",
+      "text": "The patient completed the full course of antibiotics during the admission. The infectious disease team confirmed no further antibiotic course is needed after discharge.",
+      "suitable_conditions": [
+        "PN"
+      ],
+      "avoid_if_barriers": [
+        "B-C01"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C01 is a barrier"
+    },
+    {
+      "id": "D-F08",
+      "group": "F",
+      "text": "A repeat chest X-ray taken on day 4 shows the pneumonia is clearing as expected. The radiologist confirmed this is consistent with a good recovery.",
+      "suitable_conditions": [
+        "PN"
+      ],
+      "avoid_if_barriers": [
+        "B-C03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C03 (pending imaging) is a barrier"
+    },
+    {
+      "id": "D-F09",
+      "group": "F",
+      "text": "The patient was offered and accepted a pneumococcal vaccine during this admission as a preventive measure for future pneumonia. The vaccine was given on day 3 with no reaction.",
+      "suitable_conditions": [
+        "PN"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all PN barriers"
+    },
+    {
+      "id": "D-F10",
+      "group": "F",
+      "text": "The surgical wound was reviewed by the surgeon on day 3. It is healing well, the sutures are intact, and no signs of infection are present. Standard wound care instructions were given.",
+      "suitable_conditions": [
+        "OR"
+      ],
+      "avoid_if_barriers": [
+        "B-C06"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C06 (wound concern) is a barrier"
+    },
+    {
+      "id": "D-F11",
+      "group": "F",
+      "text": "The patient's post-operative X-ray confirmed the implant is correctly positioned. No further imaging is required before discharge.",
+      "suitable_conditions": [
+        "OR"
+      ],
+      "avoid_if_barriers": [
+        "B-C03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C03 (pending imaging) is a barrier"
+    },
+    {
+      "id": "D-F12",
+      "group": "F",
+      "text": "The anaesthetist reviewed the patient on day 2 as part of post-operative follow-up. No concerns were identified and the anaesthetist confirmed the patient is medically cleared from an anaesthetic perspective.",
+      "suitable_conditions": [
+        "OR"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all OR barriers"
+    },
+    {
+      "id": "D-F13",
+      "group": "F",
+      "text": "The patient's pain levels have been well controlled throughout the stay using standard oral pain relief. No specialist pain team involvement was required.",
+      "suitable_conditions": [
+        "OR"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all OR barriers"
+    },
+    {
+      "id": "D-F14",
+      "group": "F",
+      "text": "The patient's speech was formally assessed on day 2 by the speech and language therapist. It was found to be clear and within normal limits. No ongoing speech therapy is required.",
+      "suitable_conditions": [
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all ST barriers"
+    },
+    {
+      "id": "D-F15",
+      "group": "F",
+      "text": "A brain scan taken on day 3 confirmed no new areas of stroke activity. The neurologist reviewed the images and confirmed the patient is stable.",
+      "suitable_conditions": [
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C03"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C03 (pending imaging) is a barrier"
+    },
+    {
+      "id": "D-F16",
+      "group": "F",
+      "text": "The patient's blood pressure has been consistently controlled throughout the stay with no additional medications needed. The neurologist confirmed this is satisfactory for discharge.",
+      "suitable_conditions": [
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-C07"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-C07 is a barrier"
+    },
+    {
+      "id": "D-F17",
+      "group": "F",
+      "text": "A standard cognition test was completed by the occupational therapist on day 3. The patient scored within the safe range for independent living.",
+      "suitable_conditions": [
+        "ST"
+      ],
+      "avoid_if_barriers": [],
+      "safe_with_all_barriers": true,
+      "avoid_note": "Safe with all ST barriers"
+    },
+    {
+      "id": "D-F18",
+      "group": "F",
+      "text": "A standard nursing handover document was prepared on day 3, summarising the patient's stay for any community nursing team that may be involved after discharge. This was sent to the GP as a courtesy note.",
+      "suitable_conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "avoid_if_barriers": [
+        "B-S06"
+      ],
+      "safe_with_all_barriers": false,
+      "avoid_note": "Do not use if B-S06 (discharge paperwork pending) is a barrier"
+    }
+  ],
+  "quick_lookup": [
+    {
+      "barrier_id": "B-C01",
+      "use_groups": [
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "avoid_groups": [
+        "B"
+      ],
+      "avoid_note": "Group B (medication phrases)"
+    },
+    {
+      "barrier_id": "B-C02",
+      "use_groups": [
+        "B",
+        "C",
+        "D",
+        "F"
+      ],
+      "avoid_groups": [
+        "A"
+      ],
+      "avoid_note": "Group A (test results)"
+    },
+    {
+      "barrier_id": "B-C03",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "avoid_groups": [
+        "F"
+      ],
+      "avoid_note": "Group F for OR/ST (imaging phrases)"
+    },
+    {
+      "barrier_id": "B-C04",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "avoid_groups": [],
+      "avoid_note": "None specific"
+    },
+    {
+      "barrier_id": "B-C05",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      "avoid_groups": [
+        "E"
+      ],
+      "avoid_note": "Group E if it mentions physio clearing patient"
+    },
+    {
+      "barrier_id": "B-C06",
+      "use_groups": [
+        "A",
+        "B",
+        "D",
+        "E"
+      ],
+      "avoid_groups": [
+        "C"
+      ],
+      "avoid_note": "Group C phrases about scars"
+    },
+    {
+      "barrier_id": "B-C07",
+      "use_groups": [
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "avoid_groups": [
+        "A"
+      ],
+      "avoid_note": "Group A (clinical result phrases)"
+    },
+    {
+      "barrier_id": "B-E01",
+      "use_groups": [
+        "A",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "avoid_groups": [
+        "B"
+      ],
+      "avoid_note": "Group B (medication phrases)"
+    },
+    {
+      "barrier_id": "B-E03",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "F"
+      ],
+      "avoid_groups": [
+        "D"
+      ],
+      "avoid_note": "Group D phrases about education sessions"
+    },
+    {
+      "barrier_id": "B-E04",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "F"
+      ],
+      "avoid_groups": [
+        "E"
+      ],
+      "avoid_note": "Group E (nutritional screening phrase)"
+    },
+    {
+      "barrier_id": "B-E05",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "F"
+      ],
+      "avoid_groups": [
+        "D"
+      ],
+      "avoid_note": "Group D (patient uses walking stick phrase)"
+    },
+    {
+      "barrier_id": "B-E06",
+      "use_groups": [
+        "A",
+        "C",
+        "D",
+        "E"
+      ],
+      "avoid_groups": [
+        "B",
+        "F"
+      ],
+      "avoid_note": "Group B (inhaler phrase), Group F HF/CO phrases"
+    },
+    {
+      "barrier_id": "B-F01",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "avoid_groups": [],
+      "avoid_note": "None specific"
+    },
+    {
+      "barrier_id": "B-F03",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "F"
+      ],
+      "avoid_groups": [
+        "D"
+      ],
+      "avoid_note": "Group D (social support phrases)"
+    },
+    {
+      "barrier_id": "B-F05",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "F"
+      ],
+      "avoid_groups": [
+        "E"
+      ],
+      "avoid_note": "Group E (handover document phrase)"
+    },
+    {
+      "barrier_id": "B-S01",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "avoid_groups": [
+        "D"
+      ],
+      "avoid_note": "Group D (cost concern resolved phrase)"
+    },
+    {
+      "barrier_id": "B-S02",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "F"
+      ],
+      "avoid_groups": [
+        "D"
+      ],
+      "avoid_note": "Group D (transport / daughter driving phrases)"
+    },
+    {
+      "barrier_id": "B-S07",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "F"
+      ],
+      "avoid_groups": [
+        "D"
+      ],
+      "avoid_note": "Group D (discharge time preference phrase)"
+    },
+    {
+      "barrier_id": "B-S03",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "E",
+        "F"
+      ],
+      "avoid_groups": [
+        "D"
+      ],
+      "avoid_note": "Group D (lives alone / home phrases)"
+    },
+    {
+      "barrier_id": "B-S06",
+      "use_groups": [
+        "A",
+        "B",
+        "C",
+        "D",
+        "E"
+      ],
+      "avoid_groups": [
+        "E",
+        "F"
+      ],
+      "avoid_note": "Group E (discharge checklist phrase), Group F (handover phrase)"
+    },
+    {
+      "barrier_id": "B-E07",
+      "use_groups": [
+        "C",
+        "D",
+        "E",
+        "F"
+      ],
+      "avoid_groups": [
+        "B"
+      ],
+      "avoid_note": "Group B (medication phrases)"
+    }
+  ]
+}
