@@ -1,0 +1,13 @@
+# Config build (scripts/build_config.py)
+python-docx>=1.1
+
+# Data models and input/audit schema validation
+pydantic>=2.0
+jsonschema>=4.0
+
+# LLM components: Claude Haiku 5.5 (B2 baseline and LLM pipeline stages)
+anthropic>=1.0
+python-dotenv>=1.0
+
+# Tests
+pytest>=7.0
