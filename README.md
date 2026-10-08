@@ -106,7 +106,7 @@ The system is structured as an 8-stage pipeline with strict deterministic govern
 
 ### Experimental Baselines
 1. **Baseline 1 (B1 - Rule-Based):** Static, hard-coded checklist performing field validation without semantic reasoning.
-2. **Baseline 2 (B2 - Single-Prompt LLM):** Zero-shot LLM operating without external tool access, policy enforcement, or approval gates.
+2. **Baseline 2 (B2 - Single-Prompt LLM):** Zero-shot LLM (Claude Haiku 5.5) operating without external tool access, policy enforcement, or approval gates.
 
 ---
 
@@ -131,6 +131,8 @@ agentic_discharge_coordinator/
 │   ├── tools/                       # Mock allowed (GA-T*) and forbidden (GF-T*) tools
 │   └── utils/                       # Append-only JSONL logger
 ├── baselines/                       # Implementation of B1 and B2 baselines
+├── scripts/
+│   └── build_config.py              # Builds config/*.json from the source .docx files
 ├── evaluation/                      # Evaluation suite and hypothesis metric scripts
 └── tests/                           # Unit tests for policy layer & pipeline stages
 ```
@@ -163,10 +165,23 @@ agentic_discharge_coordinator/
    ```
 
 4. **Environment Setup:**
-   Create a `.env` file in the root directory and set your API keys if running LLM components:
+   Create a `.env` file in the root directory and set your Anthropic API key if running LLM components. All LLM stages and Baseline 2 use Claude Haiku 5.5:
    ```env
-   OPENAI_API_KEY=your_api_key_here
+   ANTHROPIC_API_KEY=your_api_key_here
+   CLAUDE_MODEL=claude-haiku-5-5
    ```
+
+---
+
+## 🛠️ Building the Config Files
+
+`config/taxonomy.json` and `config/distractors.json` are generated from the team's source Word documents. Do not edit the JSON by hand; update the `.docx` sources and rebuild:
+
+```bash
+python scripts/build_config.py <taxonomy.docx> <distractors.docx> config/
+```
+
+The script checks ID integrity (no duplicates, every task resolves a known barrier, every distractor references a valid barrier) and prints the entry counts plus any corrections it applied to the source.
 
 ---
 
