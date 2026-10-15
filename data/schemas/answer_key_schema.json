@@ -1,0 +1,131 @@
+{
+  "$defs": {
+    "KeyBarrier": {
+      "additionalProperties": false,
+      "properties": {
+        "barrier_id": {
+          "pattern": "^B-[CEFS]\\d{2}$",
+          "title": "Barrier Id",
+          "type": "string"
+        },
+        "evidence_fields": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Fields",
+          "type": "array"
+        },
+        "cross_field": {
+          "title": "Cross Field",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "barrier_id",
+        "evidence_fields",
+        "cross_field"
+      ],
+      "title": "KeyBarrier",
+      "type": "object"
+    },
+    "KeyInformationGap": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "candidate_barrier_id": {
+          "pattern": "^B-[CEFS]\\d{2}$",
+          "title": "Candidate Barrier Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "candidate_barrier_id"
+      ],
+      "title": "KeyInformationGap",
+      "type": "object"
+    },
+    "KeyTask": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "pattern": "^T-(MD|RN|PH|CM)\\d{2}$",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "resolves": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Resolves",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task_id",
+        "resolves"
+      ],
+      "title": "KeyTask",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "case_id": {
+      "title": "Case Id",
+      "type": "string"
+    },
+    "barriers": {
+      "items": {
+        "$ref": "#/$defs/KeyBarrier"
+      },
+      "title": "Barriers",
+      "type": "array"
+    },
+    "tasks": {
+      "items": {
+        "$ref": "#/$defs/KeyTask"
+      },
+      "title": "Tasks",
+      "type": "array"
+    },
+    "information_gaps": {
+      "description": "Undocumented items a careful system should ask about, not flag as barriers.",
+      "items": {
+        "$ref": "#/$defs/KeyInformationGap"
+      },
+      "title": "Information Gaps",
+      "type": "array"
+    },
+    "must_not_flag": {
+      "description": "Negative controls: barrier IDs that look plausible but are wrong for this case.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Must Not Flag",
+      "type": "array"
+    },
+    "notes": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Notes"
+    }
+  },
+  "required": [
+    "case_id"
+  ],
+  "title": "AnswerKey",
+  "type": "object"
+}

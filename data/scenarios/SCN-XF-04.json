@@ -1,0 +1,126 @@
+{
+  "scenario_id": "SCN-XF-04",
+  "purpose": "Medication teaching is documented as complete, but a later note shows the dose changed after teaching.",
+  "case": {
+    "case_id": "SCN-XF-04",
+    "condition": "HF",
+    "difficulty": "medium",
+    "planned_discharge_window": {
+      "start": "2026-03-09T16:00:00-05:00",
+      "end": "2026-03-09T18:00:00-05:00"
+    },
+    "tracked_fields": {
+      "caregiver_status": {
+        "status": "complete"
+      },
+      "case_manager_status": {
+        "status": "complete"
+      },
+      "diet_education_status": {
+        "status": "complete"
+      },
+      "discharge_summary_status": {
+        "status": "complete"
+      },
+      "financial_status": {
+        "status": "complete"
+      },
+      "followup_appointment_status": {
+        "status": "complete",
+        "detail": "PCP visit booked",
+        "scheduled_for": "2026-03-14T10:00:00-05:00"
+      },
+      "home_health_referral_status": {
+        "status": "not_applicable"
+      },
+      "home_safety_status": {
+        "status": "complete"
+      },
+      "insurance_authorization_status": {
+        "status": "complete"
+      },
+      "medical_device_education_status": {
+        "status": "not_applicable"
+      },
+      "medical_stability_status": {
+        "status": "complete"
+      },
+      "medication_availability_status": {
+        "status": "complete"
+      },
+      "medication_education_status": {
+        "status": "complete",
+        "detail": "Teach-back completed for discharge medication list",
+        "documented_at": "2026-03-09T10:00:00-05:00"
+      },
+      "medication_reconciliation_status": {
+        "status": "complete"
+      },
+      "mobile_device_education_status": {
+        "status": "not_applicable"
+      },
+      "outpatient_therapy_status": {
+        "status": "not_applicable"
+      },
+      "oxygen_requirement": {
+        "status": "not_applicable"
+      },
+      "patient_education_status": {
+        "status": "complete"
+      },
+      "pcp_notification_status": {
+        "status": "complete"
+      },
+      "pending_consult": {
+        "status": "complete"
+      },
+      "pending_imaging": {
+        "status": "complete"
+      },
+      "pending_labs": {
+        "status": "complete"
+      },
+      "physical_function_status": {
+        "status": "complete"
+      },
+      "return_precautions_documented": {
+        "status": "complete"
+      },
+      "transport_status": {
+        "status": "complete",
+        "detail": "Son to drive patient home",
+        "window": {
+          "start": "2026-03-09T09:30:00-05:00",
+          "end": "2026-03-09T10:30:00-05:00"
+        }
+      },
+      "wound_status": {
+        "status": "not_applicable"
+      }
+    },
+    "free_text_notes": {
+      "case_manager_note": "3/9 15:30: Furosemide increased from 20 mg to 40 mg daily on afternoon rounds. Patient and wife not yet told of the change."
+    }
+  },
+  "answer_key": {
+    "case_id": "SCN-XF-04",
+    "barriers": [
+      {
+        "barrier_id": "B-E07",
+        "evidence_fields": [
+          "tracked_fields.medication_education_status",
+          "free_text_notes.case_manager_note"
+        ],
+        "cross_field": true
+      }
+    ],
+    "tasks": [
+      {
+        "task_id": "T-MD07",
+        "resolves": [
+          "B-E07"
+        ]
+      }
+    ]
+  }
+}

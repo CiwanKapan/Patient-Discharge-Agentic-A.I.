@@ -1,0 +1,242 @@
+{
+  "$defs": {
+    "BarrierDetection": {
+      "additionalProperties": false,
+      "properties": {
+        "barriers": {
+          "items": {
+            "$ref": "#/$defs/BarrierFinding"
+          },
+          "title": "Barriers",
+          "type": "array"
+        },
+        "information_gaps": {
+          "items": {
+            "$ref": "#/$defs/InformationGap"
+          },
+          "title": "Information Gaps",
+          "type": "array"
+        }
+      },
+      "title": "BarrierDetection",
+      "type": "object"
+    },
+    "BarrierFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "barrier_id": {
+          "pattern": "^B-[CEFS]\\d{2}$",
+          "title": "Barrier Id",
+          "type": "string"
+        },
+        "urgency": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Urgency",
+          "type": "string"
+        },
+        "cross_field": {
+          "description": "True when the barrier only exists because of how two or more facts relate (e.g. transport window vs discharge window).",
+          "title": "Cross Field",
+          "type": "boolean"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "barrier_id",
+        "urgency",
+        "cross_field",
+        "evidence",
+        "rationale"
+      ],
+      "title": "BarrierFinding",
+      "type": "object"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "description": "A pointer into the case that supports a finding.\n\n``field`` is a dotted path into PatientCase, e.g.\n``tracked_fields.transport_status``, ``planned_discharge_window`` or\n``free_text_notes.case_manager_note``.",
+      "properties": {
+        "field": {
+          "pattern": "^(tracked_fields\\.[a-z_]+|planned_discharge_window|free_text_notes\\.[a-z_]+)$",
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FieldStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Verbatim chart text or value relied on.",
+          "title": "Quote"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "EvidenceRef",
+      "type": "object"
+    },
+    "FieldStatus": {
+      "enum": [
+        "complete",
+        "in_progress",
+        "not_started",
+        "not_applicable",
+        "unknown"
+      ],
+      "title": "FieldStatus",
+      "type": "string"
+    },
+    "InformationGap": {
+      "additionalProperties": false,
+      "description": "Information needed to rule a barrier in or out is not documented.\n\nThis is NOT a barrier. It is scored separately and turns into a\nverification action rather than a discharge-blocking finding.",
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "candidate_barrier_id": {
+          "pattern": "^B-[CEFS]\\d{2}$",
+          "title": "Candidate Barrier Id",
+          "type": "string"
+        },
+        "question": {
+          "description": "What a human should confirm, e.g. 'Is a follow-up booked?'",
+          "title": "Question",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "candidate_barrier_id",
+        "question"
+      ],
+      "title": "InformationGap",
+      "type": "object"
+    },
+    "Stage": {
+      "enum": [
+        "01_input_reader",
+        "02_case_analyzer",
+        "03_barrier_detector",
+        "04_task_detector",
+        "05_rec_generator",
+        "06_approval_gate",
+        "07_policy_layer",
+        "08_output_composer"
+      ],
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "message_id": {
+      "title": "Message Id",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "case_id": {
+      "title": "Case Id",
+      "type": "string"
+    },
+    "stage": {
+      "$ref": "#/$defs/Stage"
+    },
+    "produced_at": {
+      "format": "date-time",
+      "title": "Produced At",
+      "type": "string"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Model id for LLM stages, null for deterministic code.",
+      "title": "Model"
+    },
+    "prompt_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Version"
+    },
+    "upstream": {
+      "description": "message_ids this message was built from.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Upstream",
+      "type": "array"
+    },
+    "payload": {
+      "$ref": "#/$defs/BarrierDetection"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "run_id",
+    "case_id",
+    "stage",
+    "payload"
+  ],
+  "title": "AgentMessage[BarrierDetection]",
+  "type": "object"
+}

@@ -1,0 +1,110 @@
+{
+  "scenario_id": "SCN-XF-NEG-02",
+  "purpose": "Negative control: a note mentions a cancelled early pickup, but the rebooked pickup fits the discharge window.",
+  "case": {
+    "case_id": "SCN-XF-NEG-02",
+    "condition": "HF",
+    "difficulty": "medium",
+    "planned_discharge_window": {
+      "start": "2026-03-09T15:00:00-05:00",
+      "end": "2026-03-09T17:00:00-05:00"
+    },
+    "tracked_fields": {
+      "caregiver_status": {
+        "status": "complete"
+      },
+      "case_manager_status": {
+        "status": "complete"
+      },
+      "diet_education_status": {
+        "status": "complete"
+      },
+      "discharge_summary_status": {
+        "status": "complete"
+      },
+      "financial_status": {
+        "status": "complete"
+      },
+      "followup_appointment_status": {
+        "status": "complete",
+        "detail": "PCP visit booked",
+        "scheduled_for": "2026-03-14T10:00:00-05:00"
+      },
+      "home_health_referral_status": {
+        "status": "not_applicable"
+      },
+      "home_safety_status": {
+        "status": "complete"
+      },
+      "insurance_authorization_status": {
+        "status": "complete"
+      },
+      "medical_device_education_status": {
+        "status": "not_applicable"
+      },
+      "medical_stability_status": {
+        "status": "complete"
+      },
+      "medication_availability_status": {
+        "status": "complete"
+      },
+      "medication_education_status": {
+        "status": "complete"
+      },
+      "medication_reconciliation_status": {
+        "status": "complete"
+      },
+      "mobile_device_education_status": {
+        "status": "not_applicable"
+      },
+      "outpatient_therapy_status": {
+        "status": "not_applicable"
+      },
+      "oxygen_requirement": {
+        "status": "not_applicable"
+      },
+      "patient_education_status": {
+        "status": "complete"
+      },
+      "pcp_notification_status": {
+        "status": "complete"
+      },
+      "pending_consult": {
+        "status": "complete"
+      },
+      "pending_imaging": {
+        "status": "complete"
+      },
+      "pending_labs": {
+        "status": "complete"
+      },
+      "physical_function_status": {
+        "status": "complete"
+      },
+      "return_precautions_documented": {
+        "status": "complete"
+      },
+      "transport_status": {
+        "status": "complete",
+        "detail": "Pickup rebooked for 16:00",
+        "window": {
+          "start": "2026-03-09T16:00:00-05:00",
+          "end": "2026-03-09T17:00:00-05:00"
+        }
+      },
+      "wound_status": {
+        "status": "not_applicable"
+      }
+    },
+    "free_text_notes": {
+      "case_manager_note": "Original 08:00 pickup cancelled; rebooked for 16:00 to match the afternoon discharge."
+    }
+  },
+  "answer_key": {
+    "case_id": "SCN-XF-NEG-02",
+    "must_not_flag": [
+      "B-S07",
+      "B-S02"
+    ]
+  }
+}

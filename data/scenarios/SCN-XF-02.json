@@ -1,0 +1,122 @@
+{
+  "scenario_id": "SCN-XF-02",
+  "purpose": "Pickup and discharge share the same clock times but fall on different days.",
+  "case": {
+    "case_id": "SCN-XF-02",
+    "condition": "OR",
+    "difficulty": "medium",
+    "planned_discharge_window": {
+      "start": "2026-03-09T10:00:00-05:00",
+      "end": "2026-03-09T12:00:00-05:00"
+    },
+    "tracked_fields": {
+      "caregiver_status": {
+        "status": "complete"
+      },
+      "case_manager_status": {
+        "status": "complete"
+      },
+      "diet_education_status": {
+        "status": "complete"
+      },
+      "discharge_summary_status": {
+        "status": "complete"
+      },
+      "financial_status": {
+        "status": "complete"
+      },
+      "followup_appointment_status": {
+        "status": "complete",
+        "detail": "PCP visit booked",
+        "scheduled_for": "2026-03-14T10:00:00-05:00"
+      },
+      "home_health_referral_status": {
+        "status": "not_applicable"
+      },
+      "home_safety_status": {
+        "status": "complete"
+      },
+      "insurance_authorization_status": {
+        "status": "complete"
+      },
+      "medical_device_education_status": {
+        "status": "not_applicable"
+      },
+      "medical_stability_status": {
+        "status": "complete"
+      },
+      "medication_availability_status": {
+        "status": "complete"
+      },
+      "medication_education_status": {
+        "status": "complete"
+      },
+      "medication_reconciliation_status": {
+        "status": "complete"
+      },
+      "mobile_device_education_status": {
+        "status": "complete"
+      },
+      "outpatient_therapy_status": {
+        "status": "complete"
+      },
+      "oxygen_requirement": {
+        "status": "not_applicable"
+      },
+      "patient_education_status": {
+        "status": "complete"
+      },
+      "pcp_notification_status": {
+        "status": "complete"
+      },
+      "pending_consult": {
+        "status": "complete"
+      },
+      "pending_imaging": {
+        "status": "complete"
+      },
+      "pending_labs": {
+        "status": "complete"
+      },
+      "physical_function_status": {
+        "status": "complete"
+      },
+      "return_precautions_documented": {
+        "status": "complete"
+      },
+      "transport_status": {
+        "status": "complete",
+        "detail": "Daughter will drive patient home",
+        "window": {
+          "start": "2026-03-10T10:00:00-05:00",
+          "end": "2026-03-10T12:00:00-05:00"
+        }
+      },
+      "wound_status": {
+        "status": "complete"
+      }
+    }
+  },
+  "answer_key": {
+    "case_id": "SCN-XF-02",
+    "barriers": [
+      {
+        "barrier_id": "B-S07",
+        "evidence_fields": [
+          "tracked_fields.transport_status",
+          "planned_discharge_window"
+        ],
+        "cross_field": true
+      }
+    ],
+    "tasks": [
+      {
+        "task_id": "T-CM04",
+        "resolves": [
+          "B-S07"
+        ]
+      }
+    ],
+    "notes": "Same 10:00-12:00 times; transport is booked for the following day."
+  }
+}

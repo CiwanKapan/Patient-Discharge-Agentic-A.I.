@@ -81,13 +81,76 @@ The system is structured as an 8-stage pipeline with strict deterministic govern
 | # | Module | Input | Output | Safety & Governance Role | Type |
 |---|---|---|---|---|---|
 | 1 | **Input Reader** | Raw Case JSON | Validated Object | Schema validation; fails loudly on malformed data. | Deterministic Code |
-| 2 | **Case Analyzer** | Parsed Case | Situation Summary | Prevents premature conclusions via structured context. | LLM Reasoning |
-| 3 | **Barrier Detector** | Summary | Grounded Barriers | Links every flagged barrier directly to case evidence. | LLM Reasoning |
-| 4 | **Task Detector** | Summary | Grounded Tasks | Identifies pending clinical/logistical obligations. | LLM Reasoning |
+| 2 | **Case Analyzer** | Parsed Case | `AgentMessage[CaseSummary]` | Prevents premature conclusions via structured context. | LLM Reasoning |
+| 3 | **Barrier Detector** | `CaseSummary` | `AgentMessage[BarrierDetection]` | Links every flagged barrier directly to case evidence. | LLM Reasoning |
+| 4 | **Task Detector** | `CaseSummary` + `BarrierDetection` | `AgentMessage[TaskDetection]` | Identifies pending clinical/logistical obligations. | LLM Reasoning |
 | 5 | **Rec. Generator** | Barriers & Tasks | Prioritized Actions | Ranks urgent vs. routine recommended next steps. | LLM Reasoning |
 | 6 | **Approval Gate** | Proposed Actions | Safety Classification | Deterministically tags: `auto_safe`, `requires_human_approval`, `forbidden`. | Deterministic Code |
 | 7 | **Policy Layer** | Proposed Tool Calls | Allowed / Denied | Intercepts forbidden EHR tools (e.g., ordering meds). | Deterministic Code |
 | 8 | **Audit Logger** | All Pipeline Events | JSONL Event Trace | Ensures end-to-end traceability and reproducibility (`AU-01` to `AU-08`). | Deterministic Code |
+
+### Inter-Agent Message Contract
+
+Every stage hands off the same envelope, `AgentMessage`, defined in `src/models/messages.py`. Only the `payload` type changes between stages. This keeps integration and troubleshooting uniform: any output can be traced to the run, stage, model, prompt version, and upstream messages that produced it.
+
+| Envelope field | Purpose |
+|---|---|
+| `schema_version` | Contract version (currently `1.0`). |
+| `message_id`, `upstream` | This message's ID and the IDs of the messages it was built from. |
+| `run_id`, `case_id`, `stage` | Which run, case, and pipeline stage produced it. The stage must match the payload type. |
+| `model`, `prompt_version` | Set for LLM stages, `null` for deterministic code. |
+| `payload` | `CaseSummary`, `BarrierDetection`, or `TaskDetection`. |
+| `warnings` | Non-fatal issues raised by the stage. |
+
+Contract rules:
+- **Every finding cites evidence.** Each barrier and task carries `evidence` entries that point at a case path, such as `tracked_fields.transport_status` or `free_text_notes.case_manager_note`.
+- **Cross-field barriers cite two or more fields.** A barrier marked `cross_field: true` is rejected unless it points at at least two distinct fields.
+- **Taxonomy checks.** `check_against_taxonomy()` confirms IDs exist and fit the condition, that `cross_field` matches the taxonomy, and that each task resolves a barrier that was actually flagged.
+- **No silent repair.** LLM output that fails validation is rejected and logged.
+
+The Pydantic models are the source of truth. JSON Schemas in `data/schemas/` are generated from them with `python scripts/export_schemas.py`, and a test fails if the committed schemas are out of date.
+
+### Missing Information vs. Incomplete Tasks
+
+The case schema separates "documented as not done" from "not documented". Each tracked field in `tracked_fields` has an explicit `status`:
+
+| Status | Meaning | Reading | Result |
+|---|---|---|---|
+| `complete` | Documented as done | satisfied | No barrier |
+| `not_applicable` | Documented as not needed | satisfied | No barrier |
+| `in_progress` | Started, not finished | incomplete | Barrier |
+| `not_started` | Documented as not done | incomplete | Barrier |
+| `unknown` or field omitted | The chart says nothing reliable | missing | **Information gap** |
+
+An information gap is reported in `BarrierDetection.information_gaps`, not in `barriers`. It names the field, the barrier it *could* indicate, and the question a human should confirm. It becomes a verification action rather than a discharge barrier. For example, a follow-up appointment that is not documented is an information gap for `B-F01`. A follow-up documented as `not_started` is the `B-F01` barrier itself.
+
+Answer keys mirror this split with `information_gaps` and a `must_not_flag` list of negative controls. Flagging a barrier where the key expects an information gap is counted as a **gap misflag**, a false positive reported separately in the metrics.
+
+### Cross-Field Evaluation Scenarios
+
+Some barriers only appear when fields are read together. `B-S07` (transport timing conflict) is the clearest case: transport is arranged and every field looks fine on its own, but the pickup window does not overlap the planned discharge window. Time-bound items carry a `window`, and the case carries a top-level `planned_discharge_window`, so these relationships can be checked.
+
+`data/scenarios/` holds small hand-built cases with answer keys that isolate this reasoning:
+
+| Scenario | What it tests | Expected |
+|---|---|---|
+| `SCN-XF-01` | Van booked for the evening, discharge planned for the morning | `B-S07` |
+| `SCN-XF-02` | Same clock times, but pickup is booked for the next day | `B-S07` |
+| `SCN-XF-03` | Caregiver driver is only available in the evening | `B-S07` |
+| `SCN-XF-04` | Teaching documented complete, then a later note shows a dose change | `B-E07` |
+| `SCN-XF-NEG-01` | Pickup window sits inside the discharge window | No barrier (negative control) |
+| `SCN-XF-NEG-02` | Note mentions a cancelled early pickup, rebooked pickup fits | No barrier (negative control) |
+| `SCN-MI-01` | Transport arranged, but no pickup time documented | Information gap for `B-S07` |
+| `SCN-MI-02` | Follow-up appointment not documented | Information gap for `B-F01` |
+| `SCN-MI-03` | Follow-up documented as not booked | `B-F01` |
+| `SCN-MI-04` | Lab status explicitly marked unknown | Information gap for `B-C02` |
+
+`tests/test_scenarios.py` verifies each answer key against deterministic field readings. It confirms that every field cited by a cross-field barrier reads as satisfied on its own, so the barrier can only be found by comparing fields. `evaluation/metrics.py` reports these slices next to overall precision and recall:
+
+- **`cross_field_recall`** is recall on barriers that need two or more fields read together.
+- **`information_gap_recall`** is how many undocumented items the system asked about instead of ignoring.
+- **`gap_misflags`** counts barriers flagged where the information was only missing.
+- **`negative_control_hits`** counts flags on barriers listed in `must_not_flag`.
 
 ---
 
@@ -120,19 +183,24 @@ agentic_discharge_coordinator/
 │   ├── taxonomy.json                # Closed taxonomy (Barriers, Tasks, Governance IDs)
 │   └── distractors.json             # Distractor phrase reference repository
 ├── data/
-│   ├── schemas/
+│   ├── schemas/                     # Generated from src/models (scripts/export_schemas.py)
 │   │   ├── patient_case_schema.json # JSON Schema for input validation
+│   │   ├── answer_key_schema.json   # Gold-standard answer key format
+│   │   ├── scenario_schema.json     # Targeted scenario (case + key) format
+│   │   ├── messages/                # Inter-agent message schemas (stages 02-04)
 │   │   └── audit_log_schema.json   # Schema for JSONL audit events
+│   ├── scenarios/                   # Targeted cross-field and missing-info scenarios
 │   ├── synthetic_cases/             # Stratified dataset (160 cases)
 │   └── answer_keys/                 # Gold-standard evaluation mappings
 ├── src/
-│   ├── models/                      # Pydantic data models (Case, Audit)
+│   ├── models/                      # Pydantic models: case, inter-agent messages, answer keys, audit
 │   ├── pipeline/                    # Pipeline modules 01 through 08
 │   ├── tools/                       # Mock allowed (GA-T*) and forbidden (GF-T*) tools
-│   └── utils/                       # Append-only JSONL logger
+│   └── utils/                       # Append-only JSONL logger, deterministic case checks
 ├── baselines/                       # Implementation of B1 and B2 baselines
 ├── scripts/
-│   └── build_config.py              # Builds config/*.json from the source .docx files
+│   ├── build_config.py              # Builds config/*.json from the source .docx files
+│   └── export_schemas.py            # Regenerates data/schemas/*.json from src/models
 ├── evaluation/                      # Evaluation suite and hypothesis metric scripts
 └── tests/                           # Unit tests for policy layer & pipeline stages
 ```
@@ -188,7 +256,7 @@ The script checks ID integrity (no duplicates, every task resolves a known barri
 ## 🧪 Running Evaluations & Tests
 
 ### Run Pipeline Tests
-Execute the pytest suite to verify governance gates, policy interception, and component validation:
+Execute the pytest suite to verify governance gates, policy interception, component validation, the inter-agent contracts, and the targeted scenarios:
 ```bash
 pytest tests/
 ```

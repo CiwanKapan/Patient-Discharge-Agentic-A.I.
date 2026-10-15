@@ -1,0 +1,683 @@
+{
+  "$defs": {
+    "AnswerKey": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "barriers": {
+          "items": {
+            "$ref": "#/$defs/KeyBarrier"
+          },
+          "title": "Barriers",
+          "type": "array"
+        },
+        "tasks": {
+          "items": {
+            "$ref": "#/$defs/KeyTask"
+          },
+          "title": "Tasks",
+          "type": "array"
+        },
+        "information_gaps": {
+          "description": "Undocumented items a careful system should ask about, not flag as barriers.",
+          "items": {
+            "$ref": "#/$defs/KeyInformationGap"
+          },
+          "title": "Information Gaps",
+          "type": "array"
+        },
+        "must_not_flag": {
+          "description": "Negative controls: barrier IDs that look plausible but are wrong for this case.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Must Not Flag",
+          "type": "array"
+        },
+        "notes": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Notes"
+        }
+      },
+      "required": [
+        "case_id"
+      ],
+      "title": "AnswerKey",
+      "type": "object"
+    },
+    "FieldStatus": {
+      "enum": [
+        "complete",
+        "in_progress",
+        "not_started",
+        "not_applicable",
+        "unknown"
+      ],
+      "title": "FieldStatus",
+      "type": "string"
+    },
+    "FreeTextNotes": {
+      "additionalProperties": false,
+      "properties": {
+        "case_manager_note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Case Manager Note"
+        },
+        "nursing_note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Nursing Note"
+        },
+        "physician_note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Physician Note"
+        }
+      },
+      "title": "FreeTextNotes",
+      "type": "object"
+    },
+    "KeyBarrier": {
+      "additionalProperties": false,
+      "properties": {
+        "barrier_id": {
+          "pattern": "^B-[CEFS]\\d{2}$",
+          "title": "Barrier Id",
+          "type": "string"
+        },
+        "evidence_fields": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Fields",
+          "type": "array"
+        },
+        "cross_field": {
+          "title": "Cross Field",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "barrier_id",
+        "evidence_fields",
+        "cross_field"
+      ],
+      "title": "KeyBarrier",
+      "type": "object"
+    },
+    "KeyInformationGap": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "candidate_barrier_id": {
+          "pattern": "^B-[CEFS]\\d{2}$",
+          "title": "Candidate Barrier Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "candidate_barrier_id"
+      ],
+      "title": "KeyInformationGap",
+      "type": "object"
+    },
+    "KeyTask": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "pattern": "^T-(MD|RN|PH|CM)\\d{2}$",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "resolves": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Resolves",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task_id",
+        "resolves"
+      ],
+      "title": "KeyTask",
+      "type": "object"
+    },
+    "PatientCase": {
+      "additionalProperties": false,
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "condition": {
+          "enum": [
+            "HF",
+            "CO",
+            "PN",
+            "OR",
+            "ST"
+          ],
+          "title": "Condition",
+          "type": "string"
+        },
+        "difficulty": {
+          "enum": [
+            "easy",
+            "medium",
+            "hard"
+          ],
+          "title": "Difficulty",
+          "type": "string"
+        },
+        "planned_discharge_window": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimeWindow"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "When discharge is planned. Absent means unknown."
+        },
+        "tracked_fields": {
+          "$ref": "#/$defs/TrackedFields"
+        },
+        "free_text_notes": {
+          "$ref": "#/$defs/FreeTextNotes"
+        },
+        "distractors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Distractors",
+          "type": "array"
+        },
+        "policy_context": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Context"
+        }
+      },
+      "required": [
+        "case_id",
+        "condition",
+        "difficulty",
+        "tracked_fields"
+      ],
+      "title": "PatientCase",
+      "type": "object"
+    },
+    "TimeWindow": {
+      "additionalProperties": false,
+      "description": "A closed time interval, e.g. a discharge window or a pickup window.",
+      "properties": {
+        "start": {
+          "format": "date-time",
+          "title": "Start",
+          "type": "string"
+        },
+        "end": {
+          "format": "date-time",
+          "title": "End",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "TimeWindow",
+      "type": "object"
+    },
+    "TrackedField": {
+      "additionalProperties": false,
+      "description": "One discharge item as documented in the chart.",
+      "properties": {
+        "status": {
+          "$ref": "#/$defs/FieldStatus"
+        },
+        "detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Chart text describing the item.",
+          "title": "Detail"
+        },
+        "source": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Where it was documented, e.g. 'nursing_flowsheet'.",
+          "title": "Source"
+        },
+        "documented_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Documented At"
+        },
+        "window": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimeWindow"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Availability window for time-bound arrangements (transport pickup, caregiver availability). Needed for timing checks."
+        },
+        "scheduled_for": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Date/time of a scheduled item, e.g. a follow-up appointment.",
+          "title": "Scheduled For"
+        }
+      },
+      "required": [
+        "status"
+      ],
+      "title": "TrackedField",
+      "type": "object"
+    },
+    "TrackedFields": {
+      "additionalProperties": false,
+      "description": "All tracked discharge items. An omitted field is read as status 'unknown'.",
+      "properties": {
+        "caregiver_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "case_manager_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "diet_education_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "discharge_summary_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "financial_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "followup_appointment_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "home_health_referral_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "home_safety_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "insurance_authorization_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "medical_device_education_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "medical_stability_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "medication_availability_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "medication_education_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "medication_reconciliation_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "mobile_device_education_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "outpatient_therapy_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "oxygen_requirement": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "patient_education_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "pcp_notification_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "pending_consult": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "pending_imaging": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "pending_labs": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "physical_function_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "return_precautions_documented": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "transport_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "wound_status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TrackedField"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "title": "TrackedFields",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A small, hand-built case + key that isolates one reasoning skill.",
+  "properties": {
+    "scenario_id": {
+      "title": "Scenario Id",
+      "type": "string"
+    },
+    "purpose": {
+      "title": "Purpose",
+      "type": "string"
+    },
+    "case": {
+      "$ref": "#/$defs/PatientCase"
+    },
+    "answer_key": {
+      "$ref": "#/$defs/AnswerKey"
+    }
+  },
+  "required": [
+    "scenario_id",
+    "purpose",
+    "case",
+    "answer_key"
+  ],
+  "title": "Scenario",
+  "type": "object"
+}

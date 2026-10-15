@@ -1,0 +1,276 @@
+{
+  "$defs": {
+    "CaseSummary": {
+      "additionalProperties": false,
+      "properties": {
+        "clinical_summary": {
+          "title": "Clinical Summary",
+          "type": "string"
+        },
+        "social_summary": {
+          "title": "Social Summary",
+          "type": "string"
+        },
+        "field_snapshots": {
+          "items": {
+            "$ref": "#/$defs/FieldSnapshot"
+          },
+          "title": "Field Snapshots",
+          "type": "array"
+        },
+        "time_constraints": {
+          "items": {
+            "$ref": "#/$defs/TimeConstraint"
+          },
+          "title": "Time Constraints",
+          "type": "array"
+        },
+        "notes_of_interest": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "title": "Notes Of Interest",
+          "type": "array"
+        }
+      },
+      "required": [
+        "clinical_summary",
+        "social_summary",
+        "field_snapshots"
+      ],
+      "title": "CaseSummary",
+      "type": "object"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "description": "A pointer into the case that supports a finding.\n\n``field`` is a dotted path into PatientCase, e.g.\n``tracked_fields.transport_status``, ``planned_discharge_window`` or\n``free_text_notes.case_manager_note``.",
+      "properties": {
+        "field": {
+          "pattern": "^(tracked_fields\\.[a-z_]+|planned_discharge_window|free_text_notes\\.[a-z_]+)$",
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FieldStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Verbatim chart text or value relied on.",
+          "title": "Quote"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "EvidenceRef",
+      "type": "object"
+    },
+    "FieldReading": {
+      "description": "How a single field should be read before any cross-field reasoning.",
+      "enum": [
+        "satisfied",
+        "incomplete",
+        "missing"
+      ],
+      "title": "FieldReading",
+      "type": "string"
+    },
+    "FieldSnapshot": {
+      "additionalProperties": false,
+      "description": "Single-field reading computed deterministically from the case.",
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/$defs/FieldStatus"
+        },
+        "reading": {
+          "$ref": "#/$defs/FieldReading"
+        }
+      },
+      "required": [
+        "field",
+        "status",
+        "reading"
+      ],
+      "title": "FieldSnapshot",
+      "type": "object"
+    },
+    "FieldStatus": {
+      "enum": [
+        "complete",
+        "in_progress",
+        "not_started",
+        "not_applicable",
+        "unknown"
+      ],
+      "title": "FieldStatus",
+      "type": "string"
+    },
+    "Stage": {
+      "enum": [
+        "01_input_reader",
+        "02_case_analyzer",
+        "03_barrier_detector",
+        "04_task_detector",
+        "05_rec_generator",
+        "06_approval_gate",
+        "07_policy_layer",
+        "08_output_composer"
+      ],
+      "title": "Stage",
+      "type": "string"
+    },
+    "TimeConstraint": {
+      "additionalProperties": false,
+      "description": "Any documented time window, surfaced so later stages can compare them.",
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "window": {
+          "$ref": "#/$defs/TimeWindow"
+        },
+        "note": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Note"
+        }
+      },
+      "required": [
+        "field",
+        "window"
+      ],
+      "title": "TimeConstraint",
+      "type": "object"
+    },
+    "TimeWindow": {
+      "additionalProperties": false,
+      "description": "A closed time interval, e.g. a discharge window or a pickup window.",
+      "properties": {
+        "start": {
+          "format": "date-time",
+          "title": "Start",
+          "type": "string"
+        },
+        "end": {
+          "format": "date-time",
+          "title": "End",
+          "type": "string"
+        }
+      },
+      "required": [
+        "start",
+        "end"
+      ],
+      "title": "TimeWindow",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "message_id": {
+      "title": "Message Id",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "case_id": {
+      "title": "Case Id",
+      "type": "string"
+    },
+    "stage": {
+      "$ref": "#/$defs/Stage"
+    },
+    "produced_at": {
+      "format": "date-time",
+      "title": "Produced At",
+      "type": "string"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Model id for LLM stages, null for deterministic code.",
+      "title": "Model"
+    },
+    "prompt_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Version"
+    },
+    "upstream": {
+      "description": "message_ids this message was built from.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Upstream",
+      "type": "array"
+    },
+    "payload": {
+      "$ref": "#/$defs/CaseSummary"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "run_id",
+    "case_id",
+    "stage",
+    "payload"
+  ],
+  "title": "AgentMessage[CaseSummary]",
+  "type": "object"
+}
