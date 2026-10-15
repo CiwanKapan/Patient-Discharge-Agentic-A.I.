@@ -84,6 +84,12 @@ class RunCompletedDetails(_Strict):
     prompt_versions: dict[str, str] = Field(description="Prompt version per LLM stage.")
     started_at: datetime
     completed_at: datetime
+    tool_call_count: int = Field(
+        ge=0,
+        description="Number of tool calls the policy layer reviewed in this run, allowed or denied. "
+        "Taken from the policy layer, which every tool call must pass through, not from the logger. "
+        "Lets the log show on its own that a run made no tool calls.",
+    )
     error: Optional[str] = None
 
 
@@ -167,13 +173,18 @@ REQUIRED_EVENT_TYPES = (
 )
 
 
-def check_audit_trail(events: list[Any], *, expect_tool_calls: bool = True) -> list[str]:
+def check_audit_trail(events: list[Any]) -> list[str]:
     """Check one run's audit trail (empty list = OK).
 
-    Per the taxonomy, every run must log all AU-01..AU-08 event types. A run
-    that made no tool calls, or produced no barriers, cannot log AU-02/AU-06 or
-    AU-03/AU-04; pass expect_tool_calls=False for the former. Missing
-    barrier/task/approval events are judged against the emitted plan instead.
+    Per the taxonomy, every run must log all AU-01..AU-08 event types. Some runs
+    cannot log every type, so the trail is checked against what the run itself
+    reports:
+
+    - Tool calls: run_completed (AU-08) records tool_call_count from the policy
+      layer. The number of tool_call (AU-02) and policy_decision (AU-06) events
+      must equal it. A count of zero is the only way those events may be absent,
+      so a dropped event is caught rather than mistaken for "no calls".
+    - Barriers, tasks, approvals: judged against the plan in output_emitted (AU-07).
     """
     errors: list[str] = []
     if not events:
@@ -192,7 +203,11 @@ def check_audit_trail(events: list[Any], *, expect_tool_calls: bool = True) -> l
 
     present = {e.event_type for e in events}
     optional = set()
-    if not expect_tool_calls:
+    completed = [e for e in events if e.event_type == "run_completed"]
+    if len(completed) > 1:
+        errors.append("run_completed (AU-08) logged more than once")
+    reported_calls = completed[-1].details.tool_call_count if completed else None
+    if reported_calls == 0:
         optional |= {"tool_call", "policy_decision"}
     outputs = [e for e in events if e.event_type == "output_emitted"]
     if len(outputs) > 1:
@@ -213,8 +228,19 @@ def check_audit_trail(events: list[Any], *, expect_tool_calls: bool = True) -> l
     for e in events:
         by_type.setdefault(e.event_type, []).append(e.details)
 
-    calls = {d.call.call_id for d in by_type.get("tool_call", [])}
-    decided = {d.call_id for d in by_type.get("policy_decision", [])}
+    call_events = by_type.get("tool_call", [])
+    decision_events = by_type.get("policy_decision", [])
+    if reported_calls is not None:
+        for name, logged in (("tool_call", call_events), ("policy_decision", decision_events)):
+            if len(logged) != reported_calls:
+                errors.append(
+                    f"run_completed reports {reported_calls} tool calls but {len(logged)} {name} events were logged"
+                )
+    calls = [d.call.call_id for d in call_events]
+    if len(calls) != len(set(calls)):
+        errors.append("the same tool call was logged more than once")
+    calls = set(calls)
+    decided = {d.call_id for d in decision_events}
     if calls != decided:
         errors.append(f"tool calls without a policy decision or vice versa: {sorted(calls ^ decided)}")
 

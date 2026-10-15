@@ -76,9 +76,19 @@ def test_recommendation_kinds():
                        owner_role="nurse", information_gap_field="tracked_fields.pending_labs", barrier_ids=["B-C02"])
 
 
-def test_ranks_must_be_contiguous():
+def _ranked(*ranks):
+    return [{**REBOOK, "recommendation_id": f"R{i}", "rank": rank} for i, rank in enumerate(ranks)]
+
+
+@pytest.mark.parametrize("ranks", [(1, 2, 3), (3, 1, 2), (1, 1, 2), (1, 1, 1), (1, 2, 2, 3)])
+def test_valid_ranks_including_ties(ranks):
+    RecommendationSet(recommendations=_ranked(*ranks))
+
+
+@pytest.mark.parametrize("ranks", [(1, 2, 4), (2, 3, 4), (1, 1, 3), (2, 2)])
+def test_ranks_must_start_at_1_and_skip_nothing(ranks):
     with pytest.raises(ValidationError):
-        RecommendationSet(recommendations=[REBOOK, {**ESCALATE, "rank": 3}])
+        RecommendationSet(recommendations=_ranked(*ranks))
 
 
 def test_approval_flag_must_match_classification():
@@ -155,7 +165,7 @@ def _trail():
         {"event_type": "policy_decision", "details": denied.model_dump()},
         {"event_type": "approval_classification", "details": {"recommendation_id": "R1", "classification": "auto_safe", "requires_human_approval": False, "reason": "no approval rule"}},
         {"event_type": "output_emitted", "details": {"plan": _plan(denied).model_dump()}},
-        {"event_type": "run_completed", "details": {"status": "succeeded", "model": "claude-haiku-5-5", "prompt_versions": {"03_barrier_detector": "v1"},
+        {"event_type": "run_completed", "details": {"status": "succeeded", "model": "claude-haiku-5-5", "prompt_versions": {"03_barrier_detector": "v1"}, "tool_call_count": 2,
                                                     "started_at": T0.isoformat(), "completed_at": (T0 + timedelta(seconds=30)).isoformat()}},
     ]
     events = []
@@ -173,18 +183,65 @@ def test_complete_trail_passes():
     assert check_audit_trail(events) == []
 
 
-def test_missing_event_type_fails():
-    events = [e for e in _trail() if e.event_type != "task_recommended"]
-    for i, e in enumerate(events):
+def _without(events, drop):
+    kept = [e for e in events if not drop(e)]
+    for i, e in enumerate(kept):
         e.sequence = i
+    return kept
+
+
+def _no_tool_calls(count):
+    """A run whose log has no tool call events, reporting `count` calls in run_completed."""
+    events = _without(_trail(), lambda e: e.event_type in ("tool_call", "policy_decision"))
+    plan = next(e for e in events if e.event_type == "output_emitted").details.plan
+    plan.denied_tool_calls = []
+    events[-1].details.tool_call_count = count
+    return events
+
+
+def test_missing_event_type_fails():
+    events = _without(_trail(), lambda e: e.event_type == "task_recommended")
     assert any("task_recommended" in err for err in check_audit_trail(events))
 
 
 def test_tool_call_without_policy_decision_fails():
-    events = [e for e in _trail() if not (e.event_type == "policy_decision" and e.details.call_id == "c1")]
+    events = _without(_trail(), lambda e: e.event_type == "policy_decision" and e.details.call_id == "c1")
+    errors = check_audit_trail(events)
+    assert any("policy decision" in err for err in errors)
+    assert any("reports 2 tool calls but 1 policy_decision" in err for err in errors)
+
+
+def test_run_with_zero_tool_calls_passes():
+    assert check_audit_trail(_no_tool_calls(0)) == []
+
+
+def test_dropped_tool_call_events_are_not_mistaken_for_no_calls():
+    errors = check_audit_trail(_no_tool_calls(2))
+    assert any("reports 2 tool calls but 0 tool_call events" in err for err in errors)
+    assert any("missing tool_call event" in err for err in errors)
+
+
+def test_dropped_pair_of_events_is_caught_by_count():
+    """Dropping a call and its decision together keeps them paired, so only the count catches it."""
+    events = _without(_trail(), lambda e: e.event_type in ("tool_call", "policy_decision")
+                      and (getattr(e.details, "call_id", None) or e.details.call.call_id) == "c1")
+    assert any("reports 2 tool calls but 1 tool_call events" in err for err in check_audit_trail(events))
+
+
+def test_count_lower_than_logged_calls_fails():
+    events = _trail()
+    events[-1].details.tool_call_count = 1
+    assert any("reports 1 tool calls but 2 tool_call events" in err for err in check_audit_trail(events))
+
+
+def test_same_tool_call_logged_twice_fails():
+    events = _trail()
+    dup = events[1].model_copy(deep=True)
+    events.insert(2, dup)
     for i, e in enumerate(events):
         e.sequence = i
-    assert any("policy decision" in err for err in check_audit_trail(events))
+        e.timestamp = T0 + timedelta(seconds=i)
+    assert any("logged more than once" in err for err in check_audit_trail(events))
 
 
 def test_audit_id_must_match_event_type():

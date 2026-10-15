@@ -34,7 +34,11 @@ class _Strict(BaseModel):
 # ------------------------------------------------------------------ 05 Rec. Generator
 class Recommendation(_Strict):
     recommendation_id: str
-    rank: int = Field(ge=1, description="1 is the most urgent.")
+    rank: int = Field(
+        ge=1,
+        description="1 is the most urgent. Equally urgent recommendations share a rank "
+        "(dense ranking: 1, 1, 2 is valid; 1, 1, 3 is not).",
+    )
     kind: Literal["complete_task", "verify_information"] = Field(
         description="complete_task resolves a flagged barrier; "
         "verify_information asks a human to confirm an information gap."
@@ -74,12 +78,13 @@ class RecommendationSet(_Strict):
     recommendations: list[Recommendation] = Field(default_factory=list)
 
     @model_validator(mode="after")
-    def _unique_and_ranked(self) -> "RecommendationSet":
+    def _unique_ids_and_dense_ranks(self) -> "RecommendationSet":
         ids = [r.recommendation_id for r in self.recommendations]
         if len(ids) != len(set(ids)):
             raise ValueError("recommendation_id values must be unique")
-        if sorted(r.rank for r in self.recommendations) != list(range(1, len(ids) + 1)):
-            raise ValueError("ranks must be 1..n with no gaps or ties")
+        distinct = sorted({r.rank for r in self.recommendations})
+        if distinct != list(range(1, len(distinct) + 1)):
+            raise ValueError("ranks must start at 1 and skip no numbers; ties are allowed (e.g. 1, 1, 2)")
         return self
 
 

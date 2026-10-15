@@ -839,7 +839,7 @@
           "type": "string"
         },
         "rank": {
-          "description": "1 is the most urgent.",
+          "description": "1 is the most urgent. Equally urgent recommendations share a rank (dense ranking: 1, 1, 2 is valid; 1, 1, 3 is not).",
           "minimum": 1,
           "title": "Rank",
           "type": "integer"
@@ -1052,6 +1052,12 @@
           "title": "Completed At",
           "type": "string"
         },
+        "tool_call_count": {
+          "description": "Number of tool calls the policy layer reviewed in this run, allowed or denied. Taken from the policy layer, which every tool call must pass through, not from the logger. Lets the log show on its own that a run made no tool calls.",
+          "minimum": 0,
+          "title": "Tool Call Count",
+          "type": "integer"
+        },
         "error": {
           "anyOf": [
             {
@@ -1070,7 +1076,8 @@
         "model",
         "prompt_versions",
         "started_at",
-        "completed_at"
+        "completed_at",
+        "tool_call_count"
       ],
       "title": "RunCompletedDetails",
       "type": "object"
