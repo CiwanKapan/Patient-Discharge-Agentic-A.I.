@@ -1,0 +1,114 @@
+{
+  "case_id": "CASE-142",
+  "condition": "ST",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-06-12T15:00:00-05:00",
+    "end": "2026-06-12T17:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Nephew will stay with patient for the first week"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Neurology clinic visit rebooked at patient request",
+      "scheduled_for": "2026-06-17T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "complete",
+      "detail": "Single-level home; grab bars installed"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_started",
+      "detail": "Home blood pressure monitor education not completed"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to the hospital outpatient pharmacy"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Wheelchair training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on stroke warning signs (BE FAST) and secondary prevention completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "not_started",
+      "detail": "Speech-language pathology consult ordered; patient not yet seen"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Nephew will pick patient up before work",
+      "window": {
+        "start": "2026-06-12T07:00:00-05:00",
+        "end": "2026-06-12T08:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "86-year-old man with hyperlipidemia, prior TIA, admitted 6/7 with right pontine lacunar infarct. Deficits stable for 48 hours; passed bedside swallow. The patient has a well-healed surgical scar on the abdomen from an operation several years ago. No wound care is needed and this has no impact on the discharge plan.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty.",
+    "case_manager_note": "Met with patient and nephew to review the discharge plan. Patient asked to move the neurology clinic appointment; rebooked within 14 days of discharge."
+  }
+}

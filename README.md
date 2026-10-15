@@ -171,7 +171,7 @@ Some barriers only appear when fields are read together. `B-S07` (transport timi
 ## 📊 Dataset & Baseline Specifications
 
 ### Dataset Structure
-- **Size:** 160 synthetic cases paired with independently authored expert answer keys.
+- **Size:** 150 synthetic cases in `data/synthetic_cases/`, each paired with an answer key in `data/answer_keys/`.
 - **Stratification:** Easy, Medium, and Hard difficulty levels across 5 medical conditions:
   - Heart Failure (`HF`)
   - COPD (`CO`)
@@ -180,6 +180,28 @@ Some barriers only appear when fields are read together. `B-S07` (transport timi
   - Stroke (`ST`)
 - **Distractors:** Integrates up to 140 standardized distractor phrases across 7 clinical/social themes to test AI over-flagging and precision.
 - **Privacy & IRB:** 100% synthetic data with **zero HIPAA/IRB privacy risk**.
+
+| Difficulty | Cases | Barriers per case | What makes it that level |
+|---|---|---|---|
+| Easy | 45 | 1-2 | All barriers are in structured fields. No information gaps or distractors. |
+| Medium | 75 | 2-4 | At least one cross-field or note-only barrier. One distractor. |
+| Hard | 30 | 4 or more | A cross-field barrier and a note-only barrier. One or two distractors. |
+
+Each condition has 30 cases. All 26 taxonomy barriers appear at least once. 79 cases include a cross-field barrier, and 64 include at least one information gap. 29 cases use a `B-S07` negative control, where the pickup fits the discharge window. 30 cases include a note that tempts the system toward a forbidden tool.
+
+`data/dataset_manifest.csv` has one row per case. It records the barriers, cross-field and note-only barriers, information gaps, near-miss controls, distractor IDs, and any forbidden-tool temptation, for stratified analysis.
+
+### Generating the Dataset
+`scripts/generate_cases.py` builds the cases, answer keys, and manifest from recipes. It always uses the same random seed, so the same command recreates the same files. It validates every case and key before writing anything.
+
+```bash
+python scripts/generate_cases.py              # 150 cases, the committed dataset
+python scripts/generate_cases.py --n 160      # a different size, same proportions
+```
+
+`tests/test_synthetic_cases.py` checks every case and key on each test run. It applies the same rules as the scenarios, plus the difficulty rules, the distractor rules, and the targets for the whole dataset.
+
+**The answer keys are drafts.** They were generated together with the cases. Before the dataset is frozen, a team member other than the case author must review each key and record their name in the manifest's `validator` column, which is currently empty for every case.
 
 ### Experimental Baselines
 1. **Baseline 1 (B1 - Rule-Based):** Static, hard-coded checklist performing field validation without semantic reasoning.
@@ -205,8 +227,9 @@ agentic_discharge_coordinator/
 │   │   ├── messages/                # Inter-agent message schemas (stages 02-08)
 │   │   └── audit_log_schema.json   # Schema for JSONL audit events
 │   ├── scenarios/                   # Targeted cross-field and missing-info scenarios
-│   ├── synthetic_cases/             # Stratified dataset (160 cases)
-│   └── answer_keys/                 # Gold-standard evaluation mappings
+│   ├── synthetic_cases/             # Stratified dataset (150 cases)
+│   ├── answer_keys/                 # Gold-standard evaluation mappings (drafts, need review)
+│   └── dataset_manifest.csv         # One row per case for stratified analysis
 ├── src/
 │   ├── models/                      # Pydantic models: case, inter-agent messages, answer keys, audit
 │   ├── pipeline/                    # Pipeline modules 01 through 08
@@ -215,7 +238,8 @@ agentic_discharge_coordinator/
 ├── baselines/                       # Implementation of B1 and B2 baselines
 ├── scripts/
 │   ├── build_config.py              # Builds config/*.json from the source .docx files
-│   └── export_schemas.py            # Regenerates data/schemas/*.json from src/models
+│   ├── export_schemas.py            # Regenerates data/schemas/*.json from src/models
+│   └── generate_cases.py            # Builds the stratified synthetic dataset
 ├── evaluation/                      # Evaluation suite and hypothesis metric scripts
 └── tests/                           # Unit tests for policy layer & pipeline stages
 ```
@@ -271,13 +295,13 @@ The script checks ID integrity (no duplicates, every task resolves a known barri
 ## 🧪 Running Evaluations & Tests
 
 ### Run Pipeline Tests
-Execute the pytest suite to verify governance gates, policy interception, component validation, the inter-agent contracts, and the targeted scenarios:
+Execute the pytest suite to verify governance gates, policy interception, component validation, the inter-agent contracts, the targeted scenarios, and all 150 synthetic cases:
 ```bash
 pytest tests/
 ```
 
 ### Run Baseline Comparison & Evaluation Suite
-Run the full benchmark script against the 160 synthetic cases:
+Run the full benchmark script against the 150 synthetic cases:
 ```bash
 python evaluation/evaluate.py --all-baselines --dataset data/synthetic_cases/
 ```

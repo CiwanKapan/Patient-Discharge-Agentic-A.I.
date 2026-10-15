@@ -1,0 +1,112 @@
+{
+  "case_id": "CASE-064",
+  "condition": "ST",
+  "difficulty": "easy",
+  "planned_discharge_window": {
+    "start": "2026-03-20T13:00:00-05:00",
+    "end": "2026-03-20T15:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Sister will stay with patient for the first week"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete"
+    },
+    "discharge_summary_status": {
+      "status": "complete"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Stroke clinic visit booked",
+      "scheduled_for": "2026-03-25T15:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "in_progress",
+      "detail": "OT flagged tub shower and no grab bars; modifications not arranged"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Glucometer teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to Walgreens"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Quad cane training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "in_progress",
+      "detail": "Fasting lipid panel resulted overnight but not yet reviewed by physician"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Sister to take patient home",
+      "window": {
+        "start": "2026-03-20T14:00:00-05:00",
+        "end": "2026-03-20T15:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "83-year-old woman with type 2 diabetes, hyperlipidemia, admitted 3/13 with left thalamic infarct with sensory deficits. NIHSS improved from 6 to 2.",
+    "nursing_note": "Ambulated in hallway with sister present.",
+    "case_manager_note": "CM following for discharge planning."
+  }
+}

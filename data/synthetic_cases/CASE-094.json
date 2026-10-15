@@ -1,0 +1,107 @@
+{
+  "case_id": "CASE-094",
+  "condition": "ST",
+  "difficulty": "hard",
+  "planned_discharge_window": {
+    "start": "2026-05-11T12:00:00-05:00",
+    "end": "2026-05-11T14:00:00-05:00"
+  },
+  "tracked_fields": {
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete"
+    },
+    "discharge_summary_status": {
+      "status": "in_progress",
+      "detail": "Discharge summary drafted; not signed"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "unknown",
+      "detail": "Not documented"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "not_started",
+      "detail": "Lives in second-floor walk-up; stairs and bathroom not assessed"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds",
+      "documented_at": "2026-05-10T11:00:00-05:00"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to a local independent pharmacy"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list, including the dose change",
+      "documented_at": "2026-05-10T15:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Quad cane training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Medical transport confirmed",
+      "window": {
+        "start": "2026-05-11T17:00:00-05:00",
+        "end": "2026-05-11T18:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "52-year-old man with hypertension, type 2 diabetes, admitted 5/7 with small right cerebellar infarct. MRI confirmed small infarct; no hemorrhagic conversion. 5/11 10:00: BP 214/118 this morning despite oral agents; not at discharge threshold.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty. 5/10 15:00: Lisinopril changed from 10 mg daily to 20 mg daily this morning. Reviewed with patient and daughter at 15:00; teach-back correct. The patient had a brief episode of a urinary tract infection earlier this year. It was treated with a short course of antibiotics and fully resolved. A screening blood test for thyroid function was added on day 2 as part of a routine check. The result came back normal. No clinical action is required.",
+    "case_manager_note": "CM following for discharge planning. Discharge paperwork still waiting on the summary."
+  }
+}

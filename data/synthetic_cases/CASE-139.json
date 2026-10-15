@@ -1,0 +1,115 @@
+{
+  "case_id": "CASE-139",
+  "condition": "OR",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-05-29T08:00:00-05:00",
+    "end": "2026-05-29T10:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Nephew is primary caregiver"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Orthopedic surgery clinic visit rebooked at patient request",
+      "scheduled_for": "2026-06-07T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "complete",
+      "detail": "Single-level home; grab bars installed"
+    },
+    "insurance_authorization_status": {
+      "status": "in_progress",
+      "detail": "Insurance authorization for short-term rehab placement pending"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Continuous passive motion machine teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to Walgreens"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list",
+      "documented_at": "2026-05-28T14:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Knee scooter training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Physical medicine and rehabilitation signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Nephew to drive patient home",
+      "window": {
+        "start": "2026-05-29T08:30:00-05:00",
+        "end": "2026-05-29T09:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "complete",
+      "detail": "Incision clean, dry and intact"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "84-year-old woman with hypertension, osteoarthritis, admitted 5/24 for right hip hemiarthroplasty after femoral neck fracture. Post-op day 4; working with PT twice daily.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. A skin integrity check was performed on admission as per standard protocol. No pressure sores or skin concerns were identified during the stay.",
+    "case_manager_note": "CM following for discharge planning. 5/28 18:00: Metoprolol tartrate changed from 25 mg twice daily to 12.5 mg twice daily on evening rounds. Patient and nephew not yet told; this afternoon's teaching covered the old dose. Original evening van slot cancelled; family will drive at the planned discharge time instead. Patient asked to move the orthopedic surgery clinic appointment; rebooked within 14 days of discharge."
+  }
+}

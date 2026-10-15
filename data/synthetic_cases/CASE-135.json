@@ -1,0 +1,110 @@
+{
+  "case_id": "CASE-135",
+  "condition": "ST",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-03-20T10:00:00-05:00",
+    "end": "2026-03-20T12:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete"
+    },
+    "discharge_summary_status": {
+      "status": "complete"
+    },
+    "financial_status": {
+      "status": "in_progress",
+      "detail": "Patient uninsured; financial counselor referral pending"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Neurology clinic visit booked",
+      "scheduled_for": "2026-03-27T12:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "in_progress",
+      "detail": "OT flagged tub shower and no grab bars; modifications not arranged"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Home blood pressure monitor teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to CVS"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Wheelchair training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on stroke warning signs (BE FAST) and secondary prevention completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Nephew will pick patient up",
+      "window": {
+        "start": "2026-03-20T17:00:00-05:00",
+        "end": "2026-03-20T18:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "83-year-old man with hypertension, prior TIA, admitted 3/16 with left MCA ischemic stroke with mild right hemiparesis. NIHSS improved from 6 to 2. The patient's blood pressure has been consistently controlled throughout the stay with no additional medications needed. The neurologist confirmed this is satisfactory for discharge.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty.",
+    "case_manager_note": "Plan is discharge home with nephew. Patient worried about the cost of the new medication. Bedroom is upstairs at home; setup not reviewed yet."
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "case_id": "CASE-002",
+  "condition": "ST",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-04-15T09:00:00-05:00",
+    "end": "2026-04-15T11:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Daughter is primary caregiver; works days, available evenings",
+      "window": {
+        "start": "2026-04-15T18:00:00-05:00",
+        "end": "2026-04-15T22:00:00-05:00"
+      }
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete",
+      "detail": "mechanical soft dysphagia diet with thin liquids reviewed with teach-back"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Stroke clinic visit booked",
+      "scheduled_for": "2026-04-27T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "complete"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to CVS"
+    },
+    "medication_education_status": {
+      "status": "in_progress",
+      "detail": "Teaching on clopidogrel 75 mg daily x21 days with aspirin started; teach-back not completed"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Wheelchair training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on stroke warning signs (BE FAST) and secondary prevention completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "unknown",
+      "detail": "Not documented"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Daughter to drive patient home after work",
+      "window": {
+        "start": "2026-04-15T18:30:00-05:00",
+        "end": "2026-04-15T19:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "63-year-old man with hyperlipidemia, hypertension, admitted 4/8 with small right cerebellar infarct. NIHSS improved from 6 to 2.",
+    "nursing_note": "Ambulated in hallway with daughter present. A blood sugar reading was briefly elevated on the morning of day 2. The patient's insulin was adjusted slightly and all subsequent readings have been within the target range.",
+    "case_manager_note": "CM following for discharge planning."
+  }
+}

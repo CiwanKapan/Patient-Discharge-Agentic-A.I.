@@ -1,0 +1,114 @@
+{
+  "case_id": "CASE-117",
+  "condition": "OR",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-05-04T15:00:00-05:00",
+    "end": "2026-05-04T17:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Sister will stay with patient for the first week"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Orthopedic surgery clinic visit booked",
+      "scheduled_for": "2026-05-12T15:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete"
+    },
+    "home_safety_status": {
+      "status": "complete",
+      "detail": "Single-level home; grab bars installed"
+    },
+    "insurance_authorization_status": {
+      "status": "in_progress",
+      "detail": "Prior authorization for crutches and home PT submitted; decision pending"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to the hospital outpatient pharmacy",
+      "documented_at": "2026-05-03T14:00:00-05:00"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Crutches training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on hip/knee precautions and DVT warning signs completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Wheelchair van to take patient home",
+      "window": {
+        "start": "2026-05-04T15:30:00-05:00",
+        "end": "2026-05-04T16:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "in_progress",
+      "detail": "Surgical site pain 7/10 despite oral regimen; not yet controlled"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "79-year-old man with osteoarthritis, type 2 diabetes, admitted 4/29 for ORIF of right bimalleolar ankle fracture. Post-op day 4; working with PT twice daily. The patient has a close friend who visits weekly and helps with shopping. This was noted as a positive social support factor. No concerns were raised about the patient's social situation.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. 5/4 13:20: The hospital outpatient pharmacy reports apixaban needs prior authorization; claim rejected, patient cannot pick it up today.",
+    "case_manager_note": "Plan is discharge home with sister."
+  }
+}

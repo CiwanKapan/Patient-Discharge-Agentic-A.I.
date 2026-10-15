@@ -1,0 +1,111 @@
+{
+  "case_id": "CASE-068",
+  "condition": "OR",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-03-23T11:00:00-05:00",
+    "end": "2026-03-23T13:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "unknown",
+      "detail": "Not addressed in flowsheet"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Orthopedic surgery clinic visit rebooked at patient request",
+      "scheduled_for": "2026-04-01T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete"
+    },
+    "home_safety_status": {
+      "status": "complete"
+    },
+    "insurance_authorization_status": {
+      "status": "complete"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Incision vacuum dressing teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to a local independent pharmacy"
+    },
+    "medication_education_status": {
+      "status": "not_started",
+      "detail": "No teaching yet on new celecoxib 200 mg daily x10 days"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Rolling walker training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Internal medicine (co-management) signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Medical transport confirmed",
+      "window": {
+        "start": "2026-03-23T17:00:00-05:00",
+        "end": "2026-03-23T18:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "complete"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "72-year-old woman with hypertension, hypothyroidism, admitted 3/17 for right hip hemiarthroplasty after femoral neck fracture. Post-op day 5; pain controlled on oral regimen. A venous thromboembolism risk assessment was completed on admission as per standard protocol. The patient received appropriate preventive measures during the stay. These are no longer needed after discharge.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty.",
+    "case_manager_note": "CM following for discharge planning. Patient asked what the new celecoxib 200 mg daily x10 days is for; teaching still needed. Patient asked to move the orthopedic surgery clinic appointment; rebooked within 14 days of discharge."
+  }
+}

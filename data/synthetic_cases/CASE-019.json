@@ -1,0 +1,113 @@
+{
+  "case_id": "CASE-019",
+  "condition": "HF",
+  "difficulty": "hard",
+  "planned_discharge_window": {
+    "start": "2026-03-25T10:00:00-05:00",
+    "end": "2026-03-25T12:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "unknown",
+      "detail": "No documentation found in chart"
+    },
+    "case_manager_status": {
+      "status": "in_progress",
+      "detail": "Assigned case manager out sick; coverage not confirmed"
+    },
+    "diet_education_status": {
+      "status": "complete"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "PCP visit booked",
+      "scheduled_for": "2026-03-31T11:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Home scale and blood pressure cuff teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to CVS",
+      "documented_at": "2026-03-24T07:00:00-05:00"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "in_progress",
+      "detail": "Teaching on daily weights and heart failure symptom monitoring started; patient asked for sister to be present for the rest"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Nephrology signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "not_started",
+      "detail": "Functional assessment not done; patient deconditioned after 3-day stay"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Medical transport confirmed",
+      "window": {
+        "start": "2026-03-25T16:00:00-05:00",
+        "end": "2026-03-25T17:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "66-year-old man with atrial fibrillation, CKD stage 3, admitted 3/22 with HFpEF exacerbation precipitated by dietary sodium excess. Diuresed 6 kg with IV furosemide; now euvolemic on oral regimen. The patient's ejection fraction was rechecked on day 3 and found to be slightly improved from the admission value. This is a positive finding and does not change the discharge plan.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. 3/25 08:00: CVS reports empagliflozin needs prior authorization; claim rejected, patient cannot pick it up today. PT recommends assistance with all transfers for now. A low-grade temperature of 37.6 degrees was recorded on day 1. It resolved by day 2 without any treatment and has not returned.",
+    "case_manager_note": "CM following for discharge planning."
+  }
+}

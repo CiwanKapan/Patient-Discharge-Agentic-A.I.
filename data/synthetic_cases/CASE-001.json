@@ -1,0 +1,111 @@
+{
+  "case_id": "CASE-001",
+  "condition": "PN",
+  "difficulty": "easy",
+  "planned_discharge_window": {
+    "start": "2026-04-23T14:00:00-05:00",
+    "end": "2026-04-23T16:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "in_progress",
+      "detail": "Discharge summary drafted; not signed"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "PCP visit booked",
+      "scheduled_for": "2026-04-28T15:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Incentive spirometer teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to CVS"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Pulmonology signed off"
+    },
+    "pending_imaging": {
+      "status": "in_progress",
+      "detail": "CT chest to exclude empyema completed; awaiting radiology read"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Son to take patient home",
+      "window": {
+        "start": "2026-04-23T14:30:00-05:00",
+        "end": "2026-04-23T15:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "71-year-old woman with dementia (mild), hypertension, admitted 4/19 with right lower lobe community-acquired pneumonia. Oxygen weaned to room air yesterday.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet.",
+    "case_manager_note": "Met with patient and son to review the discharge plan."
+  }
+}

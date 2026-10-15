@@ -1,0 +1,109 @@
+{
+  "case_id": "CASE-069",
+  "condition": "CO",
+  "difficulty": "easy",
+  "planned_discharge_window": {
+    "start": "2026-06-22T12:00:00-05:00",
+    "end": "2026-06-22T14:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Nephew will stay with patient for the first week"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "PCP visit booked",
+      "scheduled_for": "2026-06-28T13:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Home nebulizer teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete"
+    },
+    "medication_availability_status": {
+      "status": "complete"
+    },
+    "medication_education_status": {
+      "status": "complete"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "in_progress",
+      "detail": "Teaching on inhaler technique and the COPD action plan started; patient asked for nephew to be present for the rest"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "in_progress",
+      "detail": "PT evaluation: needs moderate assistance for transfers; not safe to ambulate alone"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Nephew to take patient home",
+      "window": {
+        "start": "2026-06-22T13:00:00-05:00",
+        "end": "2026-06-22T14:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "78-year-old man with osteoporosis, anxiety, admitted 6/16 with acute exacerbation of COPD. Ambulated 100 m with PT yesterday without desaturation.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet.",
+    "case_manager_note": "Plan is discharge home with nephew."
+  }
+}

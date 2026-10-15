@@ -1,0 +1,120 @@
+{
+  "case_id": "CASE-017",
+  "condition": "ST",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-03-09T12:00:00-05:00",
+    "end": "2026-03-09T14:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Husband is primary caregiver; works days, available evenings",
+      "window": {
+        "start": "2026-03-09T17:00:00-05:00",
+        "end": "2026-03-09T21:00:00-05:00"
+      }
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete",
+      "detail": "mechanical soft dysphagia diet with thin liquids reviewed with teach-back"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Neurology clinic visit booked",
+      "scheduled_for": "2026-03-17T11:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "complete",
+      "detail": "Single-level home; grab bars installed"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to CVS"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Hemi-walker training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_started",
+      "detail": "Outpatient PT/OT referral not placed"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "unknown",
+      "detail": "Not addressed in flowsheet"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "in_progress",
+      "detail": "Neurology consult requested yesterday; recommendations not yet documented"
+    },
+    "pending_imaging": {
+      "status": "in_progress",
+      "detail": "Carotid ultrasound completed; awaiting radiology read"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Husband to drive patient home after work",
+      "window": {
+        "start": "2026-03-09T17:30:00-05:00",
+        "end": "2026-03-09T18:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "83-year-old woman with hypertension, atrial fibrillation, admitted 3/2 with small right cerebellar infarct. MRI confirmed small infarct; no hemorrhagic conversion. The patient requested information about a herbal supplement they take at home. The pharmacist reviewed it and confirmed it is safe to continue with no interactions.",
+    "nursing_note": "Ambulated in hallway with husband present. Therapy referral still needs to be sent. Radiology read on the carotid ultrasound still pending. Neurology has not seen the patient yet.",
+    "case_manager_note": "Met with patient and husband to review the discharge plan."
+  }
+}

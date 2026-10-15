@@ -1,0 +1,115 @@
+{
+  "case_id": "CASE-073",
+  "condition": "OR",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-04-02T11:00:00-05:00",
+    "end": "2026-04-02T13:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Sister is primary caregiver; works days, available evenings",
+      "window": {
+        "start": "2026-04-02T18:00:00-05:00",
+        "end": "2026-04-02T22:00:00-05:00"
+      }
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "not_started",
+      "detail": "Orthopedic surgery clinic follow-up not yet booked"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "complete",
+      "detail": "Single-level home; grab bars installed"
+    },
+    "insurance_authorization_status": {
+      "status": "complete"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Incision vacuum dressing teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "in_progress",
+      "detail": "Temperature 38.7 C this morning on post-op day 3; source being evaluated."
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to Walgreens"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list, including the dose change",
+      "documented_at": "2026-04-01T15:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Rolling walker training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Sister to drive patient home after work",
+      "window": {
+        "start": "2026-04-02T18:30:00-05:00",
+        "end": "2026-04-02T19:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "complete",
+      "detail": "Incision clean, dry and intact"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "58-year-old man with osteoarthritis, hypothyroidism, admitted 3/27 for ORIF of right bimalleolar ankle fracture. Post-op day 5; working with PT twice daily.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. Still need to book the orthopedic surgery clinic appointment. 4/1 15:00: Aspirin changed from 81 mg daily to 81 mg twice daily for DVT prophylaxis this morning. Reviewed with patient and sister at 15:00; teach-back correct. The patient had a wisdom tooth extracted under general anaesthetic three years ago with no complications. This is not relevant to the current admission.",
+    "case_manager_note": "CM following for discharge planning."
+  }
+}

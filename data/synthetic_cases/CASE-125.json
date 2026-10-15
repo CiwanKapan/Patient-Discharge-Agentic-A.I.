@@ -1,0 +1,110 @@
+{
+  "case_id": "CASE-125",
+  "condition": "HF",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-03-16T09:00:00-05:00",
+    "end": "2026-03-16T11:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Nephew will stay with patient for the first week"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete",
+      "detail": "2 g sodium and 2 L fluid restriction reviewed with teach-back"
+    },
+    "discharge_summary_status": {
+      "status": "complete"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Cardiology clinic visit booked",
+      "scheduled_for": "2026-03-20T08:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete"
+    },
+    "medication_education_status": {
+      "status": "in_progress",
+      "detail": "Teaching on empagliflozin 10 mg daily started; teach-back not completed"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Nephrology signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "in_progress",
+      "detail": "Repeat BNP drawn this morning; result pending"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Nephew will pick patient up",
+      "window": {
+        "start": "2026-03-16T17:00:00-05:00",
+        "end": "2026-03-16T18:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "66-year-old man with CAD s/p PCI, CKD stage 3, admitted 3/12 with HFpEF exacerbation precipitated by dietary sodium excess. Transitioned from IV to oral diuretic yesterday; weight stable. A venous thromboembolism risk assessment was completed on admission as per standard protocol. The patient received appropriate preventive measures during the stay. These are no longer needed after discharge.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty. Patient asked what the new empagliflozin 10 mg daily is for; teaching still needed.",
+    "case_manager_note": "CM following for discharge planning. Physician to review the repeat BNP before discharge."
+  }
+}

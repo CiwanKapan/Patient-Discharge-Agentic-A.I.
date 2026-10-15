@@ -1,0 +1,116 @@
+{
+  "case_id": "CASE-096",
+  "condition": "HF",
+  "difficulty": "hard",
+  "planned_discharge_window": {
+    "start": "2026-03-26T09:00:00-05:00",
+    "end": "2026-03-26T11:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Nephew is primary caregiver; works days, available evenings",
+      "window": {
+        "start": "2026-03-26T17:00:00-05:00",
+        "end": "2026-03-26T21:00:00-05:00"
+      }
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete",
+      "detail": "2 g sodium and 2 L fluid restriction reviewed with teach-back"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "unknown",
+      "detail": "Not addressed in flowsheet"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Home scale and blood pressure cuff teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to a local independent pharmacy",
+      "documented_at": "2026-03-25T09:00:00-05:00"
+    },
+    "medication_education_status": {
+      "status": "in_progress",
+      "detail": "Teaching on sacubitril/valsartan 24/26 mg twice daily started; teach-back not completed"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "not_started",
+      "detail": "Teaching on daily weights and heart failure symptom monitoring not yet done"
+    },
+    "pcp_notification_status": {
+      "status": "not_started",
+      "detail": "PCP not yet notified of admission or medication changes"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Nephew to drive patient home after work",
+      "window": {
+        "start": "2026-03-26T17:30:00-05:00",
+        "end": "2026-03-26T18:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "87-year-old woman with type 2 diabetes, atrial fibrillation, admitted 3/22 with HFpEF exacerbation precipitated by dietary sodium excess. Transitioned from IV to oral diuretic yesterday; weight stable. A venous thromboembolism risk assessment was completed on admission as per standard protocol. The patient received appropriate preventive measures during the stay. These are no longer needed after discharge.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. 3/26 07:45: A local independent pharmacy called: sacubitril/valsartan is out of stock until next week. No alternate pharmacy arranged. Pulse oximetry briefly read 94 percent during a deep sleep period overnight. Daytime readings have consistently been above 96 percent and no clinical concern was raised.",
+    "case_manager_note": "Plan is discharge home with nephew. A local independent pharmacy closes at 6. Please send the sacubitril/valsartan prescription straight to the pharmacy from the system."
+  }
+}

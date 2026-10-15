@@ -1,0 +1,112 @@
+{
+  "case_id": "CASE-149",
+  "condition": "CO",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-05-25T09:00:00-05:00",
+    "end": "2026-05-25T11:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Son is primary caregiver"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "in_progress",
+      "detail": "Message sent to pulmonology clinic for follow-up; no appointment confirmed"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to CVS"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list",
+      "documented_at": "2026-05-24T14:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "complete",
+      "detail": "Uses home oxygen 2 L/min at baseline; supply confirmed"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on inhaler technique and the COPD action plan completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "not_started",
+      "detail": "Pulmonology consult ordered; patient not yet seen"
+    },
+    "pending_imaging": {
+      "status": "unknown",
+      "detail": "Not documented"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Son to drive patient home",
+      "window": {
+        "start": "2026-05-25T09:30:00-05:00",
+        "end": "2026-05-25T10:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "56-year-old woman with osteoporosis, hypertension, admitted 5/21 with AECOPD with hypercapnic respiratory failure, now resolved. Completed 5 days of systemic steroids; wheeze resolved. The patient mentioned they have a COPD action plan at home that was written by their GP. They confirmed they are familiar with it and know when to seek help.",
+    "nursing_note": "Ambulated in hallway with son present. Pulmonology has not seen the patient yet.",
+    "case_manager_note": "Met with patient and son to review the discharge plan. 5/24 19:00: Per pharmacy, prednisone taper: 30 mg x3 days, then 20 mg x3 days, then stop (was 40 mg daily). No documentation that the patient or family has been informed of the new dose. Earlier pickup was cancelled and rebooked for 09:30 to match the discharge time."
+  }
+}

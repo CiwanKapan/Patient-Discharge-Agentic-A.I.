@@ -1,0 +1,115 @@
+{
+  "case_id": "CASE-047",
+  "condition": "OR",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-05-19T14:00:00-05:00",
+    "end": "2026-05-19T16:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Son will stay with patient for the first week"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Orthopedic surgery clinic visit booked",
+      "scheduled_for": "2026-05-22T15:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "in_progress",
+      "detail": "OT flagged tub shower and no grab bars; modifications not arranged"
+    },
+    "insurance_authorization_status": {
+      "status": "unknown",
+      "detail": "Not documented"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to a local independent pharmacy"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list",
+      "documented_at": "2026-05-18T14:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Knee scooter training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "in_progress",
+      "detail": "Outpatient therapy referral pending insurance network check"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on hip/knee precautions and DVT warning signs completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Son to take patient home",
+      "window": {
+        "start": "2026-05-19T15:00:00-05:00",
+        "end": "2026-05-19T16:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "in_progress",
+      "detail": "Incision with new serous drainage and surrounding erythema; wound team to reassess"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "63-year-old woman with obesity, hypothyroidism, admitted 5/16 for left total hip arthroplasty. Post-op day 2; working with PT twice daily. A standard social work screening was completed on admission. The patient did not meet the criteria for a social work referral and no further input was needed.",
+    "nursing_note": "Ambulated in hallway with son present. Bedroom is upstairs at home; setup not reviewed yet.",
+    "case_manager_note": "Plan is discharge home with son. 5/18 19:00: Per pharmacy, aspirin changed from 81 mg daily to 81 mg twice daily for DVT prophylaxis. No documentation that the patient or family has been informed of the new dose."
+  }
+}

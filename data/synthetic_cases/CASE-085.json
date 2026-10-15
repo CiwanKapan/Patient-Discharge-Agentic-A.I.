@@ -1,0 +1,108 @@
+{
+  "case_id": "CASE-085",
+  "condition": "PN",
+  "difficulty": "hard",
+  "planned_discharge_window": {
+    "start": "2026-06-25T12:00:00-05:00",
+    "end": "2026-06-25T14:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Daughter is primary caregiver; works days, available evenings",
+      "window": {
+        "start": "2026-06-25T18:00:00-05:00",
+        "end": "2026-06-25T22:00:00-05:00"
+      }
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "in_progress",
+      "detail": "Discharge summary drafted; not signed"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "in_progress",
+      "detail": "Message sent to PCP for follow-up; no appointment confirmed"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to Walgreens",
+      "documented_at": "2026-06-24T10:00:00-05:00"
+    },
+    "medication_education_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on completing the antibiotic course and pneumonia warning signs completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "unknown",
+      "detail": "No documentation found in chart"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Daughter to drive patient home after work",
+      "window": {
+        "start": "2026-06-25T18:30:00-05:00",
+        "end": "2026-06-25T19:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "71-year-old woman with dementia (mild), hypertension, admitted 6/19 with right lower lobe community-acquired pneumonia. Leukocytosis resolved; tolerating diet. Urine output was slightly lower than expected on the first night of admission. It has been normal and consistent since then.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty. 6/25 09:20: Walgreens called: cefpodoxime is out of stock until next week. No alternate pharmacy arranged. The patient was treated for shingles approximately two years ago. The condition fully resolved and no residual effects were noted during this admission.",
+    "case_manager_note": "Plan is discharge home with daughter. Still need to book the PCP appointment."
+  }
+}

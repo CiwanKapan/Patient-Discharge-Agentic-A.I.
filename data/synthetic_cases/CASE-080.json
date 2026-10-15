@@ -1,0 +1,120 @@
+{
+  "case_id": "CASE-080",
+  "condition": "ST",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-03-12T10:00:00-05:00",
+    "end": "2026-03-12T12:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Nephew is primary caregiver; works days, available evenings",
+      "window": {
+        "start": "2026-03-12T18:00:00-05:00",
+        "end": "2026-03-12T22:00:00-05:00"
+      }
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete",
+      "detail": "mechanical soft dysphagia diet with thin liquids reviewed with teach-back"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Stroke clinic visit booked",
+      "scheduled_for": "2026-03-23T15:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "complete",
+      "detail": "Single-level home; grab bars installed"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Glucometer teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list, including the dose change",
+      "documented_at": "2026-03-11T15:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_started",
+      "detail": "Hemi-walker education not done"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "unknown",
+      "detail": "Not documented"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Neurology signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Nephew to drive patient home after work",
+      "window": {
+        "start": "2026-03-12T18:30:00-05:00",
+        "end": "2026-03-12T19:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "58-year-old woman with prior TIA, hypertension, admitted 3/9 with left thalamic infarct with sensory deficits. MRI confirmed small infarct; no hemorrhagic conversion.",
+    "nursing_note": "Up in chair for meals. Pain controlled. 3/11 15:00: Lisinopril changed from 10 mg daily to 20 mg daily this morning. Reviewed with patient and nephew at 15:00; teach-back correct. A routine palliative care screening question was included in the admission assessment as per standard protocol. The patient did not meet the criteria for a palliative care referral.",
+    "case_manager_note": "CM following for discharge planning."
+  }
+}

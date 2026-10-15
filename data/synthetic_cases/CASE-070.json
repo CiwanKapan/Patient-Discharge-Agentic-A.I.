@@ -1,0 +1,112 @@
+{
+  "case_id": "CASE-070",
+  "condition": "ST",
+  "difficulty": "easy",
+  "planned_discharge_window": {
+    "start": "2026-04-20T11:00:00-05:00",
+    "end": "2026-04-20T13:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete"
+    },
+    "discharge_summary_status": {
+      "status": "complete"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Stroke clinic visit booked",
+      "scheduled_for": "2026-04-27T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "complete",
+      "detail": "Single-level home; grab bars installed"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to the hospital outpatient pharmacy"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "in_progress",
+      "detail": "Quad cane training started; patient not yet safe on stairs"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_started",
+      "detail": "Outpatient PT/OT referral not placed"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on stroke warning signs (BE FAST) and secondary prevention completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Neurology signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Medical transport to take patient home",
+      "window": {
+        "start": "2026-04-20T11:30:00-05:00",
+        "end": "2026-04-20T12:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "55-year-old woman with hypertension, atrial fibrillation, admitted 4/13 with right pontine lacunar infarct. NIHSS improved from 6 to 2.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty.",
+    "case_manager_note": "Met with patient and nephew to review the discharge plan."
+  }
+}

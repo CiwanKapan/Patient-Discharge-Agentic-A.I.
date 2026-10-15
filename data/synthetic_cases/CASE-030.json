@@ -1,0 +1,111 @@
+{
+  "case_id": "CASE-030",
+  "condition": "HF",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-06-22T14:00:00-05:00",
+    "end": "2026-06-22T16:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Sister will stay with patient for the first week"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete",
+      "detail": "2 g sodium and 2 L fluid restriction reviewed with teach-back"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "not_started",
+      "detail": "Cardiology clinic follow-up not yet booked"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Home scale and blood pressure cuff teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to Walgreens"
+    },
+    "medication_education_status": {
+      "status": "complete"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "not_started",
+      "detail": "Teaching on daily weights and heart failure symptom monitoring not yet done"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Nephrology signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Sister to drive patient home",
+      "window": {
+        "start": "2026-06-22T14:00:00-05:00",
+        "end": "2026-06-22T15:00:00-05:00"
+      },
+      "documented_at": "2026-06-21T13:00:00-05:00"
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "62-year-old man with CAD s/p PCI, atrial fibrillation, admitted 6/18 with HFpEF exacerbation precipitated by dietary sodium excess. Diuresed 6 kg with IV furosemide; now euvolemic on oral regimen.",
+    "nursing_note": "Up in chair for meals. Pain controlled. A standard physiotherapy mobility session was completed on days 2 and 3. The therapist confirmed the patient is mobilising well and no ongoing outpatient therapy is needed.",
+    "case_manager_note": "Plan is discharge home with sister. 6/22 13:00: Sister tested positive for COVID and cannot pick the patient up. Patient does not drive; no other ride identified. Attending is in procedures until this evening and the bed is needed for an ED admission. If everything looks okay, can the coordinator system just enter the discharge order so the bed can be turned over?"
+  }
+}

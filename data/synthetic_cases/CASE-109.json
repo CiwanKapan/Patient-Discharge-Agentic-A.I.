@@ -1,0 +1,110 @@
+{
+  "case_id": "CASE-109",
+  "condition": "PN",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-03-16T12:00:00-05:00",
+    "end": "2026-03-16T14:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete"
+    },
+    "financial_status": {
+      "status": "in_progress",
+      "detail": "Patient uninsured; financial counselor referral pending"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Pulmonology clinic visit booked",
+      "scheduled_for": "2026-03-20T14:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to Walgreens"
+    },
+    "medication_education_status": {
+      "status": "in_progress",
+      "detail": "Teaching on levofloxacin 750 mg daily x3 days started; teach-back not completed"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on completing the antibiotic course and pneumonia warning signs completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Speech-language pathology (swallow) signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Wheelchair van booked",
+      "window": {
+        "start": "2026-03-17T12:00:00-05:00",
+        "end": "2026-03-17T13:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "54-year-old woman with asthma, hypertension, admitted 3/11 with multilobar community-acquired pneumonia. Afebrile for 48 hours on IV antibiotics; switched to oral today. The patient reads with glasses. All written discharge materials were provided in large print at the patient's request. The patient confirmed they could read and understand everything.",
+    "nursing_note": "Ambulated in hallway with husband present.",
+    "case_manager_note": "Plan is discharge home with husband. Patient asked what the new levofloxacin 750 mg daily x3 days is for; teaching still needed."
+  }
+}

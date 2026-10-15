@@ -1,0 +1,112 @@
+{
+  "case_id": "CASE-081",
+  "condition": "PN",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-03-06T11:00:00-05:00",
+    "end": "2026-03-06T13:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Son is primary caregiver"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "PCP visit rebooked at patient request",
+      "scheduled_for": "2026-03-11T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Incentive spirometer teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "not_started",
+      "detail": "Levofloxacin 750 mg daily x3 days needs prior authorization; not available at a local independent pharmacy"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list",
+      "documented_at": "2026-03-05T14:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "not_started",
+      "detail": "Teaching on completing the antibiotic course and pneumonia warning signs not yet done"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Pulmonology signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "unknown",
+      "detail": "No documentation found in chart"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Son to drive patient home",
+      "window": {
+        "start": "2026-03-06T11:30:00-05:00",
+        "end": "2026-03-06T12:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "56-year-old woman with hypertension, dementia (mild), admitted 2/28 with left lower lobe pneumonia with small parapneumonic effusion. Leukocytosis resolved; tolerating diet.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. A chest X-ray taken on admission showed mild changes. A repeat X-ray on day 3 shows significant improvement and the radiologist has cleared the patient for discharge.",
+    "case_manager_note": "Plan is discharge home with son. 3/5 18:00: Team decision tonight: metformin held until follow-up (was 1000 mg twice daily). Son called asking about the plan and does not know about the change; has not been able to reach the physician. Patient's pharmacy cannot fill the new prescription yet. Original evening van slot cancelled; family will drive at the planned discharge time instead. Patient asked to move the PCP appointment; rebooked within 7 days of discharge."
+  }
+}

@@ -1,0 +1,108 @@
+{
+  "case_id": "CASE-033",
+  "condition": "CO",
+  "difficulty": "easy",
+  "planned_discharge_window": {
+    "start": "2026-04-06T09:00:00-05:00",
+    "end": "2026-04-06T11:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "PCP visit booked",
+      "scheduled_for": "2026-04-15T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to Walgreens"
+    },
+    "medication_education_status": {
+      "status": "complete"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "complete",
+      "detail": "Uses home oxygen 2 L/min at baseline; supply confirmed"
+    },
+    "patient_education_status": {
+      "status": "complete"
+    },
+    "pcp_notification_status": {
+      "status": "not_started",
+      "detail": "PCP not yet notified of admission or medication changes"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Pulmonary rehabilitation signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Nephew to take patient home",
+      "window": {
+        "start": "2026-04-06T10:00:00-05:00",
+        "end": "2026-04-06T11:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "57-year-old man with hypertension, former smoker (40 pack-years), admitted 4/1 with AECOPD with hypercapnic respiratory failure, now resolved. Weaned from BiPAP on day 2; now on room air at rest.",
+    "nursing_note": "Ambulated in hallway with nephew present.",
+    "case_manager_note": "Met with patient and nephew to review the discharge plan."
+  }
+}

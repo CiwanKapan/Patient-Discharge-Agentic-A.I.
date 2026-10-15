@@ -1,0 +1,114 @@
+{
+  "case_id": "CASE-120",
+  "condition": "OR",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-06-18T11:00:00-05:00",
+    "end": "2026-06-18T13:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Orthopedic surgery clinic visit booked",
+      "scheduled_for": "2026-06-30T13:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "complete",
+      "detail": "Single-level home; grab bars installed"
+    },
+    "insurance_authorization_status": {
+      "status": "complete",
+      "detail": "DME authorized by insurer"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Incision vacuum dressing teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete"
+    },
+    "medication_education_status": {
+      "status": "in_progress",
+      "detail": "Teaching on celecoxib 200 mg daily x10 days started; teach-back not completed"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Knee scooter training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on hip/knee precautions and DVT warning signs completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Physical medicine and rehabilitation signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Son to drive patient home",
+      "window": {
+        "start": "2026-06-18T11:00:00-05:00",
+        "end": "2026-06-18T12:00:00-05:00"
+      },
+      "documented_at": "2026-06-17T09:00:00-05:00"
+    },
+    "wound_status": {
+      "status": "complete",
+      "detail": "Incision clean, dry and intact"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "70-year-old woman with hypothyroidism, obesity, admitted 6/13 for elective right total knee arthroplasty. Post-op day 4; pain controlled on oral regimen.",
+    "nursing_note": "Up in chair for meals. Pain controlled. The patient had a cataract removed from one eye two years ago. The result was successful. Vision in both eyes is stable and this has no current clinical significance.",
+    "case_manager_note": "Plan is discharge home with son. 6/18 08:20: Son tested positive for COVID and cannot pick the patient up. Patient does not drive; no other ride identified. Patient asked what the new celecoxib 200 mg daily x10 days is for; teaching still needed."
+  }
+}

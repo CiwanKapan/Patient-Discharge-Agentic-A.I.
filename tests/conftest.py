@@ -11,3 +11,8 @@ sys.path.insert(0, str(ROOT))
 @pytest.fixture(scope="session")
 def taxonomy():
     return json.loads((ROOT / "config" / "taxonomy.json").read_text())
+
+
+@pytest.fixture(scope="session")
+def distractors():
+    return json.loads((ROOT / "config" / "distractors.json").read_text())

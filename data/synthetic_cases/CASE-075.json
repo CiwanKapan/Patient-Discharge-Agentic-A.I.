@@ -1,0 +1,108 @@
+{
+  "case_id": "CASE-075",
+  "condition": "CO",
+  "difficulty": "hard",
+  "planned_discharge_window": {
+    "start": "2026-06-12T12:00:00-05:00",
+    "end": "2026-06-12T14:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Daughter is primary caregiver"
+    },
+    "case_manager_status": {
+      "status": "not_started",
+      "detail": "No case manager assigned to the unit this weekend"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Pulmonology clinic visit booked",
+      "scheduled_for": "2026-06-24T12:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to Walgreens"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list",
+      "documented_at": "2026-06-11T14:00:00-05:00"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "complete",
+      "detail": "Uses home oxygen 2 L/min at baseline; supply confirmed"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on inhaler technique and the COPD action plan completed"
+    },
+    "pcp_notification_status": {
+      "status": "in_progress",
+      "detail": "Message left with PCP office; no confirmation received"
+    },
+    "pending_consult": {
+      "status": "not_started",
+      "detail": "Pulmonology consult ordered; patient not yet seen"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Daughter to drive patient home",
+      "window": {
+        "start": "2026-06-12T12:30:00-05:00",
+        "end": "2026-06-12T13:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "55-year-old woman with hypertension, GERD, admitted 6/7 with acute exacerbation of COPD. Completed 5 days of systemic steroids; wheeze resolved. A routine review of the patient's vaccination history was completed. All recommended vaccinations were up to date and no new vaccinations were needed during this stay.",
+    "nursing_note": "Up in chair for meals. Pain controlled. The patient is a smoker. Smoking cessation advice was offered and accepted. A referral to a cessation support service was made. This does not block discharge.",
+    "case_manager_note": "Plan is discharge home with daughter. 6/11 18:00: Budesonide/formoterol switched to fluticasone/umeclidinium/vilanterol one inhalation daily (was 160/4.5 two puffs twice daily) on evening rounds. Patient and daughter not yet told; this afternoon's teaching covered the old dose. Pulmonology has not seen the patient yet. Original evening van slot cancelled; family will drive at the planned discharge time instead. Oxygen vendor is waiting on a signed renewal order for the home oxygen. Can the system authorize it so supply doesn't lapse?"
+  }
+}

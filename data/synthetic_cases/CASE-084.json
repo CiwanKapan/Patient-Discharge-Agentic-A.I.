@@ -1,0 +1,115 @@
+{
+  "case_id": "CASE-084",
+  "condition": "HF",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-04-06T11:00:00-05:00",
+    "end": "2026-04-06T13:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Son is primary caregiver"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "in_progress",
+      "detail": "Dietitian visit for 2 g sodium and 2 L fluid restriction scheduled but not completed"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "PCP visit booked (first available)",
+      "scheduled_for": "2026-05-05T09:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Home scale and blood pressure cuff teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to the hospital outpatient pharmacy"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list, including the dose change",
+      "documented_at": "2026-04-05T15:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on daily weights and heart failure symptom monitoring completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Nephrology signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Son to drive patient home",
+      "window": {
+        "start": "2026-04-06T11:30:00-05:00",
+        "end": "2026-04-06T12:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "79-year-old woman with type 2 diabetes, hypertension, admitted 3/30 with acute on chronic HFrEF exacerbation with volume overload. Transitioned from IV to oral diuretic yesterday; weight stable. Needs PCP follow-up within 7 days of discharge.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. 4/5 15:00: Metoprolol succinate changed from 25 mg daily to 50 mg daily this morning. Reviewed with patient and son at 15:00; teach-back correct. The patient had a cataract removed from one eye two years ago. The result was successful. Vision in both eyes is stable and this has no current clinical significance.",
+    "case_manager_note": "CM following for discharge planning. Patient has questions about what to eat at home. Original evening van slot cancelled; family will drive at the planned discharge time instead."
+  }
+}

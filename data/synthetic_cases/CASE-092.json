@@ -1,0 +1,113 @@
+{
+  "case_id": "CASE-092",
+  "condition": "OR",
+  "difficulty": "easy",
+  "planned_discharge_window": {
+    "start": "2026-03-30T15:00:00-05:00",
+    "end": "2026-03-30T17:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Husband will stay with patient for the first week"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Orthopedic surgery clinic visit booked",
+      "scheduled_for": "2026-04-09T17:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete"
+    },
+    "home_safety_status": {
+      "status": "complete"
+    },
+    "insurance_authorization_status": {
+      "status": "complete",
+      "detail": "DME authorized by insurer"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to CVS"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "complete"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on hip/knee precautions and DVT warning signs completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Husband to take patient home",
+      "window": {
+        "start": "2026-03-30T15:30:00-05:00",
+        "end": "2026-03-30T16:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "in_progress",
+      "detail": "Surgical site pain 7/10 despite oral regimen; not yet controlled"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "81-year-old woman with hypertension, obesity, admitted 3/26 for elective right total knee arthroplasty. Post-op day 3; working with PT twice daily.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty.",
+    "case_manager_note": "Met with patient and husband to review the discharge plan."
+  }
+}

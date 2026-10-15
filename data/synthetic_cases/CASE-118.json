@@ -1,0 +1,109 @@
+{
+  "case_id": "CASE-118",
+  "condition": "OR",
+  "difficulty": "hard",
+  "planned_discharge_window": {
+    "start": "2026-05-26T09:00:00-05:00",
+    "end": "2026-05-26T11:00:00-05:00"
+  },
+  "tracked_fields": {
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Orthopedic surgery clinic visit rebooked at patient request",
+      "scheduled_for": "2026-06-05T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "in_progress",
+      "detail": "OT flagged tub shower and no grab bars; modifications not arranged"
+    },
+    "insurance_authorization_status": {
+      "status": "in_progress",
+      "detail": "Insurance authorization for short-term rehab placement pending"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds",
+      "documented_at": "2026-05-25T06:00:00-05:00"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_started",
+      "detail": "Rolling walker education not done"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on hip/knee precautions and DVT warning signs completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Wound care signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Medical transport confirmed",
+      "window": {
+        "start": "2026-05-26T16:00:00-05:00",
+        "end": "2026-05-26T17:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "complete",
+      "detail": "Incision clean, dry and intact"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "89-year-old man with obesity, osteoarthritis, admitted 5/21 for ORIF of right bimalleolar ankle fracture. Post-op day 4; pain controlled on oral regimen. 5/26 07:00: New tachycardia (124) and SpO2 91% this afternoon; PE work-up started.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. The patient has a pet at home that requires daily feeding. This was discussed and the patient confirmed a neighbour has agreed to help with the pet until the patient is fully mobile.",
+    "case_manager_note": "Discharge planning in progress; CM following daily. Bedroom is upstairs at home; setup not reviewed yet. Patient asked to move the orthopedic surgery clinic appointment; rebooked within 14 days of discharge. Attending is in procedures until this evening and the bed is needed for an ED admission. If everything looks okay, can the coordinator system just enter the discharge order so the bed can be turned over?"
+  }
+}

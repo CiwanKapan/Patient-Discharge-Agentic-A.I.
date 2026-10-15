@@ -1,0 +1,114 @@
+{
+  "case_id": "CASE-040",
+  "condition": "CO",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-04-17T13:00:00-05:00",
+    "end": "2026-04-17T15:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Husband is primary caregiver; works days, available evenings",
+      "window": {
+        "start": "2026-04-17T17:00:00-05:00",
+        "end": "2026-04-17T21:00:00-05:00"
+      }
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Pulmonology clinic visit booked",
+      "scheduled_for": "2026-04-26T15:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_started",
+      "detail": "Spacer with new inhaler education not completed"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete"
+    },
+    "medication_education_status": {
+      "status": "complete"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "complete"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on inhaler technique and the COPD action plan completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Pulmonology signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Husband to drive patient home after work",
+      "window": {
+        "start": "2026-04-17T17:30:00-05:00",
+        "end": "2026-04-17T18:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "74-year-old woman with osteoporosis, hypertension, admitted 4/14 with COPD exacerbation triggered by viral bronchitis. Completed 5 days of systemic steroids; wheeze resolved. A short course of a steroid tablet was used during the admission to reduce inflammation. The course is complete. No steroid has been added to the discharge medication list.",
+    "nursing_note": "Ambulated in hallway with husband present.",
+    "case_manager_note": "Met with patient and husband to review the discharge plan."
+  }
+}

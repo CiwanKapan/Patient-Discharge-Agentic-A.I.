@@ -1,0 +1,109 @@
+{
+  "case_id": "CASE-009",
+  "condition": "OR",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-06-05T09:00:00-05:00",
+    "end": "2026-06-05T11:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Daughter is primary caregiver"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "complete",
+      "detail": "Single-level home; grab bars installed"
+    },
+    "insurance_authorization_status": {
+      "status": "complete",
+      "detail": "DME authorized by insurer"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to the hospital outpatient pharmacy"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list",
+      "documented_at": "2026-06-04T14:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "complete"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete"
+    },
+    "pcp_notification_status": {
+      "status": "not_started",
+      "detail": "PCP not yet notified of admission or medication changes"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Daughter to drive patient home",
+      "window": {
+        "start": "2026-06-05T09:30:00-05:00",
+        "end": "2026-06-05T10:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "complete",
+      "detail": "Incision clean, dry and intact"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "60-year-old woman with hypothyroidism, hypertension, admitted 6/2 for left total hip arthroplasty. Post-op day 2; pain controlled on oral regimen.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. A mild rash appeared briefly at the IV insertion site on day 2. It was assessed as a minor irritation, treated with a topical cream, and has fully resolved.",
+    "case_manager_note": "Plan is discharge home with daughter. 6/4 18:00: Per pharmacy, oxycodone changed from 5 mg every 4 hours as needed to 5 mg every 6 hours as needed, 5-day supply. No documentation that the patient or family has been informed of the new dose. Need to update the PCP before discharge. Daughter normally works days but has taken the afternoon off to drive the patient home at the planned time."
+  }
+}

@@ -1,0 +1,115 @@
+{
+  "case_id": "CASE-003",
+  "condition": "HF",
+  "difficulty": "hard",
+  "planned_discharge_window": {
+    "start": "2026-05-20T14:00:00-05:00",
+    "end": "2026-05-20T16:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Daughter will stay with patient for the first week"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete",
+      "detail": "2 g sodium and 2 L fluid restriction reviewed with teach-back"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Cardiology clinic visit booked",
+      "scheduled_for": "2026-05-25T15:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "in_progress",
+      "detail": "Home scale and blood pressure cuff teaching started; return demonstration pending"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds",
+      "documented_at": "2026-05-19T11:00:00-05:00"
+    },
+    "medication_availability_status": {
+      "status": "unknown",
+      "detail": "No documentation found in chart"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "not_started",
+      "detail": "Discharge medication reconciliation not yet done"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on daily weights and heart failure symptom monitoring completed"
+    },
+    "pcp_notification_status": {
+      "status": "unknown",
+      "detail": "Not addressed in flowsheet"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Nephrology signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Wheelchair van booked",
+      "window": {
+        "start": "2026-05-20T07:00:00-05:00",
+        "end": "2026-05-20T08:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "75-year-old woman with CAD s/p PCI, hypertension, admitted 5/15 with acute on chronic HFrEF exacerbation with volume overload. Transitioned from IV to oral diuretic yesterday; weight stable. 5/20 11:45: Symptomatic hypotension (84/50) this morning after dose increase; reassessing. The patient had a fractured wrist five years ago that healed completely. No ongoing treatment is needed and this does not affect the current plan. A routine review of the patient's long-term conditions was completed by the attending physician. No new diagnoses were made and no changes to ongoing management were recommended.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty. Still waiting on pharmacy to finish the medication reconciliation.",
+    "case_manager_note": "Plan is discharge home with daughter."
+  }
+}

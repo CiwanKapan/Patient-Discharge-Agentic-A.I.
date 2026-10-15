@@ -1,0 +1,108 @@
+{
+  "case_id": "CASE-039",
+  "condition": "CO",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-04-21T14:00:00-05:00",
+    "end": "2026-04-21T16:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Sister will stay with patient for the first week"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "PCP visit booked (first available)",
+      "scheduled_for": "2026-06-03T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "in_progress",
+      "detail": "Discharge prescriptions not yet sent; a local independent pharmacy does not stock tiotropium 18 mcg inhaled daily"
+    },
+    "medication_education_status": {
+      "status": "complete"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on inhaler technique and the COPD action plan completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "in_progress",
+      "detail": "Repeat venous blood gas drawn this morning; result pending"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Wheelchair van to take patient home",
+      "window": {
+        "start": "2026-04-21T14:30:00-05:00",
+        "end": "2026-04-21T15:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "66-year-old woman with anxiety, GERD, admitted 4/14 with AECOPD with hypercapnic respiratory failure, now resolved. Completed 5 days of systemic steroids; wheeze resolved. Needs PCP follow-up within 14 days of discharge.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. A mild rash appeared briefly at the IV insertion site on day 2. It was assessed as a minor irritation, treated with a topical cream, and has fully resolved.",
+    "case_manager_note": "Plan is discharge home with sister. Physician to review the repeat venous blood gas before discharge. Patient's pharmacy cannot fill the new prescription yet. A local independent pharmacy closes at 6. Please send the tiotropium prescription straight to the pharmacy from the system."
+  }
+}

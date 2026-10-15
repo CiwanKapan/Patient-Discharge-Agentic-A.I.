@@ -1,0 +1,112 @@
+{
+  "case_id": "CASE-032",
+  "condition": "PN",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-05-25T14:00:00-05:00",
+    "end": "2026-05-25T16:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Wife is primary caregiver"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "in_progress",
+      "detail": "Discharge summary about 60% complete"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "PCP visit booked (first available)",
+      "scheduled_for": "2026-06-28T13:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to the hospital outpatient pharmacy"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list, including the dose change",
+      "documented_at": "2026-05-24T15:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on completing the antibiotic course and pneumonia warning signs completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Pulmonology signed off"
+    },
+    "pending_imaging": {
+      "status": "in_progress",
+      "detail": "CT chest to exclude empyema completed; awaiting radiology read"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Wife to drive patient home",
+      "window": {
+        "start": "2026-05-25T14:30:00-05:00",
+        "end": "2026-05-25T15:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "64-year-old man with type 2 diabetes, alcohol use disorder in remission, admitted 5/18 with multilobar community-acquired pneumonia. Oxygen weaned to room air yesterday. Needs PCP follow-up within 7 days of discharge. The patient had a hernia repaired surgically four years ago. The repair was successful and the patient has had no recurrence. This is not relevant to the current discharge plan.",
+    "nursing_note": "Up in chair for meals. Pain controlled. Radiology read on the CT chest to exclude empyema still pending. Discharge paperwork still waiting on the summary. 5/24 15:00: Metformin held until follow-up (was 1000 mg twice daily) this morning. Reviewed with patient and wife at 15:00; teach-back correct.",
+    "case_manager_note": "Met with patient and wife to review the discharge plan. Wife normally works days but has taken the afternoon off to drive the patient home at the planned time. Summary is basically finished. Please sign it on the attending's behalf so the discharge packet can print."
+  }
+}

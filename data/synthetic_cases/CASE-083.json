@@ -1,0 +1,115 @@
+{
+  "case_id": "CASE-083",
+  "condition": "CO",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-06-19T08:00:00-05:00",
+    "end": "2026-06-19T10:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Son is primary caregiver; works days, available evenings",
+      "window": {
+        "start": "2026-06-19T17:00:00-05:00",
+        "end": "2026-06-19T21:00:00-05:00"
+      }
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Pulmonology clinic visit rebooked at patient request",
+      "scheduled_for": "2026-07-03T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Home nebulizer teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to a local independent pharmacy"
+    },
+    "medication_education_status": {
+      "status": "not_started",
+      "detail": "No teaching yet on new tiotropium 18 mcg inhaled daily"
+    },
+    "medication_reconciliation_status": {
+      "status": "not_started",
+      "detail": "Discharge medication reconciliation not yet done"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "complete",
+      "detail": "Uses home oxygen 2 L/min at baseline; supply confirmed"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on inhaler technique and the COPD action plan completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "not_started",
+      "detail": "Functional assessment not done; patient deconditioned after 4-day stay"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Son to drive patient home after work",
+      "window": {
+        "start": "2026-06-19T17:30:00-05:00",
+        "end": "2026-06-19T18:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "63-year-old woman with former smoker (40 pack-years), GERD, admitted 6/15 with COPD exacerbation triggered by viral bronchitis. Ambulated 100 m with PT yesterday without desaturation.",
+    "nursing_note": "Ambulated in hallway with son present. Still waiting on pharmacy to finish the medication reconciliation. Patient asked what the new tiotropium 18 mcg inhaled daily is for; teaching still needed. A mild rash appeared briefly at the IV insertion site on day 2. It was assessed as a minor irritation, treated with a topical cream, and has fully resolved.",
+    "case_manager_note": "Met with patient and son to review the discharge plan. Patient asked to move the pulmonology clinic appointment; rebooked within 14 days of discharge."
+  }
+}

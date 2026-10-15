@@ -1,0 +1,109 @@
+{
+  "case_id": "CASE-029",
+  "condition": "HF",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-03-09T11:00:00-05:00",
+    "end": "2026-03-09T13:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Nephew will stay with patient for the first week"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete",
+      "detail": "2 g sodium and 2 L fluid restriction reviewed with teach-back"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Heart failure clinic visit booked",
+      "scheduled_for": "2026-03-13T13:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Telemonitoring scale teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to the hospital outpatient pharmacy"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list",
+      "documented_at": "2026-03-08T14:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on daily weights and heart failure symptom monitoring completed"
+    },
+    "pcp_notification_status": {
+      "status": "not_started",
+      "detail": "PCP not yet notified of admission or medication changes"
+    },
+    "pending_consult": {
+      "status": "not_started",
+      "detail": "Electrophysiology consult ordered; patient not yet seen"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Medical transport to take patient home",
+      "window": {
+        "start": "2026-03-09T11:00:00-05:00",
+        "end": "2026-03-09T12:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "54-year-old man with CAD s/p PCI, CKD stage 3, admitted 3/5 with HFpEF exacerbation precipitated by dietary sodium excess. Net negative 6.8 L this admission; dyspnea back to baseline.",
+    "nursing_note": "Up in chair for meals. Pain controlled. A routine ECG was performed on day 3. The result showed no changes compared to the admission ECG. No clinical action is needed.",
+    "case_manager_note": "Plan is discharge home with nephew. 3/8 18:00: Metoprolol succinate changed from 25 mg daily to 50 mg daily on evening rounds. Patient and nephew not yet told; this afternoon's teaching covered the old dose. Electrophysiology has not seen the patient yet."
+  }
+}
