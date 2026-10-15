@@ -8,6 +8,13 @@ to the exact message that produced it.
     02 Case Analyzer    -> AgentMessage[CaseSummary]
     03 Barrier Detector -> AgentMessage[BarrierDetection]   (reads CaseSummary)
     04 Task Detector    -> AgentMessage[TaskDetection]      (reads CaseSummary + BarrierDetection)
+    05 Rec. Generator   -> AgentMessage[RecommendationSet]  (src/models/plan.py)
+    06 Approval Gate    -> AgentMessage[ApprovalDecisions]  (src/models/plan.py)
+    07 Policy Layer     -> AgentMessage[PolicyLayerOutput]  (src/models/tools.py)
+    08 Output Composer  -> AgentMessage[DischargePlan]      (src/models/plan.py)
+
+Each payload class declares the stage that produces it in a ``STAGE`` class
+variable; the envelope rejects a payload sent under any other stage.
 
 LLM stages must return JSON that validates against these models. A response
 that fails validation is rejected and logged; it is never repaired silently.
@@ -17,7 +24,7 @@ from __future__ import annotations
 import uuid
 from datetime import datetime, timezone
 from enum import Enum
-from typing import Generic, Literal, Optional, TypeVar
+from typing import ClassVar, Generic, Literal, Optional, TypeVar
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -79,6 +86,8 @@ class TimeConstraint(_Strict):
 
 
 class CaseSummary(_Strict):
+    STAGE: ClassVar[Stage] = Stage.CASE_ANALYZER
+
     clinical_summary: str
     social_summary: str
     field_snapshots: list[FieldSnapshot]
@@ -117,6 +126,8 @@ class InformationGap(_Strict):
 
 
 class BarrierDetection(_Strict):
+    STAGE: ClassVar[Stage] = Stage.BARRIER_DETECTOR
+
     barriers: list[BarrierFinding] = Field(default_factory=list)
     information_gaps: list[InformationGap] = Field(default_factory=list)
 
@@ -140,6 +151,8 @@ class TaskFinding(_Strict):
 
 
 class TaskDetection(_Strict):
+    STAGE: ClassVar[Stage] = Stage.TASK_DETECTOR
+
     tasks: list[TaskFinding] = Field(default_factory=list)
 
 
@@ -162,17 +175,11 @@ class AgentMessage(_Strict, Generic[P]):
 
     @model_validator(mode="after")
     def _stage_matches_payload(self) -> "AgentMessage":
-        expected = PAYLOAD_STAGE.get(type(self.payload))
+        expected = getattr(type(self.payload), "STAGE", None)
         if expected is not None and expected is not self.stage:
             raise ValueError(f"{type(self.payload).__name__} must come from stage {expected.value}")
         return self
 
-
-PAYLOAD_STAGE = {
-    CaseSummary: Stage.CASE_ANALYZER,
-    BarrierDetection: Stage.BARRIER_DETECTOR,
-    TaskDetection: Stage.TASK_DETECTOR,
-}
 
 CaseSummaryMessage = AgentMessage[CaseSummary]
 BarrierDetectionMessage = AgentMessage[BarrierDetection]

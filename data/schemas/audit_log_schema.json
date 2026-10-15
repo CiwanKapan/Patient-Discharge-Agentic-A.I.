@@ -1,0 +1,1459 @@
+{
+  "$defs": {
+    "ApprovalClassification": {
+      "additionalProperties": false,
+      "properties": {
+        "recommendation_id": {
+          "title": "Recommendation Id",
+          "type": "string"
+        },
+        "classification": {
+          "enum": [
+            "auto_safe",
+            "requires_human_approval",
+            "forbidden"
+          ],
+          "title": "Classification",
+          "type": "string"
+        },
+        "requires_human_approval": {
+          "title": "Requires Human Approval",
+          "type": "boolean"
+        },
+        "matched_rule_id": {
+          "anyOf": [
+            {
+              "pattern": "^(GR-A|GF-T|GA-T)\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "GR-A* for approval-required actions, GF-T* for forbidden tools.",
+          "title": "Matched Rule Id"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "recommendation_id",
+        "classification",
+        "requires_human_approval",
+        "reason"
+      ],
+      "title": "ApprovalClassification",
+      "type": "object"
+    },
+    "ApprovalClassificationDetails": {
+      "additionalProperties": false,
+      "properties": {
+        "recommendation_id": {
+          "title": "Recommendation Id",
+          "type": "string"
+        },
+        "classification": {
+          "enum": [
+            "auto_safe",
+            "requires_human_approval",
+            "forbidden"
+          ],
+          "title": "Classification",
+          "type": "string"
+        },
+        "requires_human_approval": {
+          "title": "Requires Human Approval",
+          "type": "boolean"
+        },
+        "matched_rule_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Matched Rule Id"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "recommendation_id",
+        "classification",
+        "requires_human_approval",
+        "reason"
+      ],
+      "title": "ApprovalClassificationDetails",
+      "type": "object"
+    },
+    "ApprovalClassified": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "sequence": {
+          "description": "0 for the first event in a run, then +1 per event.",
+          "minimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Stage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "message_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pipeline message this event came from, if any.",
+          "title": "Message Id"
+        },
+        "audit_id": {
+          "const": "AU-05",
+          "default": "AU-05",
+          "title": "Audit Id",
+          "type": "string"
+        },
+        "event_type": {
+          "const": "approval_classification",
+          "default": "approval_classification",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "details": {
+          "$ref": "#/$defs/ApprovalClassificationDetails"
+        }
+      },
+      "required": [
+        "run_id",
+        "case_id",
+        "sequence",
+        "details"
+      ],
+      "title": "ApprovalClassified",
+      "type": "object"
+    },
+    "BarrierFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "barrier_id": {
+          "pattern": "^B-[CEFS]\\d{2}$",
+          "title": "Barrier Id",
+          "type": "string"
+        },
+        "urgency": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Urgency",
+          "type": "string"
+        },
+        "cross_field": {
+          "description": "True when the barrier only exists because of how two or more facts relate (e.g. transport window vs discharge window).",
+          "title": "Cross Field",
+          "type": "boolean"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "barrier_id",
+        "urgency",
+        "cross_field",
+        "evidence",
+        "rationale"
+      ],
+      "title": "BarrierFinding",
+      "type": "object"
+    },
+    "BarrierFlagged": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "sequence": {
+          "description": "0 for the first event in a run, then +1 per event.",
+          "minimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Stage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "message_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pipeline message this event came from, if any.",
+          "title": "Message Id"
+        },
+        "audit_id": {
+          "const": "AU-03",
+          "default": "AU-03",
+          "title": "Audit Id",
+          "type": "string"
+        },
+        "event_type": {
+          "const": "barrier_flagged",
+          "default": "barrier_flagged",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "details": {
+          "$ref": "#/$defs/BarrierFlaggedDetails"
+        }
+      },
+      "required": [
+        "run_id",
+        "case_id",
+        "sequence",
+        "details"
+      ],
+      "title": "BarrierFlagged",
+      "type": "object"
+    },
+    "BarrierFlaggedDetails": {
+      "additionalProperties": false,
+      "properties": {
+        "barrier_id": {
+          "pattern": "^B-[CEFS]\\d{2}$",
+          "title": "Barrier Id",
+          "type": "string"
+        },
+        "evidence_fields": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidence Fields",
+          "type": "array"
+        },
+        "urgency": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Urgency",
+          "type": "string"
+        }
+      },
+      "required": [
+        "barrier_id",
+        "evidence_fields",
+        "urgency"
+      ],
+      "title": "BarrierFlaggedDetails",
+      "type": "object"
+    },
+    "CaseLoaded": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "sequence": {
+          "description": "0 for the first event in a run, then +1 per event.",
+          "minimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Stage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "message_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pipeline message this event came from, if any.",
+          "title": "Message Id"
+        },
+        "audit_id": {
+          "const": "AU-01",
+          "default": "AU-01",
+          "title": "Audit Id",
+          "type": "string"
+        },
+        "event_type": {
+          "const": "case_loaded",
+          "default": "case_loaded",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "details": {
+          "$ref": "#/$defs/CaseLoadedDetails"
+        }
+      },
+      "required": [
+        "run_id",
+        "case_id",
+        "sequence",
+        "details"
+      ],
+      "title": "CaseLoaded",
+      "type": "object"
+    },
+    "CaseLoadedDetails": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "description": "Path or identifier the case was read from.",
+          "title": "Source",
+          "type": "string"
+        },
+        "case_sha256": {
+          "description": "Hash of the raw case file.",
+          "pattern": "^[0-9a-f]{64}$",
+          "title": "Case Sha256",
+          "type": "string"
+        },
+        "schema_valid": {
+          "title": "Schema Valid",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "source",
+        "case_sha256",
+        "schema_valid"
+      ],
+      "title": "CaseLoadedDetails",
+      "type": "object"
+    },
+    "DischargePlan": {
+      "additionalProperties": false,
+      "description": "The structured plan a run returns (logged as AU-07).",
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "barriers": {
+          "items": {
+            "$ref": "#/$defs/BarrierFinding"
+          },
+          "title": "Barriers",
+          "type": "array"
+        },
+        "information_gaps": {
+          "items": {
+            "$ref": "#/$defs/InformationGap"
+          },
+          "title": "Information Gaps",
+          "type": "array"
+        },
+        "tasks": {
+          "items": {
+            "$ref": "#/$defs/TaskFinding"
+          },
+          "title": "Tasks",
+          "type": "array"
+        },
+        "actions": {
+          "description": "In rank order.",
+          "items": {
+            "$ref": "#/$defs/PlannedAction"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "denied_tool_calls": {
+          "items": {
+            "$ref": "#/$defs/PolicyDecision"
+          },
+          "title": "Denied Tool Calls",
+          "type": "array"
+        }
+      },
+      "required": [
+        "case_id",
+        "summary"
+      ],
+      "title": "DischargePlan",
+      "type": "object"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "description": "A pointer into the case that supports a finding.\n\n``field`` is a dotted path into PatientCase, e.g.\n``tracked_fields.transport_status``, ``planned_discharge_window`` or\n``free_text_notes.case_manager_note``.",
+      "properties": {
+        "field": {
+          "pattern": "^(tracked_fields\\.[a-z_]+|planned_discharge_window|free_text_notes\\.[a-z_]+)$",
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FieldStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Verbatim chart text or value relied on.",
+          "title": "Quote"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "EvidenceRef",
+      "type": "object"
+    },
+    "FieldStatus": {
+      "enum": [
+        "complete",
+        "in_progress",
+        "not_started",
+        "not_applicable",
+        "unknown"
+      ],
+      "title": "FieldStatus",
+      "type": "string"
+    },
+    "InformationGap": {
+      "additionalProperties": false,
+      "description": "Information needed to rule a barrier in or out is not documented.\n\nThis is NOT a barrier. It is scored separately and turns into a\nverification action rather than a discharge-blocking finding.",
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "candidate_barrier_id": {
+          "pattern": "^B-[CEFS]\\d{2}$",
+          "title": "Candidate Barrier Id",
+          "type": "string"
+        },
+        "question": {
+          "description": "What a human should confirm, e.g. 'Is a follow-up booked?'",
+          "title": "Question",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "candidate_barrier_id",
+        "question"
+      ],
+      "title": "InformationGap",
+      "type": "object"
+    },
+    "OutputEmitted": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "sequence": {
+          "description": "0 for the first event in a run, then +1 per event.",
+          "minimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Stage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "message_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pipeline message this event came from, if any.",
+          "title": "Message Id"
+        },
+        "audit_id": {
+          "const": "AU-07",
+          "default": "AU-07",
+          "title": "Audit Id",
+          "type": "string"
+        },
+        "event_type": {
+          "const": "output_emitted",
+          "default": "output_emitted",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "details": {
+          "$ref": "#/$defs/OutputEmittedDetails"
+        }
+      },
+      "required": [
+        "run_id",
+        "case_id",
+        "sequence",
+        "details"
+      ],
+      "title": "OutputEmitted",
+      "type": "object"
+    },
+    "OutputEmittedDetails": {
+      "additionalProperties": false,
+      "properties": {
+        "plan": {
+          "$ref": "#/$defs/DischargePlan"
+        }
+      },
+      "required": [
+        "plan"
+      ],
+      "title": "OutputEmittedDetails",
+      "type": "object"
+    },
+    "PlannedAction": {
+      "additionalProperties": false,
+      "properties": {
+        "recommendation": {
+          "$ref": "#/$defs/Recommendation"
+        },
+        "approval": {
+          "$ref": "#/$defs/ApprovalClassification"
+        }
+      },
+      "required": [
+        "recommendation",
+        "approval"
+      ],
+      "title": "PlannedAction",
+      "type": "object"
+    },
+    "PolicyDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "tool_name": {
+          "title": "Tool Name",
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "allowed",
+            "denied"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "pattern": "^G[AF]-T\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Matching GA-T*/GF-T* entry, or null for a tool on neither list.",
+          "title": "Rule Id"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "call_id",
+        "tool_name",
+        "decision",
+        "reason"
+      ],
+      "title": "PolicyDecision",
+      "type": "object"
+    },
+    "PolicyDecisionDetails": {
+      "additionalProperties": false,
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "tool_name": {
+          "title": "Tool Name",
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "allowed",
+            "denied"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rule Id"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "call_id",
+        "tool_name",
+        "decision",
+        "reason"
+      ],
+      "title": "PolicyDecisionDetails",
+      "type": "object"
+    },
+    "PolicyDecisionEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "sequence": {
+          "description": "0 for the first event in a run, then +1 per event.",
+          "minimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Stage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "message_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pipeline message this event came from, if any.",
+          "title": "Message Id"
+        },
+        "audit_id": {
+          "const": "AU-06",
+          "default": "AU-06",
+          "title": "Audit Id",
+          "type": "string"
+        },
+        "event_type": {
+          "const": "policy_decision",
+          "default": "policy_decision",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "details": {
+          "$ref": "#/$defs/PolicyDecisionDetails"
+        }
+      },
+      "required": [
+        "run_id",
+        "case_id",
+        "sequence",
+        "details"
+      ],
+      "title": "PolicyDecisionEvent",
+      "type": "object"
+    },
+    "Recommendation": {
+      "additionalProperties": false,
+      "properties": {
+        "recommendation_id": {
+          "title": "Recommendation Id",
+          "type": "string"
+        },
+        "rank": {
+          "description": "1 is the most urgent.",
+          "minimum": 1,
+          "title": "Rank",
+          "type": "integer"
+        },
+        "kind": {
+          "description": "complete_task resolves a flagged barrier; verify_information asks a human to confirm an information gap.",
+          "enum": [
+            "complete_task",
+            "verify_information"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "urgency": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Urgency",
+          "type": "string"
+        },
+        "owner_role": {
+          "enum": [
+            "case_manager",
+            "nurse",
+            "pharmacist",
+            "physical_therapist",
+            "physician",
+            "social_worker"
+          ],
+          "title": "Owner Role",
+          "type": "string"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "pattern": "^T-(MD|RN|PH|CM)\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Id"
+        },
+        "barrier_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Barrier Ids",
+          "type": "array"
+        },
+        "information_gap_field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Information Gap Field"
+        },
+        "proposed_action": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Action name the agent wants taken, e.g. 'escalate_to_attending_physician'. Matched against the taxonomy by the approval gate.",
+          "title": "Proposed Action"
+        },
+        "proposed_tool_calls": {
+          "items": {
+            "$ref": "#/$defs/ToolCall"
+          },
+          "title": "Proposed Tool Calls",
+          "type": "array"
+        }
+      },
+      "required": [
+        "recommendation_id",
+        "rank",
+        "kind",
+        "description",
+        "urgency",
+        "owner_role"
+      ],
+      "title": "Recommendation",
+      "type": "object"
+    },
+    "RunCompleted": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "sequence": {
+          "description": "0 for the first event in a run, then +1 per event.",
+          "minimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Stage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "message_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pipeline message this event came from, if any.",
+          "title": "Message Id"
+        },
+        "audit_id": {
+          "const": "AU-08",
+          "default": "AU-08",
+          "title": "Audit Id",
+          "type": "string"
+        },
+        "event_type": {
+          "const": "run_completed",
+          "default": "run_completed",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "details": {
+          "$ref": "#/$defs/RunCompletedDetails"
+        }
+      },
+      "required": [
+        "run_id",
+        "case_id",
+        "sequence",
+        "details"
+      ],
+      "title": "RunCompleted",
+      "type": "object"
+    },
+    "RunCompletedDetails": {
+      "additionalProperties": false,
+      "properties": {
+        "status": {
+          "enum": [
+            "succeeded",
+            "failed"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "model": {
+          "description": "Model id used by LLM stages, e.g. claude-haiku-5-5.",
+          "title": "Model",
+          "type": "string"
+        },
+        "prompt_versions": {
+          "additionalProperties": {
+            "type": "string"
+          },
+          "description": "Prompt version per LLM stage.",
+          "title": "Prompt Versions",
+          "type": "object"
+        },
+        "started_at": {
+          "format": "date-time",
+          "title": "Started At",
+          "type": "string"
+        },
+        "completed_at": {
+          "format": "date-time",
+          "title": "Completed At",
+          "type": "string"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "status",
+        "model",
+        "prompt_versions",
+        "started_at",
+        "completed_at"
+      ],
+      "title": "RunCompletedDetails",
+      "type": "object"
+    },
+    "Stage": {
+      "enum": [
+        "01_input_reader",
+        "02_case_analyzer",
+        "03_barrier_detector",
+        "04_task_detector",
+        "05_rec_generator",
+        "06_approval_gate",
+        "07_policy_layer",
+        "08_output_composer"
+      ],
+      "title": "Stage",
+      "type": "string"
+    },
+    "TaskFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "pattern": "^T-(MD|RN|PH|CM)\\d{2}$",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "resolves": {
+          "description": "Barrier IDs this task resolves.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Resolves",
+          "type": "array"
+        },
+        "owner_role": {
+          "enum": [
+            "case_manager",
+            "nurse",
+            "pharmacist",
+            "physical_therapist",
+            "physician",
+            "social_worker"
+          ],
+          "title": "Owner Role",
+          "type": "string"
+        },
+        "urgency": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Urgency",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "resolves",
+        "owner_role",
+        "urgency",
+        "evidence",
+        "rationale"
+      ],
+      "title": "TaskFinding",
+      "type": "object"
+    },
+    "TaskRecommended": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "sequence": {
+          "description": "0 for the first event in a run, then +1 per event.",
+          "minimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Stage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "message_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pipeline message this event came from, if any.",
+          "title": "Message Id"
+        },
+        "audit_id": {
+          "const": "AU-04",
+          "default": "AU-04",
+          "title": "Audit Id",
+          "type": "string"
+        },
+        "event_type": {
+          "const": "task_recommended",
+          "default": "task_recommended",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "details": {
+          "$ref": "#/$defs/TaskRecommendedDetails"
+        }
+      },
+      "required": [
+        "run_id",
+        "case_id",
+        "sequence",
+        "details"
+      ],
+      "title": "TaskRecommended",
+      "type": "object"
+    },
+    "TaskRecommendedDetails": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "pattern": "^T-(MD|RN|PH|CM)\\d{2}$",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "owner_role": {
+          "enum": [
+            "case_manager",
+            "nurse",
+            "pharmacist",
+            "physical_therapist",
+            "physician",
+            "social_worker"
+          ],
+          "title": "Owner Role",
+          "type": "string"
+        },
+        "linked_barrier_ids": {
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Linked Barrier Ids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task_id",
+        "owner_role",
+        "linked_barrier_ids"
+      ],
+      "title": "TaskRecommendedDetails",
+      "type": "object"
+    },
+    "ToolCall": {
+      "additionalProperties": false,
+      "description": "A request to run a tool. Proposed by an LLM stage, never run before policy review.",
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "tool_name": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Tool Name",
+          "type": "string"
+        },
+        "arguments": {
+          "additionalProperties": true,
+          "title": "Arguments",
+          "type": "object"
+        },
+        "requested_by": {
+          "$ref": "#/$defs/Stage"
+        }
+      },
+      "required": [
+        "tool_name",
+        "requested_by"
+      ],
+      "title": "ToolCall",
+      "type": "object"
+    },
+    "ToolCallDetails": {
+      "additionalProperties": false,
+      "properties": {
+        "call": {
+          "$ref": "#/$defs/ToolCall"
+        },
+        "decision": {
+          "enum": [
+            "allowed",
+            "denied"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "output": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "call",
+        "decision"
+      ],
+      "title": "ToolCallDetails",
+      "type": "object"
+    },
+    "ToolCallEvent": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "sequence": {
+          "description": "0 for the first event in a run, then +1 per event.",
+          "minimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Stage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "message_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pipeline message this event came from, if any.",
+          "title": "Message Id"
+        },
+        "audit_id": {
+          "const": "AU-02",
+          "default": "AU-02",
+          "title": "Audit Id",
+          "type": "string"
+        },
+        "event_type": {
+          "const": "tool_call",
+          "default": "tool_call",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "details": {
+          "$ref": "#/$defs/ToolCallDetails"
+        }
+      },
+      "required": [
+        "run_id",
+        "case_id",
+        "sequence",
+        "details"
+      ],
+      "title": "ToolCallEvent",
+      "type": "object"
+    }
+  },
+  "description": "One line of the JSONL audit log. Use AuditLogLine.model_validate_json(line).root.",
+  "discriminator": {
+    "mapping": {
+      "approval_classification": "#/$defs/ApprovalClassified",
+      "barrier_flagged": "#/$defs/BarrierFlagged",
+      "case_loaded": "#/$defs/CaseLoaded",
+      "output_emitted": "#/$defs/OutputEmitted",
+      "policy_decision": "#/$defs/PolicyDecisionEvent",
+      "run_completed": "#/$defs/RunCompleted",
+      "task_recommended": "#/$defs/TaskRecommended",
+      "tool_call": "#/$defs/ToolCallEvent"
+    },
+    "propertyName": "event_type"
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/CaseLoaded"
+    },
+    {
+      "$ref": "#/$defs/ToolCallEvent"
+    },
+    {
+      "$ref": "#/$defs/BarrierFlagged"
+    },
+    {
+      "$ref": "#/$defs/TaskRecommended"
+    },
+    {
+      "$ref": "#/$defs/ApprovalClassified"
+    },
+    {
+      "$ref": "#/$defs/PolicyDecisionEvent"
+    },
+    {
+      "$ref": "#/$defs/OutputEmitted"
+    },
+    {
+      "$ref": "#/$defs/RunCompleted"
+    }
+  ],
+  "title": "AuditLogLine"
+}

@@ -1,0 +1,45 @@
+{
+  "$defs": {
+    "Stage": {
+      "enum": [
+        "01_input_reader",
+        "02_case_analyzer",
+        "03_barrier_detector",
+        "04_task_detector",
+        "05_rec_generator",
+        "06_approval_gate",
+        "07_policy_layer",
+        "08_output_composer"
+      ],
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "description": "A request to run a tool. Proposed by an LLM stage, never run before policy review.",
+  "properties": {
+    "call_id": {
+      "title": "Call Id",
+      "type": "string"
+    },
+    "tool_name": {
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "title": "Tool Name",
+      "type": "string"
+    },
+    "arguments": {
+      "additionalProperties": true,
+      "title": "Arguments",
+      "type": "object"
+    },
+    "requested_by": {
+      "$ref": "#/$defs/Stage"
+    }
+  },
+  "required": [
+    "tool_name",
+    "requested_by"
+  ],
+  "title": "ToolCall",
+  "type": "object"
+}

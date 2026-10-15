@@ -84,10 +84,10 @@ The system is structured as an 8-stage pipeline with strict deterministic govern
 | 2 | **Case Analyzer** | Parsed Case | `AgentMessage[CaseSummary]` | Prevents premature conclusions via structured context. | LLM Reasoning |
 | 3 | **Barrier Detector** | `CaseSummary` | `AgentMessage[BarrierDetection]` | Links every flagged barrier directly to case evidence. | LLM Reasoning |
 | 4 | **Task Detector** | `CaseSummary` + `BarrierDetection` | `AgentMessage[TaskDetection]` | Identifies pending clinical/logistical obligations. | LLM Reasoning |
-| 5 | **Rec. Generator** | Barriers & Tasks | Prioritized Actions | Ranks urgent vs. routine recommended next steps. | LLM Reasoning |
-| 6 | **Approval Gate** | Proposed Actions | Safety Classification | Deterministically tags: `auto_safe`, `requires_human_approval`, `forbidden`. | Deterministic Code |
-| 7 | **Policy Layer** | Proposed Tool Calls | Allowed / Denied | Intercepts forbidden EHR tools (e.g., ordering meds). | Deterministic Code |
-| 8 | **Audit Logger** | All Pipeline Events | JSONL Event Trace | Ensures end-to-end traceability and reproducibility (`AU-01` to `AU-08`). | Deterministic Code |
+| 5 | **Rec. Generator** | Barriers, Gaps & Tasks | `AgentMessage[RecommendationSet]` | Ranks urgent vs. routine recommended next steps. | LLM Reasoning |
+| 6 | **Approval Gate** | `RecommendationSet` | `AgentMessage[ApprovalDecisions]` | Deterministically tags: `auto_safe`, `requires_human_approval`, `forbidden`. | Deterministic Code |
+| 7 | **Policy Layer** | `ToolCall` requests | `AgentMessage[PolicyLayerOutput]` | Intercepts forbidden EHR tools (e.g., ordering meds). | Deterministic Code |
+| 8 | **Audit Logger** | All Pipeline Events | `AuditEvent` JSONL lines | Ensures end-to-end traceability and reproducibility (`AU-01` to `AU-08`). | Deterministic Code |
 
 ### Inter-Agent Message Contract
 
@@ -97,16 +97,30 @@ Every stage hands off the same envelope, `AgentMessage`, defined in `src/models/
 |---|---|
 | `schema_version` | Contract version (currently `1.0`). |
 | `message_id`, `upstream` | This message's ID and the IDs of the messages it was built from. |
-| `run_id`, `case_id`, `stage` | Which run, case, and pipeline stage produced it. The stage must match the payload type. |
+| `run_id`, `case_id`, `stage` | Which run, case, and pipeline stage produced it. |
 | `model`, `prompt_version` | Set for LLM stages, `null` for deterministic code. |
-| `payload` | `CaseSummary`, `BarrierDetection`, or `TaskDetection`. |
+| `payload` | The stage's output type, listed below. The stage must match the payload type. |
 | `warnings` | Non-fatal issues raised by the stage. |
+
+| Stage | Payload | Defined in |
+|---|---|---|
+| 02 Case Analyzer | `CaseSummary` | `src/models/messages.py` |
+| 03 Barrier Detector | `BarrierDetection` | `src/models/messages.py` |
+| 04 Task Detector | `TaskDetection` | `src/models/messages.py` |
+| 05 Rec. Generator | `RecommendationSet` | `src/models/plan.py` |
+| 06 Approval Gate | `ApprovalDecisions` | `src/models/plan.py` |
+| 07 Policy Layer | `PolicyLayerOutput` | `src/models/tools.py` |
+| 08 Output Composer | `DischargePlan` | `src/models/plan.py` |
 
 Contract rules:
 - **Every finding cites evidence.** Each barrier and task carries `evidence` entries that point at a case path, such as `tracked_fields.transport_status` or `free_text_notes.case_manager_note`.
 - **Cross-field barriers cite two or more fields.** A barrier marked `cross_field: true` is rejected unless it points at at least two distinct fields.
 - **Taxonomy checks.** `check_against_taxonomy()` confirms IDs exist and fit the condition, that `cross_field` matches the taxonomy, and that each task resolves a barrier that was actually flagged.
 - **No silent repair.** LLM output that fails validation is rejected and logged.
+- **Recommendations are either tasks or checks.** A `complete_task` recommendation names a task and the barriers it resolves. A `verify_information` recommendation names an information gap and claims no barrier.
+- **Approval classifications are consistent.** `requires_human_approval` is true exactly when the classification says so, and it must cite a `GR-A*` rule. A `forbidden` classification must cite a `GF-T*` tool. `check_governance()` confirms every approval-required action was classified correctly.
+- **Proposing is not calling.** Some names are both an approval-required action and a forbidden tool, such as `modify_medication_list`. Proposing the action for a clinician needs approval. Calling the tool is always forbidden.
+- **Default deny for tools.** The policy layer allows only tools on the `GA-T*` list. Forbidden tools and unknown tools are denied, and tool results exist only for allowed calls. `check_policy()` verifies each decision against the taxonomy.
 
 The Pydantic models are the source of truth. JSON Schemas in `data/schemas/` are generated from them with `python scripts/export_schemas.py`, and a test fails if the committed schemas are out of date.
 
@@ -187,7 +201,8 @@ agentic_discharge_coordinator/
 │   │   ├── patient_case_schema.json # JSON Schema for input validation
 │   │   ├── answer_key_schema.json   # Gold-standard answer key format
 │   │   ├── scenario_schema.json     # Targeted scenario (case + key) format
-│   │   ├── messages/                # Inter-agent message schemas (stages 02-04)
+│   │   ├── tool_call_schema.json    # Tool call request format
+│   │   ├── messages/                # Inter-agent message schemas (stages 02-08)
 │   │   └── audit_log_schema.json   # Schema for JSONL audit events
 │   ├── scenarios/                   # Targeted cross-field and missing-info scenarios
 │   ├── synthetic_cases/             # Stratified dataset (160 cases)
@@ -274,7 +289,7 @@ python evaluation/evaluate.py --all-baselines --dataset data/synthetic_cases/
 This system is built with a **human-in-the-loop (HITL)** architecture and deterministic security controls:
 - **Forbidden Tools (`GF-T01` to `GF-T06`):** Any attempt by the LLM to call clinical write functions (e.g., placing discharge orders or sending prescriptions) is intercepted and logged as a policy denial.
 - **Approval-Required Actions (`GR-A01` to `GR-A07`):** High-stakes recommendations must carry the `requires_human_approval = true` flag.
-- **Immutable Audit Trail (`AU-01` to `AU-08`):** Every case run generates a complete event trace in JSONL format for auditability and compliance reporting.
+- **Immutable Audit Trail (`AU-01` to `AU-08`):** Every case run generates a complete event trace in JSONL format for auditability and compliance reporting. Each line is an `AuditEvent` from `src/models/audit.py` with a typed `details` object per event type. `check_audit_trail()` verifies that a run starts with `case_loaded`, ends with `run_completed`, and has unbroken sequence numbers. It also confirms every tool call has a policy decision and that the logged barriers, tasks, approvals, and denials match the emitted plan. A run whose plan has no barriers, tasks, or actions is not penalized for the matching events it could not log. Tool call events are required unless the check is told the run made no tool calls.
 
 ---
 

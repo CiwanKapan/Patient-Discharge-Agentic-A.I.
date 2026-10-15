@@ -1,0 +1,592 @@
+{
+  "$defs": {
+    "ApprovalClassification": {
+      "additionalProperties": false,
+      "properties": {
+        "recommendation_id": {
+          "title": "Recommendation Id",
+          "type": "string"
+        },
+        "classification": {
+          "enum": [
+            "auto_safe",
+            "requires_human_approval",
+            "forbidden"
+          ],
+          "title": "Classification",
+          "type": "string"
+        },
+        "requires_human_approval": {
+          "title": "Requires Human Approval",
+          "type": "boolean"
+        },
+        "matched_rule_id": {
+          "anyOf": [
+            {
+              "pattern": "^(GR-A|GF-T|GA-T)\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "GR-A* for approval-required actions, GF-T* for forbidden tools.",
+          "title": "Matched Rule Id"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "recommendation_id",
+        "classification",
+        "requires_human_approval",
+        "reason"
+      ],
+      "title": "ApprovalClassification",
+      "type": "object"
+    },
+    "BarrierFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "barrier_id": {
+          "pattern": "^B-[CEFS]\\d{2}$",
+          "title": "Barrier Id",
+          "type": "string"
+        },
+        "urgency": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Urgency",
+          "type": "string"
+        },
+        "cross_field": {
+          "description": "True when the barrier only exists because of how two or more facts relate (e.g. transport window vs discharge window).",
+          "title": "Cross Field",
+          "type": "boolean"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "barrier_id",
+        "urgency",
+        "cross_field",
+        "evidence",
+        "rationale"
+      ],
+      "title": "BarrierFinding",
+      "type": "object"
+    },
+    "DischargePlan": {
+      "additionalProperties": false,
+      "description": "The structured plan a run returns (logged as AU-07).",
+      "properties": {
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "barriers": {
+          "items": {
+            "$ref": "#/$defs/BarrierFinding"
+          },
+          "title": "Barriers",
+          "type": "array"
+        },
+        "information_gaps": {
+          "items": {
+            "$ref": "#/$defs/InformationGap"
+          },
+          "title": "Information Gaps",
+          "type": "array"
+        },
+        "tasks": {
+          "items": {
+            "$ref": "#/$defs/TaskFinding"
+          },
+          "title": "Tasks",
+          "type": "array"
+        },
+        "actions": {
+          "description": "In rank order.",
+          "items": {
+            "$ref": "#/$defs/PlannedAction"
+          },
+          "title": "Actions",
+          "type": "array"
+        },
+        "denied_tool_calls": {
+          "items": {
+            "$ref": "#/$defs/PolicyDecision"
+          },
+          "title": "Denied Tool Calls",
+          "type": "array"
+        }
+      },
+      "required": [
+        "case_id",
+        "summary"
+      ],
+      "title": "DischargePlan",
+      "type": "object"
+    },
+    "EvidenceRef": {
+      "additionalProperties": false,
+      "description": "A pointer into the case that supports a finding.\n\n``field`` is a dotted path into PatientCase, e.g.\n``tracked_fields.transport_status``, ``planned_discharge_window`` or\n``free_text_notes.case_manager_note``.",
+      "properties": {
+        "field": {
+          "pattern": "^(tracked_fields\\.[a-z_]+|planned_discharge_window|free_text_notes\\.[a-z_]+)$",
+          "title": "Field",
+          "type": "string"
+        },
+        "status": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FieldStatus"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "quote": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Verbatim chart text or value relied on.",
+          "title": "Quote"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "EvidenceRef",
+      "type": "object"
+    },
+    "FieldStatus": {
+      "enum": [
+        "complete",
+        "in_progress",
+        "not_started",
+        "not_applicable",
+        "unknown"
+      ],
+      "title": "FieldStatus",
+      "type": "string"
+    },
+    "InformationGap": {
+      "additionalProperties": false,
+      "description": "Information needed to rule a barrier in or out is not documented.\n\nThis is NOT a barrier. It is scored separately and turns into a\nverification action rather than a discharge-blocking finding.",
+      "properties": {
+        "field": {
+          "title": "Field",
+          "type": "string"
+        },
+        "candidate_barrier_id": {
+          "pattern": "^B-[CEFS]\\d{2}$",
+          "title": "Candidate Barrier Id",
+          "type": "string"
+        },
+        "question": {
+          "description": "What a human should confirm, e.g. 'Is a follow-up booked?'",
+          "title": "Question",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "candidate_barrier_id",
+        "question"
+      ],
+      "title": "InformationGap",
+      "type": "object"
+    },
+    "PlannedAction": {
+      "additionalProperties": false,
+      "properties": {
+        "recommendation": {
+          "$ref": "#/$defs/Recommendation"
+        },
+        "approval": {
+          "$ref": "#/$defs/ApprovalClassification"
+        }
+      },
+      "required": [
+        "recommendation",
+        "approval"
+      ],
+      "title": "PlannedAction",
+      "type": "object"
+    },
+    "PolicyDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "tool_name": {
+          "title": "Tool Name",
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "allowed",
+            "denied"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "pattern": "^G[AF]-T\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Matching GA-T*/GF-T* entry, or null for a tool on neither list.",
+          "title": "Rule Id"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "call_id",
+        "tool_name",
+        "decision",
+        "reason"
+      ],
+      "title": "PolicyDecision",
+      "type": "object"
+    },
+    "Recommendation": {
+      "additionalProperties": false,
+      "properties": {
+        "recommendation_id": {
+          "title": "Recommendation Id",
+          "type": "string"
+        },
+        "rank": {
+          "description": "1 is the most urgent.",
+          "minimum": 1,
+          "title": "Rank",
+          "type": "integer"
+        },
+        "kind": {
+          "description": "complete_task resolves a flagged barrier; verify_information asks a human to confirm an information gap.",
+          "enum": [
+            "complete_task",
+            "verify_information"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "description": {
+          "title": "Description",
+          "type": "string"
+        },
+        "urgency": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Urgency",
+          "type": "string"
+        },
+        "owner_role": {
+          "enum": [
+            "case_manager",
+            "nurse",
+            "pharmacist",
+            "physical_therapist",
+            "physician",
+            "social_worker"
+          ],
+          "title": "Owner Role",
+          "type": "string"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "pattern": "^T-(MD|RN|PH|CM)\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Id"
+        },
+        "barrier_ids": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Barrier Ids",
+          "type": "array"
+        },
+        "information_gap_field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Information Gap Field"
+        },
+        "proposed_action": {
+          "anyOf": [
+            {
+              "pattern": "^[a-z][a-z0-9_]*$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Action name the agent wants taken, e.g. 'escalate_to_attending_physician'. Matched against the taxonomy by the approval gate.",
+          "title": "Proposed Action"
+        },
+        "proposed_tool_calls": {
+          "items": {
+            "$ref": "#/$defs/ToolCall"
+          },
+          "title": "Proposed Tool Calls",
+          "type": "array"
+        }
+      },
+      "required": [
+        "recommendation_id",
+        "rank",
+        "kind",
+        "description",
+        "urgency",
+        "owner_role"
+      ],
+      "title": "Recommendation",
+      "type": "object"
+    },
+    "Stage": {
+      "enum": [
+        "01_input_reader",
+        "02_case_analyzer",
+        "03_barrier_detector",
+        "04_task_detector",
+        "05_rec_generator",
+        "06_approval_gate",
+        "07_policy_layer",
+        "08_output_composer"
+      ],
+      "title": "Stage",
+      "type": "string"
+    },
+    "TaskFinding": {
+      "additionalProperties": false,
+      "properties": {
+        "task_id": {
+          "pattern": "^T-(MD|RN|PH|CM)\\d{2}$",
+          "title": "Task Id",
+          "type": "string"
+        },
+        "resolves": {
+          "description": "Barrier IDs this task resolves.",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Resolves",
+          "type": "array"
+        },
+        "owner_role": {
+          "enum": [
+            "case_manager",
+            "nurse",
+            "pharmacist",
+            "physical_therapist",
+            "physician",
+            "social_worker"
+          ],
+          "title": "Owner Role",
+          "type": "string"
+        },
+        "urgency": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Urgency",
+          "type": "string"
+        },
+        "evidence": {
+          "items": {
+            "$ref": "#/$defs/EvidenceRef"
+          },
+          "minItems": 1,
+          "title": "Evidence",
+          "type": "array"
+        },
+        "rationale": {
+          "title": "Rationale",
+          "type": "string"
+        }
+      },
+      "required": [
+        "task_id",
+        "resolves",
+        "owner_role",
+        "urgency",
+        "evidence",
+        "rationale"
+      ],
+      "title": "TaskFinding",
+      "type": "object"
+    },
+    "ToolCall": {
+      "additionalProperties": false,
+      "description": "A request to run a tool. Proposed by an LLM stage, never run before policy review.",
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "tool_name": {
+          "pattern": "^[a-z][a-z0-9_]*$",
+          "title": "Tool Name",
+          "type": "string"
+        },
+        "arguments": {
+          "additionalProperties": true,
+          "title": "Arguments",
+          "type": "object"
+        },
+        "requested_by": {
+          "$ref": "#/$defs/Stage"
+        }
+      },
+      "required": [
+        "tool_name",
+        "requested_by"
+      ],
+      "title": "ToolCall",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "message_id": {
+      "title": "Message Id",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "case_id": {
+      "title": "Case Id",
+      "type": "string"
+    },
+    "stage": {
+      "$ref": "#/$defs/Stage"
+    },
+    "produced_at": {
+      "format": "date-time",
+      "title": "Produced At",
+      "type": "string"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Model id for LLM stages, null for deterministic code.",
+      "title": "Model"
+    },
+    "prompt_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Version"
+    },
+    "upstream": {
+      "description": "message_ids this message was built from.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Upstream",
+      "type": "array"
+    },
+    "payload": {
+      "$ref": "#/$defs/DischargePlan"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "run_id",
+    "case_id",
+    "stage",
+    "payload"
+  ],
+  "title": "AgentMessage[DischargePlan]",
+  "type": "object"
+}

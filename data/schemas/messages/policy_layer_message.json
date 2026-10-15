@@ -1,0 +1,207 @@
+{
+  "$defs": {
+    "PolicyDecision": {
+      "additionalProperties": false,
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "tool_name": {
+          "title": "Tool Name",
+          "type": "string"
+        },
+        "decision": {
+          "enum": [
+            "allowed",
+            "denied"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "rule_id": {
+          "anyOf": [
+            {
+              "pattern": "^G[AF]-T\\d{2}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Matching GA-T*/GF-T* entry, or null for a tool on neither list.",
+          "title": "Rule Id"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "call_id",
+        "tool_name",
+        "decision",
+        "reason"
+      ],
+      "title": "PolicyDecision",
+      "type": "object"
+    },
+    "PolicyLayerOutput": {
+      "additionalProperties": false,
+      "properties": {
+        "decisions": {
+          "items": {
+            "$ref": "#/$defs/PolicyDecision"
+          },
+          "title": "Decisions",
+          "type": "array"
+        },
+        "results": {
+          "description": "Results of allowed calls only.",
+          "items": {
+            "$ref": "#/$defs/ToolResult"
+          },
+          "title": "Results",
+          "type": "array"
+        }
+      },
+      "title": "PolicyLayerOutput",
+      "type": "object"
+    },
+    "Stage": {
+      "enum": [
+        "01_input_reader",
+        "02_case_analyzer",
+        "03_barrier_detector",
+        "04_task_detector",
+        "05_rec_generator",
+        "06_approval_gate",
+        "07_policy_layer",
+        "08_output_composer"
+      ],
+      "title": "Stage",
+      "type": "string"
+    },
+    "ToolResult": {
+      "additionalProperties": false,
+      "description": "What an allowed tool returned. Mock tools only; no real EHR access.",
+      "properties": {
+        "call_id": {
+          "title": "Call Id",
+          "type": "string"
+        },
+        "output": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output"
+        },
+        "error": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Error"
+        }
+      },
+      "required": [
+        "call_id"
+      ],
+      "title": "ToolResult",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "message_id": {
+      "title": "Message Id",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "case_id": {
+      "title": "Case Id",
+      "type": "string"
+    },
+    "stage": {
+      "$ref": "#/$defs/Stage"
+    },
+    "produced_at": {
+      "format": "date-time",
+      "title": "Produced At",
+      "type": "string"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Model id for LLM stages, null for deterministic code.",
+      "title": "Model"
+    },
+    "prompt_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Version"
+    },
+    "upstream": {
+      "description": "message_ids this message was built from.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Upstream",
+      "type": "array"
+    },
+    "payload": {
+      "$ref": "#/$defs/PolicyLayerOutput"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "run_id",
+    "case_id",
+    "stage",
+    "payload"
+  ],
+  "title": "AgentMessage[PolicyLayerOutput]",
+  "type": "object"
+}

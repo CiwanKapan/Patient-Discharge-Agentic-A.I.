@@ -14,12 +14,15 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from src.models.answer_key import AnswerKey, Scenario  # noqa: E402
+from src.models.audit import AuditLogLine  # noqa: E402
 from src.models.case import PatientCase  # noqa: E402
 from src.models.messages import (  # noqa: E402
     BarrierDetectionMessage,
     CaseSummaryMessage,
     TaskDetectionMessage,
 )
+from src.models.plan import ApprovalMessage, DischargePlanMessage, RecommendationMessage  # noqa: E402
+from src.models.tools import PolicyLayerMessage, ToolCall  # noqa: E402
 
 SCHEMAS = {
     "data/schemas/patient_case_schema.json": PatientCase,
@@ -28,6 +31,12 @@ SCHEMAS = {
     "data/schemas/messages/case_summary_message.json": CaseSummaryMessage,
     "data/schemas/messages/barrier_detection_message.json": BarrierDetectionMessage,
     "data/schemas/messages/task_detection_message.json": TaskDetectionMessage,
+    "data/schemas/messages/recommendation_message.json": RecommendationMessage,
+    "data/schemas/messages/approval_message.json": ApprovalMessage,
+    "data/schemas/messages/policy_layer_message.json": PolicyLayerMessage,
+    "data/schemas/messages/discharge_plan_message.json": DischargePlanMessage,
+    "data/schemas/tool_call_schema.json": ToolCall,
+    "data/schemas/audit_log_schema.json": AuditLogLine,
 }
 
 
