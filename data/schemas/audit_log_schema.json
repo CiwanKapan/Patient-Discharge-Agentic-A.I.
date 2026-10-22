@@ -1030,7 +1030,7 @@
           "type": "string"
         },
         "model": {
-          "description": "Model id used by LLM stages, e.g. claude-haiku-5-5.",
+          "description": "Model id used by LLM stages, e.g. claude-sonnet-5-5.",
           "title": "Model",
           "type": "string"
         },

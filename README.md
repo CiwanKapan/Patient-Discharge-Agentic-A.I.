@@ -204,8 +204,15 @@ python scripts/generate_cases.py --n 160      # a different size, same proportio
 **The answer keys are drafts.** They were generated together with the cases. Before the dataset is frozen, a team member other than the case author must review each key and record their name in the manifest's `validator` column, which is currently empty for every case.
 
 ### Experimental Baselines
-1. **Baseline 1 (B1 - Rule-Based):** Static, hard-coded checklist performing field validation without semantic reasoning.
-2. **Baseline 2 (B2 - Single-Prompt LLM):** Zero-shot LLM (Claude Haiku 5.5) operating without external tool access, policy enforcement, or approval gates.
+1. **Baseline 1 (B1 - Rule-Based):** Static, hard-coded checklist performing field validation without semantic reasoning. Each tracked field is checked on its own. `in_progress` or `not_started` flags the barrier tied to that field, `unknown` or absent becomes an information gap, and free-text notes are never read. It cannot find cross-field or note-only barriers.
+2. **Baseline 2 (B2 - Single-Prompt LLM):** Zero-shot LLM (Claude Sonnet 5.5) operating without external tool access, policy enforcement, or approval gates. One call returns the whole plan. It gets the same taxonomy and chart-reading rules as the pipeline, but no deterministic readings, no validation or retry, and no audit trail. It marks its own steps as needing approval. Proposed tool calls are recorded, but nothing reviews them.
+
+Both baselines return a `DischargePlan`, so all three systems are scored the same way. B2's output is normalized into that shape. Items that break the contract, such as unknown IDs or duplicates, cannot be represented, so they are dropped and recorded in `BaselineResult.notes`. They are never corrected.
+
+```bash
+python -m baselines.baseline_1_rule_based data/synthetic_cases/ --out runs/b1
+python -m baselines.baseline_2_single_llm data/synthetic_cases/ --out runs/b2   # needs ANTHROPIC_API_KEY
+```
 
 ---
 
@@ -272,10 +279,10 @@ agentic_discharge_coordinator/
    ```
 
 4. **Environment Setup:**
-   Create a `.env` file in the root directory and set your Anthropic API key if running LLM components. All LLM stages and Baseline 2 use Claude Haiku 5.5:
+   Create a `.env` file in the root directory and set your Anthropic API key if running LLM components. All LLM stages and Baseline 2 use Claude Sonnet 5.5:
    ```env
    ANTHROPIC_API_KEY=your_api_key_here
-   CLAUDE_MODEL=claude-haiku-5-5
+   CLAUDE_MODEL=claude-sonnet-5-5
    ```
 
 ---
@@ -292,10 +299,25 @@ The script checks ID integrity (no duplicates, every task resolves a known barri
 
 ---
 
+## ▶️ Running the Pipeline
+
+```bash
+python -m src.pipeline data/synthetic_cases/CASE-001.json        # one case
+python -m src.pipeline data/synthetic_cases/ --out runs/plans    # every case, plans saved as JSON
+```
+
+Each run writes its audit trail to `runs/audit/<case_id>/<run_id>.jsonl` and checks it with `check_audit_trail()`. From code, call `src.pipeline.run_case(path, llm)`. It returns the `DischargePlan`, every inter-agent message, and any audit problems.
+
+How a run behaves:
+- **Deterministic where possible.** Stages 01, 06, 07 and 08 are plain code. Stage 02 computes the field readings and time windows in code, and the model only writes the summaries.
+- **LLM output is checked, never repaired.** Stages 02 to 05 validate the model's JSON against the Pydantic models and the taxonomy. They also check grounding: cited fields must exist, cited statuses must match the chart, and a barrier cannot rest only on undocumented fields. Stage 05 must give every task and every information gap a recommendation. Rejected output goes back to the model with the errors (`--max-attempts`, default 2). Each rejection is kept in the message's `warnings`. If every attempt is rejected, the run fails and logs `run_completed` with `status: failed`.
+- **The model sees the chart, not the answer.** `difficulty` and `distractors` are removed from the case before it reaches the model.
+- **Tools.** Stage 05 may propose tool calls. Every call goes through the approval gate and the policy layer, which denies forbidden and unknown tools. Allowed calls run against mock tools that read from the chart (`src/tools/allowed_tools.py`).
+
 ## 🧪 Running Evaluations & Tests
 
 ### Run Pipeline Tests
-Execute the pytest suite to verify governance gates, policy interception, component validation, the inter-agent contracts, the targeted scenarios, and all 150 synthetic cases:
+Execute the pytest suite to verify governance gates, policy interception, component validation, the inter-agent contracts, the targeted scenarios, and all 150 synthetic cases. The pipeline tests run offline: `tests/oracle_llm.py` answers each LLM stage from the answer key, so a correct pipeline must score perfectly with a clean audit trail.
 ```bash
 pytest tests/
 ```

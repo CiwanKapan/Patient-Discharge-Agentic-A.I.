@@ -80,7 +80,7 @@ class OutputEmittedDetails(_Strict):
 
 class RunCompletedDetails(_Strict):
     status: Literal["succeeded", "failed"]
-    model: str = Field(description="Model id used by LLM stages, e.g. claude-haiku-5-5.")
+    model: str = Field(description="Model id used by LLM stages, e.g. claude-sonnet-5-5.")
     prompt_versions: dict[str, str] = Field(description="Prompt version per LLM stage.")
     started_at: datetime
     completed_at: datetime

@@ -165,7 +165,7 @@ def _trail():
         {"event_type": "policy_decision", "details": denied.model_dump()},
         {"event_type": "approval_classification", "details": {"recommendation_id": "R1", "classification": "auto_safe", "requires_human_approval": False, "reason": "no approval rule"}},
         {"event_type": "output_emitted", "details": {"plan": _plan(denied).model_dump()}},
-        {"event_type": "run_completed", "details": {"status": "succeeded", "model": "claude-haiku-5-5", "prompt_versions": {"03_barrier_detector": "v1"}, "tool_call_count": 2,
+        {"event_type": "run_completed", "details": {"status": "succeeded", "model": "claude-sonnet-5-5", "prompt_versions": {"03_barrier_detector": "v1"}, "tool_call_count": 2,
                                                     "started_at": T0.isoformat(), "completed_at": (T0 + timedelta(seconds=30)).isoformat()}},
     ]
     events = []
