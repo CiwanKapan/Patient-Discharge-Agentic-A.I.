@@ -157,11 +157,28 @@ def test_no_tasks_at_all(taxonomy, tmp_path):
     assert len(_warnings(r, Stage.TASK_DETECTOR)) == len(key.barriers)
 
 
-def test_barrier_the_taxonomy_has_no_task_for(taxonomy, tmp_path):
-    """B-S05 has no task in the taxonomy, so even a correct run leaves it unaddressed."""
+def test_every_barrier_has_a_task_for_each_of_its_conditions(taxonomy):
+    for b in taxonomy["barriers"]:
+        for cond in b["conditions"]:
+            assert any(b["id"] in t["resolves"] and cond in t["conditions"] for t in taxonomy["tasks"]), (b["id"], cond)
+
+
+def test_correct_run_leaves_nothing_unaddressed(taxonomy, tmp_path):
     path = next(p for p in CASES if any(b.barrier_id == "B-S05" for b in _load(p)[1].barriers))
     case, key = _load(path)
     r = run_case(path, OracleLLM(case, key, taxonomy), taxonomy=taxonomy, audit_dir=tmp_path)
+    assert r.status == "succeeded", r.error
+    assert r.plan.unaddressed_barriers == []
+    assert "T-CM09" in {t.task_id for t in r.plan.tasks}
+
+
+def test_barrier_the_taxonomy_has_no_task_for(taxonomy, tmp_path):
+    """If the taxonomy had no task for a barrier, a correct run would still leave it unaddressed and say why."""
+    path = next(p for p in CASES if any(b.barrier_id == "B-S05" for b in _load(p)[1].barriers))
+    case, key = _load(path)
+    reduced = {**taxonomy, "tasks": [t for t in taxonomy["tasks"] if t["id"] != "T-CM09"]}
+    key = key.model_copy(update={"tasks": [t for t in key.tasks if t.task_id != "T-CM09"]})
+    r = run_case(path, OracleLLM(case, key, reduced), taxonomy=reduced, audit_dir=tmp_path)
     assert r.status == "succeeded", r.error
     assert "B-S05" in r.plan.unaddressed_barriers
     assert any(w.startswith("B-S05 has no task; the taxonomy has none") for w in _warnings(r, Stage.TASK_DETECTOR))

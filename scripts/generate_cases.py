@@ -187,7 +187,7 @@ TASKS_FOR = {
     "B-E02": ["T-PH02", "T-PH03"], "B-E03": ["T-RN02"], "B-E04": ["T-RN03"], "B-E05": ["T-RN07"],
     "B-E06": ["T-RN08"], "B-E07": ["T-MD07"], "B-F01": ["T-CM01"], "B-F02": ["T-CM01"],
     "B-F03": ["T-CM02"], "B-F04": ["T-CM03"], "B-F05": ["T-CM08"], "B-S01": ["T-CM07"],
-    "B-S02": ["T-CM04"], "B-S03": ["T-CM05"], "B-S04": ["T-CM06"], "B-S05": [],
+    "B-S02": ["T-CM04"], "B-S03": ["T-CM05"], "B-S04": ["T-CM06"], "B-S05": ["T-CM09"],
     "B-S06": ["T-MD01"], "B-S07": ["T-CM04"],
 }
 # approval-required actions the plan should propose when these tasks are in the key

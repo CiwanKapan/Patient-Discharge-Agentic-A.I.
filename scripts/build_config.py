@@ -34,6 +34,48 @@ TASK_APPROVALS = {"T-MD01": "GR-A06", "T-MD04": "GR-A07", "T-MD05": "GR-A05",
                   "T-MD07": "GR-A04", "T-PH01": "GR-A02", "T-PH02": "GR-A03"}
 
 
+# What 2.1 adds to the 2.0 .docx; the patches themselves are TASK_APPROVALS, T_CM09 /
+# patch_tasks, and AU_SIGNOFF below.
+AMENDMENTS = {
+    "version": "2.1",
+    "base": "2.0 (source .docx)",
+    "changes": [
+        "governance.task_approvals: tasks whose completion needs an approval-required action",
+        "T-CM09 (assign covering case manager) added; resolves B-S05",
+        "T-MD02 conditions extended to OR; resolves B-C03 in OR cases",
+        "AU-09 signoff_recorded added (sign-off after the output composer)",
+    ],
+    "applied_by": "scripts/build_config.py",
+    "approval": "pending Dataset Lead review",
+}
+
+# Sign-off after the output composer (not in the source .docx).
+AU_SIGNOFF = {"id": "AU-09", "event_type": "signoff_recorded",
+              "must_log": "For each action that requires human approval: the reviewer's decision (approved, "
+                          "rejected, or pending), who decided, and why. Logged after the plan is composed."}
+
+
+# Task coverage the source .docx lacks, so every barrier has a task for each of its
+# conditions: T-MD02 also covers pending imaging (B-C03) in OR cases, and T-CM09 is
+# new, for a case with no case manager available (B-S05).
+T_CM09 = {
+    "id": "T-CM09", "name": "Assign covering case manager",
+    "role_group": "case_manager_social_worker",
+    "description": "No case manager is available; request a covering case manager (or social worker) so "
+                   "post-discharge logistics have an owner before discharge.",
+    "conditions": ["HF", "CO", "PN", "OR", "ST"], "urgency": "high",
+    "evidence_fields": ["case_manager_status"], "resolves": ["B-S05"],
+    "owner_role": "SW / Nurse", "owner_roles": ["social_worker", "nurse"],
+}
+
+
+def patch_tasks(tasks):
+    md02 = next(t for t in tasks if t["id"] == "T-MD02")
+    md02["conditions"] = [c for c in COND if c in md02["conditions"] or c == "OR"]
+    last_cm = max(i for i, t in enumerate(tasks) if t["id"].startswith("T-CM"))
+    tasks.insert(last_cm + 1, dict(T_CM09))
+
+
 def roles(s):
     return [ROLE_MAP[p.strip()] for p in s.split("/")]
 
@@ -74,6 +116,7 @@ def build_taxonomy(path):
             "resolves": [x.strip() for x in res.split(",")],
             "owner_role": owner, "owner_roles": roles(owner),
         })
+    patch_tasks(tasks)
 
     def simple(tab, k2, k3):
         return [dict(zip(["id", k2, k3], cells(r))) for r in tab.rows[1:]]
@@ -84,7 +127,7 @@ def build_taxonomy(path):
             "draft_for_review" if a["tool_name"] == "draft_patient_education" else "read_only")
     forbidden = simple(t[4], "tool_name", "reason")
     approval = simple(t[5], "action", "reason")
-    audit = simple(t[6], "event_type", "must_log")
+    audit = simple(t[6], "event_type", "must_log") + [AU_SIGNOFF]
 
     # integrity checks
     bids = {b["id"] for b in barriers}
@@ -97,8 +140,9 @@ def build_taxonomy(path):
     return {
         "meta": {
             "name": "Discharge Coordinator AI — Barrier, Task, and Governance Taxonomy",
-            "version": "2.0",
+            "version": "2.1",  # 2.0 from the .docx plus the amendments below
             "source": "Discharge_Coordinator_AI_taxonomy_v2_cleaned.docx",
+            "amendments": AMENDMENTS,
             "rule": "Answer keys and normalized system outputs use these IDs only, never free text. "
                     "Only the Dataset Lead may add entries, after team review.",
             "counts": {"barriers": len(barriers), "tasks": len(tasks),
@@ -123,7 +167,7 @@ def build_taxonomy(path):
                                   "recommendation for one of them must be classified requires_human_approval "
                                   "even if it names no proposed_action.",
             "audit_events": audit,
-            "audit_rule": "Every case run must log all AU-01..AU-08 event types; any missing type is a failure.",
+            "audit_rule": "Every case run must log all AU-01..AU-09 event types; any missing type is a failure.",
         },
         "case_design_rules": {
             "condition_fit": "Only use barriers/tasks whose conditions list includes the case's condition.",

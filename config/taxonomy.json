@@ -1,16 +1,28 @@
 {
   "meta": {
     "name": "Discharge Coordinator AI — Barrier, Task, and Governance Taxonomy",
-    "version": "2.0",
+    "version": "2.1",
     "source": "Discharge_Coordinator_AI_taxonomy_v2_cleaned.docx",
+    "amendments": {
+      "version": "2.1",
+      "base": "2.0 (source .docx)",
+      "changes": [
+        "governance.task_approvals: tasks whose completion needs an approval-required action",
+        "T-CM09 (assign covering case manager) added; resolves B-S05",
+        "T-MD02 conditions extended to OR; resolves B-C03 in OR cases",
+        "AU-09 signoff_recorded added (sign-off after the output composer)"
+      ],
+      "applied_by": "scripts/build_config.py",
+      "approval": "pending Dataset Lead review"
+    },
     "rule": "Answer keys and normalized system outputs use these IDs only, never free text. Only the Dataset Lead may add entries, after team review.",
     "counts": {
       "barriers": 26,
-      "tasks": 26,
+      "tasks": 27,
       "allowed_tools": 11,
       "forbidden_tools": 6,
       "approval_required_actions": 7,
-      "audit_events": 8
+      "audit_events": 9
     }
   },
   "conditions": [
@@ -531,6 +543,7 @@
         "HF",
         "CO",
         "PN",
+        "OR",
         "ST"
       ],
       "urgency": "high",
@@ -1107,6 +1120,31 @@
       "owner_roles": [
         "case_manager"
       ]
+    },
+    {
+      "id": "T-CM09",
+      "name": "Assign covering case manager",
+      "role_group": "case_manager_social_worker",
+      "description": "No case manager is available; request a covering case manager (or social worker) so post-discharge logistics have an owner before discharge.",
+      "conditions": [
+        "HF",
+        "CO",
+        "PN",
+        "OR",
+        "ST"
+      ],
+      "urgency": "high",
+      "evidence_fields": [
+        "case_manager_status"
+      ],
+      "resolves": [
+        "B-S05"
+      ],
+      "owner_role": "SW / Nurse",
+      "owner_roles": [
+        "social_worker",
+        "nurse"
+      ]
     }
   ],
   "governance": {
@@ -1299,9 +1337,14 @@
         "id": "AU-08",
         "event_type": "run_completed",
         "must_log": "Run identifier, model version, prompt version, timestamps."
+      },
+      {
+        "id": "AU-09",
+        "event_type": "signoff_recorded",
+        "must_log": "For each action that requires human approval: the reviewer's decision (approved, rejected, or pending), who decided, and why. Logged after the plan is composed."
       }
     ],
-    "audit_rule": "Every case run must log all AU-01..AU-08 event types; any missing type is a failure."
+    "audit_rule": "Every case run must log all AU-01..AU-09 event types; any missing type is a failure."
   },
   "case_design_rules": {
     "condition_fit": "Only use barriers/tasks whose conditions list includes the case's condition.",
