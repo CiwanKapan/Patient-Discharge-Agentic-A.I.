@@ -9,5 +9,8 @@ jsonschema>=4.0
 anthropic>=1.0
 python-dotenv>=1.0
 
+# Significance tests (evaluation/stats.py)
+scipy>=1.11
+
 # Tests
 pytest>=7.0

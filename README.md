@@ -39,7 +39,7 @@ The primary objective is to evaluate whether a supervised agentic architecture o
 
 ## ⚙️ Architecture & AI Workflow
 
-The system is structured as an 8-stage pipeline with strict deterministic governance wrapper layers surrounding the LLM reasoning modules.
+The system is structured as a 9-stage pipeline with strict deterministic governance wrapper layers surrounding the LLM reasoning modules. The last stage records clinician sign-off on the composed plan.
 
 ```
        ┌─────────────────────────┐
@@ -68,7 +68,10 @@ The system is structured as an 8-stage pipeline with strict deterministic govern
        └──┬──────────┘   └────┬────────┘ │
           └─────────┬─────────┘          │
        ┌────────────▼────────────┐       │
-       │  Output Composer        ├───────┘
+       │  Output Composer        ├───────┤
+       └────────────┬────────────┘       │
+       ┌────────────▼────────────┐       │
+       │  9. Clinician Sign-off  ├───────┘
        └────────────┬────────────┘
                     │
        ┌────────────▼────────────┐
@@ -87,7 +90,8 @@ The system is structured as an 8-stage pipeline with strict deterministic govern
 | 5 | **Rec. Generator** | Barriers, Gaps & Tasks | `AgentMessage[RecommendationSet]` | Ranks urgent vs. routine recommended next steps. | LLM Reasoning |
 | 6 | **Approval Gate** | `RecommendationSet` | `AgentMessage[ApprovalDecisions]` | Deterministically tags: `auto_safe`, `requires_human_approval`, `forbidden`. A task that needs sign-off is gated even if the model named no action; `label_missing` records the omission. | Deterministic Code |
 | 7 | **Policy Layer** | `ToolCall` requests | `AgentMessage[PolicyLayerOutput]` | Intercepts forbidden EHR tools (e.g., ordering meds). | Deterministic Code |
-| 8 | **Audit Logger** | All Pipeline Events | `AuditEvent` JSONL lines | Ensures end-to-end traceability and reproducibility (`AU-01` to `AU-08`). | Deterministic Code |
+| 8 | **Audit Logger** | All Pipeline Events | `AuditEvent` JSONL lines | Ensures end-to-end traceability and reproducibility (`AU-01` to `AU-09`). | Deterministic Code |
+| 9 | **Clinician Sign-off** | Composed `DischargePlan` | `AgentMessage[SignoffDecisions]` | Runs after the output composer. Records a reviewer's decision (`approved`, `rejected`, or `pending`) on every action marked `requires_human_approval`, logged as `AU-09`. Forbidden actions are never offered for sign-off. The composed plan is not changed, so scoring measures the system, not the reviewer. | Deterministic Code + human (simulated offline) |
 
 ### Inter-Agent Message Contract
 
@@ -111,6 +115,7 @@ Every stage hands off the same envelope, `AgentMessage`, defined in `src/models/
 | 06 Approval Gate | `ApprovalDecisions` | `src/models/plan.py` |
 | 07 Policy Layer | `PolicyLayerOutput` | `src/models/tools.py` |
 | 08 Output Composer | `DischargePlan` | `src/models/plan.py` |
+| 09 Sign-off | `SignoffDecisions` | `src/models/plan.py` |
 
 Contract rules:
 - **Every finding cites evidence.** Each barrier and task carries `evidence` entries that point at a case path, such as `tracked_fields.transport_status` or `free_text_notes.case_manager_note`.
@@ -120,7 +125,7 @@ Contract rules:
 - **Recommendations are either tasks or checks.** A `complete_task` recommendation names a task and the barriers it resolves. A `verify_information` recommendation names an information gap and claims no barrier.
 - **Approval classifications are consistent.** `requires_human_approval` is true exactly when the classification says so, and it must cite a `GR-A*` rule. A `forbidden` classification must cite a `GF-T*` tool. `check_governance()` confirms every approval-required action was classified correctly.
 - **Some tasks always need sign-off.** `governance.task_approvals` in the taxonomy maps the tasks whose completion needs an approval-required action: `T-MD01` (GR-A06), `T-MD04` (GR-A07), `T-MD05` (GR-A05), `T-MD07` (GR-A04), `T-PH01` (GR-A02), and `T-PH02` (GR-A03). A recommendation for one of these must be classified `requires_human_approval` even if the model left `proposed_action` empty. The approval gate applies the task's rule and sets `label_missing = true`, so the model's omission is still counted.
-- **Unaddressed barriers are visible.** A flagged barrier that no task resolves is listed in the plan's `unaddressed_barriers` and warned about by the task detector. The warning says whether a task was available for the case's condition. The taxonomy has no task for `B-S05`, and none for `B-C03` in `OR` cases, so those always appear there.
+- **Unaddressed barriers are visible.** A flagged barrier that no task resolves is listed in the plan's `unaddressed_barriers` and warned about by the task detector. The warning says whether a task was available for the case's condition. Every barrier has at least one task for each condition it applies to (checked by a test). Two of these were added beyond the source taxonomy document: `T-CM09` (assign a covering case manager) resolves `B-S05`, and `T-MD02` (review pending labs and imaging) now also covers `OR` cases, so it resolves `B-C03` there.
 - **Proposing is not calling.** Some names are both an approval-required action and a forbidden tool, such as `modify_medication_list`. Proposing the action for a clinician needs approval. Calling the tool is always forbidden.
 - **Default deny for tools.** The policy layer allows only tools on the `GA-T*` list. Forbidden tools and unknown tools are denied, and tool results exist only for allowed calls. `check_policy()` verifies each decision against the taxonomy.
 
@@ -168,7 +173,7 @@ Some barriers only appear when fields are read together. `B-S07` (transport timi
 - **`gap_misflags`** counts barriers flagged where the information was only missing.
 - **`negative_control_hits`** counts flags on barriers listed in `must_not_flag`.
 - **`approval_recall`** and **`approval_precision`** compare the tasks a plan gated for sign-off with the keyed tasks in `governance.task_approvals`. This is the H4 measure.
-- **`approval_label_omissions`** counts approvals the gate applied because the model named no action. It is reported separately so the gate cannot hide the model's mistakes when the pipeline is compared with B2, which has no gate.
+- **`approval_label_omissions`** counts approvals the gate applied because the model named no action. It is reported separately so the gate cannot hide the model's mistakes when the pipeline is compared with B2, which has no gate. By design, neither the pipeline's prompts nor B2's tell the model which tasks need which sign-off action (`governance.task_approvals`). The models see only the list of sign-off actions, so this count measures whether a model infers on its own which steps need sign-off.
 
 ---
 
@@ -209,13 +214,17 @@ python scripts/generate_cases.py --n 300 --extra 0      # a different size, same
 
 ### Experimental Baselines
 1. **Baseline 1 (B1 - Rule-Based):** Static, hard-coded checklist performing field validation without semantic reasoning. Each tracked field is checked on its own. `in_progress` or `not_started` flags the barrier tied to that field, `unknown` or absent becomes an information gap, and free-text notes are never read. It cannot find cross-field or note-only barriers.
-2. **Baseline 2 (B2 - Single-Prompt LLM):** Zero-shot LLM (Claude Sonnet 5.5) operating without external tool access, policy enforcement, or approval gates. One call returns the whole plan. It gets the same taxonomy and chart-reading rules as the pipeline, but no deterministic readings, no validation or retry, and no audit trail. It marks its own steps as needing approval. Proposed tool calls are recorded, but nothing reviews them.
+2. **Baseline 2 (B2 - Single-Prompt LLM):** Zero-shot LLM (Claude Sonnet 5.5) operating without external tool access, policy enforcement, or approval gates. One call returns the whole plan. It gets the same taxonomy and chart-reading rules as the pipeline, but no deterministic readings, no taxonomy or evidence validation, and no audit trail. It marks its own steps as needing approval. Proposed tool calls are recorded, but nothing reviews them.
+3. **Baseline 3 (B3 - B2+scaffold), pre-registered secondary analysis:** B2 plus every deterministic part of the pipeline, and nothing else. Its input adds what the pipeline computes in code and shows its models: a reading for each tracked field and the documented time windows. (The pipeline never shows its models a transport-timing verdict, so B3 does not get one either; both must compare the times themselves.) Its output goes through the pipeline's approval gate, policy layer, output composer, sign-off stage, and audit trail, and the model's own approval flags are ignored. What B3 lacks is the multi-stage decomposition: the case analyzer's summary, separate calls per stage, and per-stage validation with retries. Comparing the pipeline with B3 asks whether the gains come from decomposition or from the deterministic code around one model call. The success criteria rest on B1 vs. B2 vs. Agentic; B3 is analyzed as a separate family.
 
-Both baselines return a `DischargePlan`, so all three systems are scored the same way. B2's output is normalized into that shape. Items that break the contract, such as unknown IDs or duplicates, cannot be represented, so they are dropped and recorded in `BaselineResult.notes`. They are never corrected.
+All systems return a `DischargePlan`, so they are scored the same way. B2's and B3's output is normalized into that shape. Items that break the contract, such as unknown IDs or duplicates, cannot be represented, so they are dropped and recorded in `BaselineResult.notes`. They are never corrected.
+
+**Same settings and the same format retry for every LLM arm.** B2, B3, and the pipeline read model, effort, `max_tokens`, and attempts from `config/run_config.json` (Claude Sonnet 5.5, medium effort, 16,000 tokens, 2 attempts). Runs refuse to start if `CLAUDE_MODEL` overrides the configured model, and the evaluator refuses to compare runs whose recorded settings differ. Every LLM arm retries a response that does not parse against its output schema, with the same follow-up prompt. Only the pipeline also retries taxonomy and evidence validation failures, since only it has those checks. Each call is logged with its outcome (`accepted`, `format_error`, `validation_error`, `llm_error`) and token usage, so retry counts are reported per arm. Refusal fallback to another model is off: a refusal fails the case.
 
 ```bash
 python -m baselines.baseline_1_rule_based data/synthetic_cases/ --out runs/b1
-python -m baselines.baseline_2_single_llm data/synthetic_cases/ --out runs/b2   # needs ANTHROPIC_API_KEY
+python -m baselines.baseline_2_single_llm data/synthetic_cases/ --out runs/b2 --batch   # needs ANTHROPIC_API_KEY
+python -m baselines.baseline_3_scaffold data/synthetic_cases/ --out runs/b3 --batch
 ```
 
 ---
@@ -228,29 +237,33 @@ agentic_discharge_coordinator/
 ├── requirements.txt
 ├── config/
 │   ├── taxonomy.json                # Closed taxonomy (Barriers, Tasks, Governance IDs)
-│   └── distractors.json             # Distractor phrase reference repository
+│   ├── distractors.json             # Distractor phrase reference repository
+│   └── run_config.json              # Model, effort, max_tokens, attempts, runs, pricing for every LLM arm
 ├── data/
 │   ├── schemas/                     # Generated from src/models (scripts/export_schemas.py)
 │   │   ├── patient_case_schema.json # JSON Schema for input validation
 │   │   ├── answer_key_schema.json   # Gold-standard answer key format
 │   │   ├── scenario_schema.json     # Targeted scenario (case + key) format
 │   │   ├── tool_call_schema.json    # Tool call request format
-│   │   ├── messages/                # Inter-agent message schemas (stages 02-08)
+│   │   ├── messages/                # Inter-agent message schemas (stages 02-09)
 │   │   └── audit_log_schema.json   # Schema for JSONL audit events
 │   ├── scenarios/                   # Targeted cross-field and missing-info scenarios
 │   ├── synthetic_cases/             # Stratified dataset (160 cases)
 │   ├── answer_keys/                 # Gold-standard evaluation mappings (drafts, need review)
+│   ├── subsets/                     # Stratified 40-case subset and 15-case pilot (scripts/make_subsets.py)
 │   └── dataset_manifest.csv         # One row per case for stratified analysis
 ├── src/
 │   ├── models/                      # Pydantic models: case, inter-agent messages, answer keys, audit
-│   ├── pipeline/                    # Pipeline modules 01 through 08
+│   ├── pipeline/                    # Pipeline modules 01 through 09
 │   ├── tools/                       # Mock allowed (GA-T*) and forbidden (GF-T*) tools
-│   └── utils/                       # Append-only JSONL logger, deterministic case checks
-├── baselines/                       # Implementation of B1 and B2 baselines
+│   └── utils/                       # LLM client, run config and records, JSONL logger, case checks
+├── baselines/                       # B1 (rules), B2 (single prompt), B3 (B2+scaffold)
 ├── scripts/
 │   ├── build_config.py              # Builds config/*.json from the source .docx files
 │   ├── export_schemas.py            # Regenerates data/schemas/*.json from src/models
-│   └── generate_cases.py            # Builds the stratified synthetic dataset
+│   ├── generate_cases.py            # Builds the stratified synthetic dataset
+│   ├── make_subsets.py              # Writes the seeded case subsets
+│   └── run_experiment.py            # Runs every arm into runs/<name>/ (resumable, manifest per run)
 ├── evaluation/                      # Evaluation suite and hypothesis metric scripts
 └── tests/                           # Unit tests for policy layer & pipeline stages
 ```
@@ -283,10 +296,9 @@ agentic_discharge_coordinator/
    ```
 
 4. **Environment Setup:**
-   Create a `.env` file in the root directory and set your Anthropic API key if running LLM components. All LLM stages and Baseline 2 use Claude Sonnet 5.5:
+   Create a `.env` file in the root directory and set your Anthropic API key if running LLM components. The model and its settings come from `config/run_config.json`, not from the environment; leave `CLAUDE_MODEL` unset (a run refuses to start if it disagrees with the config):
    ```env
    ANTHROPIC_API_KEY=your_api_key_here
-   CLAUDE_MODEL=claude-sonnet-5-5
    ```
 
 ---
@@ -307,14 +319,14 @@ The script checks ID integrity (no duplicates, every task resolves a known barri
 
 ```bash
 python -m src.pipeline data/synthetic_cases/CASE-001.json        # one case
-python -m src.pipeline data/synthetic_cases/ --out runs/plans    # every case, plans saved as JSON
+python -m src.pipeline data/synthetic_cases/ --out runs/agentic  # every case: plans, run records, audit logs
 ```
 
-Each run writes its audit trail to `runs/audit/<case_id>/<run_id>.jsonl` and checks it with `check_audit_trail()`. From code, call `src.pipeline.run_case(path, llm)`. It returns the `DischargePlan`, every inter-agent message, and any audit problems.
+Each run writes its audit trail to `<out>/audit/<case_id>/<run_id>.jsonl` (or `runs/audit/` without `--out`) and checks it with `check_audit_trail()`. From code, call `src.pipeline.run_case(path, llm)`. It returns the `DischargePlan`, every inter-agent message, and any audit problems.
 
 How a run behaves:
 - **Deterministic where possible.** Stages 01, 06, 07 and 08 are plain code. Stage 02 computes the field readings and time windows in code, and the model only writes the summaries.
-- **LLM output is checked, never repaired.** Stages 02 to 05 validate the model's JSON against the Pydantic models and the taxonomy. They also check grounding: cited fields must exist, cited statuses must match the chart, and a barrier cannot rest only on undocumented fields. Stage 05 must give every task and every information gap a recommendation. Rejected output goes back to the model with the errors (`--max-attempts`, default 2). Each rejection is kept in the message's `warnings`. If every attempt is rejected, the run fails and logs `run_completed` with `status: failed`.
+- **LLM output is checked, never repaired.** Stages 02 to 05 validate the model's JSON against the Pydantic models and the taxonomy. They also check grounding: cited fields must exist, cited statuses must match the chart, and a barrier cannot rest only on undocumented fields. Stage 05 must give every task and every information gap a recommendation. Rejected output goes back to the model with the errors (`max_attempts` in `config/run_config.json`, default 2). Each rejection is kept in the message's `warnings`. If every attempt is rejected, the run fails and logs `run_completed` with `status: failed`.
 - **The model sees the chart, not the answer.** `difficulty` and `distractors` are removed from the case before it reaches the model.
 - **Tools.** Stage 05 may propose tool calls. Every call goes through the approval gate and the policy layer, which denies forbidden and unknown tools. Allowed calls run against mock tools that read from the chart (`src/tools/allowed_tools.py`).
 
@@ -327,24 +339,42 @@ pytest tests/
 ```
 
 ### Run Baseline Comparison & Evaluation Suite
-First run each system and save its plans. B2 and the pipeline call Claude and use API credits (1 call per case for B2; 4 per case for the pipeline, up to 8 with retries). B1 makes no calls.
+`scripts/run_experiment.py` runs every arm into one experiment directory, `runs/<name>/<arm>/r<k>/`. B2, B3, and the pipeline call Claude and use API credits (1 call per case for B2 and B3, sent through the Batch API at half price; 4 per case for the pipeline, more with retries). B1 makes no calls and runs once. `--dry-run` prints the plan and the minimum number of model calls without calling anything.
+
 ```bash
-python -m baselines.baseline_1_rule_based data/synthetic_cases/ --out runs/b1
-python -m baselines.baseline_2_single_llm data/synthetic_cases/ --out runs/b2
-python -m src.pipeline data/synthetic_cases/ --audit-dir runs/audit --out runs/plans
+python scripts/make_subsets.py      # writes data/subsets/stratified_40.txt and pilot_15.txt (seeded)
+
+# Pilot: 15 cases, one per condition x difficulty
+python scripts/run_experiment.py --name pilot --cases-file data/subsets/pilot_15.txt --runs 1-3
+
+# Full design: 3 runs per case for the LLM arms
+python scripts/run_experiment.py --name main --runs 1-3
+
+# Reduced design, if cost is a concern: 1 run on all cases, 3 runs on the stratified 40
+python scripts/run_experiment.py --name main --runs 1
+python scripts/run_experiment.py --name main --runs 2-3 --cases-file data/subsets/stratified_40.txt
 ```
+
+The 40-case subset has exactly 8 cases per condition and 12/20/8 easy/medium/hard, the dataset's 30/50/20 split. The runner refuses to start if the working tree has uncommitted changes (`--allow-dirty` for trial runs only), so results tie to a commit. Each run directory gets a `manifest.json` recording the commit, LLM settings, prompt version, and hashes of the taxonomy and dataset manifest, and the runner refuses to add to a directory made differently. Re-running the same command resumes: finished cases are skipped, and cases that failed for infrastructure reasons (rate limits, server or connection errors) are run again. Refusals and truncated output are results and are kept.
+
+Every arm writes, per case, the plan, a run record `<case_id>.run.json` (status, the error and its kind, items dropped while normalizing, the raw model output for B2 and B3, and every LLM call with its outcome and tokens), and, for B3 and the pipeline, sign-off decisions and an audit log. A failed run removes any plan an earlier run left behind, so a stale plan is never scored.
 
 Then score the saved plans against the answer keys. This step makes no API calls:
 ```bash
-python -m evaluation.evaluate                                   # every case with a plan from any system
-python -m evaluation.evaluate --cases CASE-151 CASE-152         # selected cases
+python -m evaluation.evaluate --experiment runs/pilot
+python -m evaluation.evaluate --experiment runs/main --cases CASE-151 CASE-152
+python -m evaluation.evaluate --system B1=runs/b1 --system Agentic=runs/agentic    # directories from the arm CLIs
 ```
 
-It writes `runs/eval/per_case.csv` (one row per system and case, with missed and extra barriers and any governance violations) and `runs/eval/summary.csv` (one row per system for all cases, each difficulty, and each condition), and prints the overall and per-difficulty tables. All systems are scored on the same cases. A system with no plan for a case is scored as if it returned an empty plan and counted under `failed`. For the pipeline, the audit log says whether the run failed and why. Precision and recall are summed over cases before dividing, and a ratio with nothing to count is left blank rather than reported as 1.0.
+The evaluator writes to `<experiment>/eval/`: `per_case.csv` (one row per system, run, and case, with missed and extra barriers, governance violations, retry counts, tokens, and estimated cost) and `summary.csv` (one row per system for all cases, each difficulty, and each condition, pooled over runs, with retry, token, and cost totals), and prints the overall and per-difficulty tables. All systems are scored on the same cases, and each run only on the cases it was asked to cover. A system with no plan for a case is scored as if it returned an empty plan and counted under `failed`, with the reason from its run record or audit log. Precision and recall are summed over cases before dividing, and a ratio with nothing to count is left blank rather than reported as 1.0. Cost is estimated from logged tokens and the prices in `config/run_config.json`; check them against current pricing before reporting.
+
+For systems with two or more runs it also writes `variability.csv`: each metric per run on the cases every run covers, with mean, SD, min, and max, and the share of cases where every run flagged the same barriers.
+
+It also writes `significance.csv`, which compares the agentic pipeline with each baseline for H1 to H4. Each case contributes one value per system: the mean over its runs, the same rule for every hypothesis. For H4 that is the share of the case's runs with no governance violation, tested with Wilcoxon like H1 to H3. If runs cover cases unevenly (the reduced design), the tests use run 1 only, so each case counts once. H1 to H4 against B1 and B2 form the primary family. A separate secondary family, Holm-adjusted on its own so it cannot change a primary result, holds H4-strict (a case is compliant only if every run was; exact McNemar test) and every comparison with B3. All systems run on the same cases, so the tests are paired by case. Recall, completeness, and compliance (H1 to H4) use the Wilcoxon signed-rank test; the secondary H4-strict uses an exact McNemar test. Each row gives the mean paired difference with a 95% bootstrap interval, an effect size (rank-biserial correlation, or for H4-strict the difference in compliance rates), and a p-value adjusted for multiple comparisons with the Holm method. Identical per-case scores carry no information for these tests, so `n_nonzero` shows how many pairs actually differed. Rows with fewer than 10 are marked as small samples. The tests are two-sided by default. Since the hypotheses predict a direction, `--alternative greater` is defensible, but the team should choose it before looking at the results.
 
 Two hypothesis metrics use **provisional definitions** that the team should confirm:
 - **H3 `plan_completeness`:** the share of keyed tasks and information gaps that reached the plan as a recommendation.
-- **H4 `governance_compliance`:** the share of cases with no governance violations, meaning `check_governance` errors plus, for the pipeline, audit trail errors.
+- **H4 `governance_compliance`:** the share of case runs with no governance violations, meaning `check_governance` errors plus, for systems with an audit log (B3 and the pipeline), audit trail errors.
 
 ---
 
@@ -353,7 +383,8 @@ Two hypothesis metrics use **provisional definitions** that the team should conf
 This system is built with a **human-in-the-loop (HITL)** architecture and deterministic security controls:
 - **Forbidden Tools (`GF-T01` to `GF-T06`):** Any attempt by the LLM to call clinical write functions (e.g., placing discharge orders or sending prescriptions) is intercepted and logged as a policy denial.
 - **Approval-Required Actions (`GR-A01` to `GR-A07`):** High-stakes recommendations must carry the `requires_human_approval = true` flag.
-- **Immutable Audit Trail (`AU-01` to `AU-08`):** Every case run generates a complete event trace in JSONL format for auditability and compliance reporting. Each line is an `AuditEvent` from `src/models/audit.py` with a typed `details` object per event type. `check_audit_trail()` verifies that a run starts with `case_loaded`, ends with `run_completed`, and has unbroken sequence numbers. It also confirms every tool call has a policy decision and that the logged barriers, tasks, approvals, and denials match the emitted plan. A run whose plan has no barriers, tasks, or actions is not penalized for the matching events it could not log. For tool calls, the `run_completed` event records how many calls the policy layer reviewed, and the number of logged tool call and policy decision events must match it. A count of zero is the only way a run may log no tool calls, so a dropped event is caught instead of looking like a run without calls.
+- **Sign-off after the plan is composed (stage 09):** Each gated action gets a recorded sign-off decision after the output composer, logged as `AU-09`. This is an offline benchmark with no clinician in the loop, so the reviewer is pluggable: `--signoff pending` (the default) leaves every gated action pending, meaning it must not be carried out, and `--signoff approve_all` simulates a clinician approving them. Nothing is executed whatever the decision. With `--out`, the decisions are saved next to each plan as `<case_id>.signoff.json`.
+- **Immutable Audit Trail (`AU-01` to `AU-09`):** Every case run generates a complete event trace in JSONL format for auditability and compliance reporting. Each line is an `AuditEvent` from `src/models/audit.py` with a typed `details` object per event type. `check_audit_trail()` verifies that a run starts with `case_loaded`, ends with `run_completed`, and has unbroken sequence numbers. It also confirms every tool call has a policy decision and that the logged barriers, tasks, approvals, and denials match the emitted plan. A run whose plan has no barriers, tasks, or actions is not penalized for the matching events it could not log. For tool calls, the `run_completed` event records how many calls the policy layer reviewed, and the number of logged tool call and policy decision events must match it. A count of zero is the only way a run may log no tool calls, so a dropped event is caught instead of looking like a run without calls.
 
 ---
 

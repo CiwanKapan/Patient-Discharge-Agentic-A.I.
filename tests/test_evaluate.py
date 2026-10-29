@@ -1,5 +1,6 @@
 """Tests for evaluation/evaluate.py, using plans written offline (oracle pipeline, B1)."""
 import csv
+import json
 from pathlib import Path
 
 import pytest
@@ -51,7 +52,9 @@ def runs(tmp_path, taxonomy):
 
 def _evaluate(runs, taxonomy, cases=(EASY, MEDIUM, HARD), systems=None):
     systems = systems or {"B1": runs / "b1", "Agentic": runs / "plans"}
-    rows, summary = evaluate.evaluate(systems, {"Agentic": runs / "audit"}, list(cases), CASE_DIR, KEY_DIR, taxonomy)
+    dirs = {name: [evaluate.RunDir("r1", d, runs / "audit" if name == "Agentic" else None)]
+            for name, d in systems.items()}
+    rows, summary, _ = evaluate.evaluate(dirs, list(cases), CASE_DIR, KEY_DIR, taxonomy)
     return {(r["system"], r["case_id"]): r for r in rows}, {(r["system"], r["slice"]): r for r in summary}
 
 
@@ -127,4 +130,66 @@ def test_cli_writes_both_csvs(runs, taxonomy, capsys):
     summary = list(csv.DictReader((out / "summary.csv").open()))
     assert len(per_case) == 6
     assert {r["slice"] for r in summary} >= {"all", "difficulty=easy", "difficulty=medium", "difficulty=hard"}
-    assert "Scored 3 cases for B1, Agentic" in capsys.readouterr().out
+    assert "Scored 3 cases: B1 x1, Agentic x1 runs." in capsys.readouterr().out
+
+
+# ---------------------------------------------------------------- run records and significance
+def test_baseline_run_records(tmp_path, taxonomy):
+    from baselines._common import save
+    from baselines.baseline_2_single_llm import run_case as b2_run
+    out = tmp_path / "b2"
+
+    class Raw:
+        model = "fake"
+
+        def __init__(self, text):
+            self.text = text
+
+        def complete(self, *a):
+            return self.text
+
+    case, key = _load(HARD)
+    good = OracleLLM(case, key, taxonomy)
+    recs = good._rec_generator()["recommendations"]
+    for r in recs:
+        del r["recommendation_id"]
+        r["requires_human_approval"] = r.get("proposed_action") is not None
+    text = json.dumps({"summary": "s", **good._barrier_detector(), **good._task_detector(), "recommendations": recs})
+    save(out, b2_run(CASE_DIR / f"{HARD}.json", Raw(text), taxonomy))
+    record = json.loads((out / f"{HARD}.run.json").read_text())
+    assert record["status"] == "succeeded" and record["raw_output"] == text
+    assert (out / f"{HARD}.json").exists()
+
+    # a later failed run keeps its raw output and removes the stale plan
+    save(out, b2_run(CASE_DIR / f"{HARD}.json", Raw("not json"), taxonomy))
+    record = json.loads((out / f"{HARD}.run.json").read_text())
+    assert record["status"] == "failed" and record["raw_output"] == "not json"
+    assert "unparseable" in record["error"]
+    assert not (out / f"{HARD}.json").exists()
+
+    rows, summary = _evaluate(tmp_path, taxonomy, cases=[HARD], systems={"B2": out})
+    row = rows[("B2", HARD)]
+    assert row["status"] == "failed" and "unparseable" in row["error"]
+
+
+def test_cases_found_from_run_records_only(tmp_path, taxonomy, capsys):
+    from baselines._common import BaselineResult, save
+    save(tmp_path / "b2", BaselineResult("baseline_2_single_llm", MEDIUM, "failed", error="API error 529"))
+    _b1_run(EASY, taxonomy, tmp_path / "b1")
+    assert evaluate.main(["--system", f"B1={tmp_path / 'b1'}", "--system", f"B2={tmp_path / 'b2'}",
+                          "--out", str(tmp_path / "eval")]) == 0
+    per_case = list(csv.DictReader((tmp_path / "eval" / "per_case.csv").open()))
+    assert {(r["system"], r["case_id"], r["status"]) for r in per_case} == {
+        ("B1", EASY, "ok"), ("B1", MEDIUM, "missing"), ("B2", EASY, "missing"), ("B2", MEDIUM, "failed")}
+    assert not (tmp_path / "eval" / "significance.csv").exists()  # no Agentic system to test against
+
+
+def test_cli_writes_significance(runs, taxonomy, capsys):
+    out = runs / "eval"
+    evaluate.main(["--system", f"B1={runs / 'b1'}", "--system", f"Agentic={runs / 'plans'}",
+                   "--audit", f"Agentic={runs / 'audit'}", "--out", str(out)])
+    sig = list(csv.DictReader((out / "significance.csv").open()))
+    assert [(r["hypothesis"], r["family"]) for r in sig] == [
+        ("H1", "primary"), ("H2", "primary"), ("H3", "primary"), ("H4", "primary"), ("H4-strict", "secondary")]
+    assert all(r["baseline"] == "B1" and r["n_pairs"] == "3" for r in sig)
+    assert "significance (Agentic vs each baseline" in capsys.readouterr().out
