@@ -1,0 +1,117 @@
+{
+  "case_id": "DEV-006",
+  "condition": "HF",
+  "difficulty": "hard",
+  "planned_discharge_window": {
+    "start": "2026-05-28T10:00:00-05:00",
+    "end": "2026-05-28T12:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Sister is primary caregiver; works days, available evenings",
+      "window": {
+        "start": "2026-05-28T18:00:00-05:00",
+        "end": "2026-05-28T22:00:00-05:00"
+      }
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "in_progress",
+      "detail": "Dietitian visit for 2 g sodium and 2 L fluid restriction scheduled but not completed"
+    },
+    "discharge_summary_status": {
+      "status": "unknown",
+      "detail": "Not documented"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "PCP visit booked",
+      "scheduled_for": "2026-06-02T11:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds",
+      "documented_at": "2026-05-27T09:00:00-05:00"
+    },
+    "medication_availability_status": {
+      "status": "not_started",
+      "detail": "Spironolactone 25 mg daily needs prior authorization; not available at CVS"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list, including the dose change",
+      "documented_at": "2026-05-27T15:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "in_progress",
+      "detail": "Pharmacist started reconciliation; home list from outside pharmacy not yet reviewed"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on daily weights and heart failure symptom monitoring completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Cardiology signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Sister to drive patient home after work",
+      "window": {
+        "start": "2026-05-28T18:30:00-05:00",
+        "end": "2026-05-28T19:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "62-year-old woman with hypertension, CKD stage 3, admitted 5/25 with acute on chronic HFrEF exacerbation with volume overload. Net negative 5.6 L this admission; dyspnea back to baseline. 5/28 07:45: Creatinine rose from 1.4 to 2.1 after diuresis; holding diuretics and rechecking. A slight elevation in liver enzymes was noted on day 1. The test was repeated on day 3 and the result returned to normal. No action is needed.",
+    "nursing_note": "Up in chair for meals. Pain controlled. 5/27 15:00: Furosemide changed from 20 mg daily to 40 mg daily this morning. Reviewed with patient and sister at 15:00; teach-back correct. A standard social work screening was completed on admission. The patient did not meet the criteria for a social work referral and no further input was needed.",
+    "case_manager_note": "Met with patient and sister to review the discharge plan."
+  }
+}

@@ -3,6 +3,12 @@
 Usage (from repo root):
     python scripts/generate_cases.py                 # 150 + 10 add-on cases, default seeds
     python scripts/generate_cases.py --n 150 --extra 0 --seed 7
+    python scripts/generate_cases.py --dev           # the 15-case development set only
+
+The development set (DEV-001 to DEV-015, one case per condition x difficulty)
+comes from its own seed and is written to data/dev/ only. It is for pilots and
+live checks; it is never part of the evaluation set and does not touch the 160
+evaluation cases or data/dataset_manifest.csv.
 
 Writes:
     data/synthetic_cases/CASE-###.json      PatientCase (what the systems see)
@@ -750,12 +756,20 @@ def plan_extra(n, rng):
     return list(zip(conds, diffs))
 
 
-def generate(n_total, seed, tax, dis, *, start=0, usage=None, extra=False):
-    """Build n_total cases numbered from CASE-{start + 1}. With extra=True the slots
+def plan_cells(rng):
+    """One slot per condition x difficulty cell (15), in seeded order. Used for the dev set."""
+    slots = [(c, d) for c in CONDS for d in ("easy", "medium", "hard")]
+    rng.shuffle(slots)
+    return slots
+
+
+def generate(n_total, seed, tax, dis, *, start=0, usage=None, extra=False, cells=False, prefix="CASE"):
+    """Build n_total cases numbered from {prefix}-{start + 1}. With extra=True the slots
     come from plan_extra, so a small add-on batch keeps the dataset's proportions;
-    pass the main batch's `usage` so it favours barriers the main batch used least."""
+    pass the main batch's `usage` so it favours barriers the main batch used least.
+    With cells=True there is one case per condition x difficulty (n_total is ignored)."""
     rng = random.Random(seed)
-    slots = plan_extra(n_total, rng) if extra else plan(n_total, rng)
+    slots = plan_cells(rng) if cells else plan_extra(n_total, rng) if extra else plan(n_total, rng)
     usage = Counter() if usage is None else usage
     hard_idx = [i for i, (_, d) in enumerate(slots) if d == "hard"]
     med_idx = [i for i, (_, d) in enumerate(slots) if d == "medium"]
@@ -764,7 +778,7 @@ def generate(n_total, seed, tax, dis, *, start=0, usage=None, extra=False):
     tempt |= set(rng.sample(med_idx, target_tempt - len(tempt)))
     out = []
     for i, (cond, diff) in enumerate(slots):
-        b = CaseBuilder(f"CASE-{start + i + 1:03d}", cond, diff, random.Random(rng.random()), tax, dis)
+        b = CaseBuilder(f"{prefix}-{start + i + 1:03d}", cond, diff, random.Random(rng.random()), tax, dis)
         b.baseline()
         for bid, mode in choose_barriers(b, usage):
             b.add_barrier(bid, mode)
@@ -881,19 +895,27 @@ def main():
     ap.add_argument("--extra", type=int, default=10, help="add-on cases numbered after the main batch")
     ap.add_argument("--extra-seed", type=int, default=20261029)
     ap.add_argument("--out", type=Path, default=ROOT / "data")
+    ap.add_argument("--dev", action="store_true", help="write only the 15-case development set, to <out>/dev/")
+    ap.add_argument("--dev-seed", type=int, default=20261030)
     a = ap.parse_args()
     tax = json.loads((ROOT / "config" / "taxonomy.json").read_text())
     dis = json.loads((ROOT / "config" / "distractors.json").read_text())
-    usage = Counter()
-    results = generate(a.n, a.seed, tax, dis, usage=usage)
-    if a.extra:
-        results += generate(a.extra, a.extra_seed, tax, dis, start=a.n, usage=usage, extra=True)
+    if a.dev:
+        results = generate(15, a.dev_seed, tax, dis, cells=True, prefix="DEV")
+        out, manifest = a.out / "dev", a.out / "dev" / "manifest.csv"
+        cdir, kdir = out / "cases", out / "answer_keys"
+    else:
+        usage = Counter()
+        results = generate(a.n, a.seed, tax, dis, usage=usage)
+        if a.extra:
+            results += generate(a.extra, a.extra_seed, tax, dis, start=a.n, usage=usage, extra=True)
+        manifest = a.out / "dataset_manifest.csv"
+        cdir, kdir = a.out / "synthetic_cases", a.out / "answer_keys"
     problems = {c["case_id"]: e for c, k, _ in results if (e := validate(c, k, tax))}
     if problems:
         for cid, e in problems.items():
             print(cid, e)
         sys.exit("validation failed; nothing written")
-    cdir, kdir = a.out / "synthetic_cases", a.out / "answer_keys"
     cdir.mkdir(parents=True, exist_ok=True)
     kdir.mkdir(parents=True, exist_ok=True)
     rows = []
@@ -901,11 +923,11 @@ def main():
         (cdir / f"{case['case_id']}.json").write_text(json.dumps(case, indent=2) + "\n")
         (kdir / f"{case['case_id']}.key.json").write_text(json.dumps(key, indent=2) + "\n")
         rows.append(row)
-    with open(a.out / "dataset_manifest.csv", "w", newline="") as fh:
+    with open(manifest, "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0]))
         w.writeheader()
         w.writerows(sorted(rows, key=lambda x: x["case_id"]))
-    print(f"wrote {len(rows)} cases, {len(rows)} answer keys, manifest -> {a.out}")
+    print(f"wrote {len(rows)} cases, {len(rows)} answer keys, manifest -> {manifest}")
 
 
 if __name__ == "__main__":

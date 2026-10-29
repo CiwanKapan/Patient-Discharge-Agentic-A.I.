@@ -1,0 +1,110 @@
+{
+  "case_id": "DEV-012",
+  "condition": "CO",
+  "difficulty": "hard",
+  "planned_discharge_window": {
+    "start": "2026-06-17T10:00:00-05:00",
+    "end": "2026-06-17T12:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Nephew will stay with patient for the first two weeks",
+      "documented_at": "2026-06-16T08:00:00-05:00"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Pulmonology clinic visit booked",
+      "scheduled_for": "2026-06-22T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Home nebulizer teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to CVS"
+    },
+    "medication_education_status": {
+      "status": "in_progress",
+      "detail": "Teaching on azithromycin 250 mg three times weekly started; teach-back not completed"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "complete"
+    },
+    "patient_education_status": {
+      "status": "not_started",
+      "detail": "Teaching on inhaler technique and the COPD action plan not yet done"
+    },
+    "pcp_notification_status": {
+      "status": "not_started",
+      "detail": "PCP not yet notified of admission or medication changes"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Palliative care signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "unknown",
+      "detail": "No documentation found in chart"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Nephew will pick patient up",
+      "window": {
+        "start": "2026-06-17T16:00:00-05:00",
+        "end": "2026-06-17T17:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "53-year-old woman with GERD, former smoker (40 pack-years), admitted 6/13 with acute exacerbation of COPD. Ambulated 100 m with PT yesterday without desaturation.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty. The patient lives in a first-floor flat with no stairs. A home visit assessment was completed last year and confirmed the environment is safe and accessible. A routine review of the patient's long-term conditions was completed by the attending physician. No new diagnoses were made and no changes to ongoing management were recommended.",
+    "case_manager_note": "CM following for discharge planning. 6/17 08:20: Nephew called: has to travel for a family emergency tonight and cannot stay with the patient. No other family available. Patient asked what the new azithromycin 250 mg three times weekly is for; teaching still needed. Need to update the PCP before discharge."
+  }
+}

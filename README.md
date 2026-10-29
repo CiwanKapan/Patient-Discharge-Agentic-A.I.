@@ -180,7 +180,7 @@ Some barriers only appear when fields are read together. `B-S07` (transport timi
 ## 📊 Dataset & Baseline Specifications
 
 ### Dataset Structure
-- **Size:** 160 synthetic cases in `data/synthetic_cases/`, each paired with an answer key in `data/answer_keys/`.
+- **Size:** 160 synthetic cases in `data/synthetic_cases/`, each paired with an answer key in `data/answer_keys/`. A separate 15-case development set in `data/dev/` is used only for pilots and checks.
 - **Stratification:** Easy, Medium, and Hard difficulty levels across 5 medical conditions:
   - Heart Failure (`HF`)
   - COPD (`CO`)
@@ -250,7 +250,8 @@ agentic_discharge_coordinator/
 │   ├── scenarios/                   # Targeted cross-field and missing-info scenarios
 │   ├── synthetic_cases/             # Stratified dataset (160 cases)
 │   ├── answer_keys/                 # Gold-standard evaluation mappings (drafts, need review)
-│   ├── subsets/                     # Stratified 40-case subset and 15-case pilot (scripts/make_subsets.py)
+│   ├── subsets/                     # Stratified 40-case subset for the reduced design (scripts/make_subsets.py)
+│   ├── dev/                         # 15 development cases (DEV-###) for pilots and checks; never in results
 │   └── dataset_manifest.csv         # One row per case for stratified analysis
 ├── src/
 │   ├── models/                      # Pydantic models: case, inter-agent messages, answer keys, audit
@@ -342,10 +343,10 @@ pytest tests/
 `scripts/run_experiment.py` runs every arm into one experiment directory, `runs/<name>/<arm>/r<k>/`. B2, B3, and the pipeline call Claude and use API credits (1 call per case for B2 and B3, sent through the Batch API at half price; 4 per case for the pipeline, more with retries). B1 makes no calls and runs once. `--dry-run` prints the plan and the minimum number of model calls without calling anything.
 
 ```bash
-python scripts/make_subsets.py      # writes data/subsets/stratified_40.txt and pilot_15.txt (seeded)
+python scripts/make_subsets.py      # writes data/subsets/stratified_40.txt (seeded)
 
-# Pilot: 15 cases, one per condition x difficulty
-python scripts/run_experiment.py --name pilot --cases-file data/subsets/pilot_15.txt --runs 1-3
+# Pilot: the 15 development cases (not evaluation cases), one per condition x difficulty
+python scripts/run_experiment.py --name pilot --case-set dev --runs 1-3
 
 # Full design: 3 runs per case for the LLM arms
 python scripts/run_experiment.py --name main --runs 1-3
@@ -355,7 +356,9 @@ python scripts/run_experiment.py --name main --runs 1
 python scripts/run_experiment.py --name main --runs 2-3 --cases-file data/subsets/stratified_40.txt
 ```
 
-The 40-case subset has exactly 8 cases per condition and 12/20/8 easy/medium/hard, the dataset's 30/50/20 split. The runner refuses to start if the working tree has uncommitted changes (`--allow-dirty` for trial runs only), so results tie to a commit. Each run directory gets a `manifest.json` recording the commit, LLM settings, prompt version, and hashes of the taxonomy and dataset manifest, and the runner refuses to add to a directory made differently. Re-running the same command resumes: finished cases are skipped, and cases that failed for infrastructure reasons (rate limits, server or connection errors) are run again. Refusals and truncated output are results and are kept.
+The 40-case subset has exactly 8 cases per condition and 12/20/8 easy/medium/hard, the dataset's 30/50/20 split. In the reduced design its run 1 is the same run 1 as every other case; runs 2 and 3 cover only the subset and feed the run-to-run variability analysis.
+
+**Development vs. evaluation cases.** Pilots and live checks run on the development set in `data/dev/` (`DEV-001` to `DEV-015`, `--case-set dev`), never on the 160 evaluation cases. It comes from the same generator with its own seed (`python scripts/generate_cases.py --dev`), one case per condition and difficulty, and is not in `data/dataset_manifest.csv`. Each run's manifest records which case set it used, and the runner refuses a cases file that mixes sets. The runner refuses to start if the working tree has uncommitted changes (`--allow-dirty` for trial runs only), so results tie to a commit. Each run directory gets a `manifest.json` recording the commit, LLM settings, prompt version, and hashes of the taxonomy and dataset manifest, and the runner refuses to add to a directory made differently. Re-running the same command resumes: finished cases are skipped, and cases that failed for infrastructure reasons (rate limits, server or connection errors) are run again. Refusals and truncated output are results and are kept.
 
 Every arm writes, per case, the plan, a run record `<case_id>.run.json` (status, the error and its kind, items dropped while normalizing, the raw model output for B2 and B3, and every LLM call with its outcome and tokens), and, for B3 and the pipeline, sign-off decisions and an audit log. A failed run removes any plan an earlier run left behind, so a stale plan is never scored.
 

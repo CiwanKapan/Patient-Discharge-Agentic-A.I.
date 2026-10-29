@@ -1,0 +1,112 @@
+{
+  "case_id": "DEV-013",
+  "condition": "ST",
+  "difficulty": "hard",
+  "planned_discharge_window": {
+    "start": "2026-03-19T08:00:00-05:00",
+    "end": "2026-03-19T10:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Sister is primary caregiver"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "in_progress",
+      "detail": "Message sent to stroke clinic for follow-up; no appointment confirmed"
+    },
+    "home_health_referral_status": {
+      "status": "complete"
+    },
+    "home_safety_status": {
+      "status": "complete"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_started",
+      "detail": "Glucometer education not completed"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list",
+      "documented_at": "2026-03-18T14:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Quad cane training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "unknown",
+      "detail": "Not addressed in flowsheet"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Speech-language pathology signed off"
+    },
+    "pending_imaging": {
+      "status": "unknown",
+      "detail": "No documentation found in chart"
+    },
+    "pending_labs": {
+      "status": "in_progress",
+      "detail": "Fasting lipid panel drawn this morning; result pending"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Sister to drive patient home",
+      "window": {
+        "start": "2026-03-19T08:30:00-05:00",
+        "end": "2026-03-19T09:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "83-year-old woman with hyperlipidemia, atrial fibrillation, admitted 3/12 with small right cerebellar infarct. NIHSS improved from 6 to 2. The patient reports a mild seasonal allergy that is well controlled with an over-the-counter antihistamine. This was noted and confirmed to have no interaction with current medications. A standard nursing handover document was prepared on day 3, summarising the patient's stay for any community nursing team that may be involved after discharge. This was sent to the GP as a courtesy note.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty.",
+    "case_manager_note": "CM following for discharge planning. 3/18 18:00: Amlodipine changed from 5 mg daily to 10 mg daily on evening rounds. Patient and sister not yet told; this afternoon's teaching covered the old dose. Earlier pickup was cancelled and rebooked for 08:30 to match the discharge time."
+  }
+}

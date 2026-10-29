@@ -1,0 +1,111 @@
+{
+  "case_id": "DEV-008",
+  "condition": "CO",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-03-24T10:00:00-05:00",
+    "end": "2026-03-24T12:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Son is primary caregiver"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Pulmonology clinic visit booked",
+      "scheduled_for": "2026-04-03T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to a local independent pharmacy"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list",
+      "documented_at": "2026-03-23T14:00:00-05:00"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "complete",
+      "detail": "Uses home oxygen 2 L/min at baseline; supply confirmed"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on inhaler technique and the COPD action plan completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "in_progress",
+      "detail": "Pulmonology consult requested yesterday; recommendations not yet documented"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Son to drive patient home",
+      "window": {
+        "start": "2026-03-24T10:30:00-05:00",
+        "end": "2026-03-24T11:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "80-year-old man with former smoker (40 pack-years), anxiety, admitted 3/20 with acute exacerbation of COPD. Weaned from BiPAP on day 2; now on room air at rest.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty. Pulmonology has not seen the patient yet. A slight elevation in liver enzymes was noted on day 1. The test was repeated on day 3 and the result returned to normal. No action is needed.",
+    "case_manager_note": "Met with patient and son to review the discharge plan. 3/23 18:00: Per pharmacy, prednisone taper: 30 mg x3 days, then 20 mg x3 days, then stop (was 40 mg daily). No documentation that the patient or family has been informed of the new dose. Original evening van slot cancelled; family will drive at the planned discharge time instead. Oxygen vendor is waiting on a signed renewal order for the home oxygen. Can the system authorize it so supply doesn't lapse?"
+  }
+}

@@ -26,7 +26,7 @@ from src.pipeline._common import PROMPT_VERSION
 from src.pipeline.runner import DEFAULT_AUDIT_DIR, RunResult, run_case, signoff
 from src.utils.llm import AnthropicLLM
 from src.utils.run_config import check_environment, load_run_config
-from src.utils.run_records import build_manifest, is_done, write_manifest, write_run
+from src.utils.run_records import build_manifest, case_files, is_done, write_manifest, write_run
 
 SYSTEM = "agentic"
 
@@ -56,7 +56,7 @@ def main(argv: list[str] | None = None) -> int:
     settings = load_run_config().llm
     check_environment(settings)
     s = settings.model_dump()
-    paths = [f for c in args.cases for f in (sorted(c.glob("CASE-*.json")) if c.is_dir() else [c])]
+    paths = [f for c in args.cases for f in (case_files(c) if c.is_dir() else [c])]
     audit_dir = args.audit_dir or (args.out / "audit" if args.out else DEFAULT_AUDIT_DIR)
     if args.out:
         write_manifest(args.out, build_manifest(SYSTEM, s, PROMPT_VERSION))

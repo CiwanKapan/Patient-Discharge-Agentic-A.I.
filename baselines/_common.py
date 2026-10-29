@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Callable, Optional
 
 from src.models.plan import DischargePlan
-from src.utils.run_records import build_manifest, is_done, write_manifest, write_run
+from src.utils.run_records import build_manifest, case_files, is_done, write_manifest, write_run
 
 input_reader = importlib.import_module("src.pipeline.01_input_reader")
 
@@ -71,7 +71,7 @@ def report(r: BaselineResult) -> bool:
 
 
 def case_paths(cases: list[Path]) -> list[Path]:
-    return [f for c in cases for f in (sorted(c.glob("CASE-*.json")) if c.is_dir() else [c])]
+    return [f for c in cases for f in (case_files(c) if c.is_dir() else [c])]
 
 
 def main(system: str, run: Optional[Callable[[Path], BaselineResult]], argv: list[str] | None = None, *,

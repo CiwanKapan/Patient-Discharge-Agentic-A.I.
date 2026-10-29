@@ -1,0 +1,110 @@
+{
+  "case_id": "DEV-004",
+  "condition": "OR",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-04-27T08:00:00-05:00",
+    "end": "2026-04-27T10:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "in_progress",
+      "detail": "Discharge summary about 60% complete"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Orthopedic surgery clinic visit booked",
+      "scheduled_for": "2026-05-05T07:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "complete"
+    },
+    "insurance_authorization_status": {
+      "status": "in_progress",
+      "detail": "Prior authorization for crutches and home PT submitted; decision pending"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Cold therapy unit teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to a local independent pharmacy"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "mobile_device_education_status": {
+      "status": "complete"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on hip/knee precautions and DVT warning signs completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "in_progress",
+      "detail": "Post-op X-ray completed; awaiting radiology read"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Medical transport confirmed",
+      "window": {
+        "start": "2026-04-27T16:00:00-05:00",
+        "end": "2026-04-27T17:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "complete"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "66-year-old man with obesity, type 2 diabetes, admitted 4/23 for right hip hemiarthroplasty after femoral neck fracture. Post-op day 3; working with PT twice daily. The patient reported mild nausea on the morning of day 2. This was managed with a standard anti-nausea medication and the patient has been eating and drinking normally since.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty.",
+    "case_manager_note": "CM following for discharge planning. Discharge paperwork still waiting on the summary."
+  }
+}

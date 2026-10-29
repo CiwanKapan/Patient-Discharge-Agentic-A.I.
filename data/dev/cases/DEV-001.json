@@ -1,0 +1,104 @@
+{
+  "case_id": "DEV-001",
+  "condition": "PN",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-06-15T13:00:00-05:00",
+    "end": "2026-06-15T15:00:00-05:00"
+  },
+  "tracked_fields": {
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Pulmonology clinic visit booked (first available)",
+      "scheduled_for": "2026-06-30T10:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "in_progress",
+      "detail": "Incentive spirometer teaching started; return demonstration pending"
+    },
+    "medical_stability_status": {
+      "status": "complete"
+    },
+    "medication_availability_status": {
+      "status": "complete"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on completing the antibiotic course and pneumonia warning signs completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "in_progress",
+      "detail": "PT evaluation: needs moderate assistance for transfers; not safe to ambulate alone"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Nephew to take patient home",
+      "window": {
+        "start": "2026-06-15T13:00:00-05:00",
+        "end": "2026-06-15T14:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "55-year-old woman with hypertension, alcohol use disorder in remission, admitted 6/12 with aspiration pneumonia, improving. Oxygen weaned to room air yesterday. Needs pulmonology clinic follow-up within 7 days of discharge.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. The patient reported mild nausea on the morning of day 2. This was managed with a standard anti-nausea medication and the patient has been eating and drinking normally since.",
+    "case_manager_note": "Discharge planning in progress; CM following daily. PT recommends assistance with all transfers for now."
+  }
+}

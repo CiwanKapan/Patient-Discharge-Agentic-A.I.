@@ -8,9 +8,8 @@ data/subsets/stratified_40.txt
     Each condition gets its share of each difficulty rounded down; the cases
     left over go to seeded conditions, one per condition, so both totals hold.
 
-data/subsets/pilot_15.txt
-    15 cases for the pilot: one per condition x difficulty cell, so every
-    condition and difficulty appears.
+The pilot does not use a subset of the evaluation cases: it runs the separate
+development set (data/dev/, scripts/generate_cases.py --dev).
 """
 from __future__ import annotations
 
@@ -52,11 +51,9 @@ def main() -> None:
     out = ROOT / "data" / "subsets"
     out.mkdir(parents=True, exist_ok=True)
     subset = stratified(40, groups, random.Random(SEED))
-    pilot = sorted(random.Random(SEED + 1).choice(v) for v in groups.values())
     header = f"# written by scripts/make_subsets.py (seed {SEED}); one case ID per line\n"
     (out / "stratified_40.txt").write_text(header + "\n".join(subset) + "\n")
-    (out / "pilot_15.txt").write_text(header + "\n".join(pilot) + "\n")
-    print(f"wrote {len(subset)} cases to stratified_40.txt and {len(pilot)} to pilot_15.txt")
+    print(f"wrote {len(subset)} cases to stratified_40.txt")
 
 
 if __name__ == "__main__":

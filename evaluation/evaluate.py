@@ -76,11 +76,11 @@ from src.models.messages import BarrierDetection, TaskDetection  # noqa: E402
 from src.models.plan import ApprovalDecisions, DischargePlan, RecommendationSet, check_governance  # noqa: E402
 from src.utils.audit_logger import read_audit_log  # noqa: E402
 from src.utils.run_config import ConfigMismatch, load_run_config, require_same  # noqa: E402
-from src.utils.run_records import read_manifest, read_run  # noqa: E402
+from src.utils.run_records import case_set_of, read_manifest, read_run  # noqa: E402
 
 ARM_NAMES = {"b1": "B1", "b2": "B2", "b3": "B3", "agentic": "Agentic"}
 SECONDARY = ("B3",)
-CASE_FILE = re.compile(r"^(CASE-\d+)(\.run)?\.json$")  # a plan or a run record
+CASE_FILE = re.compile(r"^((?:CASE|DEV)-\d{3})(\.run)?\.json$")  # a plan or a run record
 TOKEN_FIELDS = ("input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")
 
 
@@ -177,7 +177,7 @@ def llm_usage(record: dict, pricing) -> dict:
 
 
 def cases_in(rd: RunDir) -> set[str]:
-    return {m.group(1) for f in rd.plans.glob("CASE-*.json") if (m := CASE_FILE.match(f.name))} \
+    return {m.group(1) for f in rd.plans.glob("*.json") if (m := CASE_FILE.match(f.name))} \
         if rd.plans.is_dir() else set()
 
 
@@ -189,8 +189,10 @@ def evaluate(systems: dict[str, list[RunDir]], case_ids: list[str], dataset: Pat
               for name, rds in systems.items()}
     barrier_sets = defaultdict(list)
     for cid in case_ids:
-        case = PatientCase.model_validate_json((dataset / f"{cid}.json").read_text())
-        key = AnswerKey.model_validate_json((keys_dir / f"{cid}.key.json").read_text())
+        cdir, kdir = (dataset, keys_dir) if case_set_of(cid) == "eval" else (ROOT / "data" / "dev" / "cases",
+                                                                            ROOT / "data" / "dev" / "answer_keys")
+        case = PatientCase.model_validate_json((cdir / f"{cid}.json").read_text())
+        key = AnswerKey.model_validate_json((kdir / f"{cid}.key.json").read_text())
         for name, rds in systems.items():
             for rd in rds:
                 if not rd.covers(cid):
@@ -308,7 +310,7 @@ def check_settings(systems: dict[str, list[RunDir]]) -> list[str]:
         for rd in rds:
             m = read_manifest(rd.plans)
             recorded = {json.dumps(r["llm_settings"], sort_keys=True)
-                        for f in rd.plans.glob("CASE-*.run.json") if (r := json.loads(f.read_text())).get("llm_settings")}
+                        for f in rd.plans.glob("*.run.json") if (r := json.loads(f.read_text())).get("llm_settings")}
             if m.get("llm_settings"):
                 recorded.add(json.dumps(m["llm_settings"], sort_keys=True))
             for i, s in enumerate(sorted(recorded)):
@@ -393,7 +395,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--system", action="append", metavar="NAME=PLAN_DIR", help="one system's plan directory; repeatable")
     p.add_argument("--audit", action="append", metavar="NAME=AUDIT_DIR", help="a --system's audit directory")
     p.add_argument("--cases", nargs="+", help="case IDs to score (default: every case with a plan or run record)")
-    p.add_argument("--dataset", type=Path, default=ROOT / "data" / "synthetic_cases")
+    p.add_argument("--dataset", type=Path, default=ROOT / "data" / "synthetic_cases",
+                   help="evaluation cases (DEV-### development cases are always read from data/dev/)")
     p.add_argument("--keys", type=Path, default=ROOT / "data" / "answer_keys")
     p.add_argument("--out", type=Path, help="default <experiment>/eval, or runs/eval")
     p.add_argument("--reference", default="Agentic", help="system the others are tested against")

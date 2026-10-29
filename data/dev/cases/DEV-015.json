@@ -1,0 +1,111 @@
+{
+  "case_id": "DEV-015",
+  "condition": "PN",
+  "difficulty": "hard",
+  "planned_discharge_window": {
+    "start": "2026-04-28T14:00:00-05:00",
+    "end": "2026-04-28T16:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Sister is primary caregiver; works days, available evenings",
+      "window": {
+        "start": "2026-04-28T18:00:00-05:00",
+        "end": "2026-04-28T22:00:00-05:00"
+      }
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "in_progress",
+      "detail": "Discharge summary about 60% complete"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "PCP visit booked",
+      "scheduled_for": "2026-05-05T15:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to Walgreens",
+      "documented_at": "2026-04-27T12:00:00-05:00"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "in_progress",
+      "detail": "Teaching on completing the antibiotic course and pneumonia warning signs started; patient asked for sister to be present for the rest"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Speech-language pathology (swallow) signed off"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Sister to drive patient home after work",
+      "window": {
+        "start": "2026-04-28T18:30:00-05:00",
+        "end": "2026-04-28T19:30:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "67-year-old man with hypertension, alcohol use disorder in remission, admitted 4/23 with aspiration pneumonia, improving. Oxygen weaned to room air yesterday.",
+    "nursing_note": "Up in chair for meals. Pain controlled. 4/28 12:00: Walgreens called: levofloxacin is out of stock until next week. No alternate pharmacy arranged. Discharge paperwork still waiting on the summary. A mild rash appeared briefly at the IV insertion site on day 2. It was assessed as a minor irritation, treated with a topical cream, and has fully resolved. The patient has a long-standing history of mild hearing loss that is managed with a hearing aid. They have their own hearing aid at home and this does not affect the discharge plan.",
+    "case_manager_note": "Plan is discharge home with sister."
+  }
+}

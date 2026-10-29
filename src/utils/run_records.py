@@ -18,12 +18,37 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
 ROOT = Path(__file__).resolve().parents[2]
+
+# Evaluation cases are CASE-###; development cases (data/dev/, never scored as results) are DEV-###.
+CASE_ID = re.compile(r"^(?:CASE|DEV)-\d{3}$")
+CASE_SETS = {
+    "eval": (ROOT / "data" / "synthetic_cases", ROOT / "data" / "answer_keys", ROOT / "data" / "dataset_manifest.csv"),
+    "dev": (ROOT / "data" / "dev" / "cases", ROOT / "data" / "dev" / "answer_keys", ROOT / "data" / "dev" / "manifest.csv"),
+}
+
+
+def case_set_of(case_id: str) -> str:
+    return "dev" if case_id.startswith("DEV-") else "eval"
+
+
+def case_files(directory: Path) -> list[Path]:
+    """Case JSON files in a directory (CASE-### or DEV-###), ignoring run records and other files."""
+    return sorted(p for p in Path(directory).glob("*.json") if CASE_ID.match(p.stem))
+
+
+def case_path(case_id: str) -> Path:
+    return CASE_SETS[case_set_of(case_id)][0] / f"{case_id}.json"
+
+
+def key_path(case_id: str) -> Path:
+    return CASE_SETS[case_set_of(case_id)][1] / f"{case_id}.key.json"
 
 
 def write_run(out: Path, *, system: str, case_id: str, status: str, plan=None, error: Optional[str] = None,
@@ -76,7 +101,8 @@ def code_version() -> dict:
     return {"git_commit": git("rev-parse", "HEAD"), "git_dirty": bool(status) if status is not None else None}
 
 
-def build_manifest(arm: str, llm_settings: Optional[dict], prompt_version: Optional[str], extra: Optional[dict] = None) -> dict:
+def build_manifest(arm: str, llm_settings: Optional[dict], prompt_version: Optional[str], extra: Optional[dict] = None,
+                   case_set: str = "eval") -> dict:
     taxonomy = ROOT / "config" / "taxonomy.json"
     return {
         "arm": arm,
@@ -85,12 +111,14 @@ def build_manifest(arm: str, llm_settings: Optional[dict], prompt_version: Optio
         "prompt_version": prompt_version,
         "taxonomy_version": json.loads(taxonomy.read_text())["meta"]["version"],
         "taxonomy_sha256": sha256(taxonomy),
-        "dataset_manifest_sha256": sha256(ROOT / "data" / "dataset_manifest.csv"),
+        "case_set": case_set,
+        "dataset_manifest_sha256": sha256(CASE_SETS[case_set][2]),
         **(extra or {}),
     }
 
 
-IDENTITY_KEYS = ("arm", "git_commit", "llm_settings", "prompt_version", "taxonomy_sha256", "dataset_manifest_sha256")
+IDENTITY_KEYS = ("arm", "git_commit", "llm_settings", "prompt_version", "taxonomy_sha256", "case_set",
+                 "dataset_manifest_sha256")
 
 
 def write_manifest(out: Path, manifest: dict) -> None:

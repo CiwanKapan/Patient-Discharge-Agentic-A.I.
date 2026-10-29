@@ -17,7 +17,7 @@ from src.models.case import PatientCase
 from src.models.messages import Stage
 from src.utils.llm import LLMInfraError
 from src.utils.run_config import ConfigMismatch
-from src.utils.run_records import build_manifest, read_run, write_manifest
+from src.utils.run_records import build_manifest, case_path, key_path, read_run, write_manifest
 
 from oracle_llm import OracleLLM
 
@@ -28,8 +28,8 @@ USAGE = {"input_tokens": 1000, "output_tokens": 200, "cache_read_input_tokens": 
 
 
 def _load(cid):
-    case = PatientCase.model_validate_json((ROOT / "data" / "synthetic_cases" / f"{cid}.json").read_text())
-    return case, AnswerKey.model_validate_json((ROOT / "data" / "answer_keys" / f"{cid}.key.json").read_text())
+    case = PatientCase.model_validate_json(case_path(cid).read_text())
+    return case, AnswerKey.model_validate_json(key_path(cid).read_text())
 
 
 class FakeLLM:
@@ -53,7 +53,7 @@ class FakeLLM:
         return self._oracles[cid]
 
     def _answer(self, step, user):
-        cid = re.search(r'"case_id": "(CASE-\d+)"', user).group(1)
+        cid = re.search(r'"case_id": "((?:CASE|DEV)-\d+)"', user).group(1)
         self.calls.append((step, cid))
         if (step, cid) in self.infra_fail_once:
             self.infra_fail_once.discard((step, cid))
@@ -271,3 +271,21 @@ def test_evaluation_refuses_mixed_settings(experiment):
     rec_path.write_text(json.dumps(rec))
     code, *_ = _eval(root)
     assert code == 2
+
+
+# ---------------------------------------------------------------- development set
+def test_dev_case_set_runs_and_scores(tmp_path, taxonomy):
+    llm = FakeLLM(taxonomy)
+    argv = ["--name", "pilot", "--runs-dir", str(tmp_path), "--runs", "1", "--allow-dirty", "--case-set", "dev",
+            "--arms", "b1,b2,agentic"]
+    assert run_experiment.main(argv, llm=llm) == 0
+    assert {cid for _, cid in llm.calls} == {f"DEV-{i:03d}" for i in range(1, 16)}
+    assert json.loads((tmp_path / "pilot" / "b2" / "r1" / "manifest.json").read_text())["case_set"] == "dev"
+    code, rows, summary, *_ = _eval(tmp_path, name="pilot")
+    assert code == 0 and len(rows) == 15 * 3
+    assert all(r["case_id"].startswith("DEV-") and r["status"] == "ok" for r in rows)
+
+
+def test_cases_file_must_match_the_case_set(tmp_path, taxonomy):
+    with pytest.raises(SystemExit, match="outside --case-set dev"):
+        _run(tmp_path, FakeLLM(taxonomy), "--case-set", "dev", runs="1")  # cases file lists CASE-### ids
