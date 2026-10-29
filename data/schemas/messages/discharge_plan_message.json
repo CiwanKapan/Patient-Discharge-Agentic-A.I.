@@ -107,6 +107,16 @@
           "title": "Case Id",
           "type": "string"
         },
+        "status": {
+          "default": "pending_clinician_signoff",
+          "description": "Every plan is emitted pending_clinician_signoff: the system only proposes, and a clinician signs off outside it. A plan marked final is a governance failure (check_plan_status).",
+          "enum": [
+            "pending_clinician_signoff",
+            "final"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
         "summary": {
           "title": "Summary",
           "type": "string"
@@ -427,7 +437,7 @@
         "06_approval_gate",
         "07_policy_layer",
         "08_output_composer",
-        "09_signoff"
+        "09_signoff_request"
       ],
       "title": "Stage",
       "type": "string"

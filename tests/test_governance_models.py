@@ -187,6 +187,7 @@ def _trail():
         {"event_type": "policy_decision", "details": denied.model_dump()},
         {"event_type": "approval_classification", "details": {"recommendation_id": "R1", "classification": "auto_safe", "requires_human_approval": False, "reason": "no approval rule"}},
         {"event_type": "output_emitted", "details": {"plan": _plan(denied).model_dump()}},
+        {"event_type": "signoff_requested", "details": {"status": "pending_clinician_signoff", "actions": []}},
         {"event_type": "run_completed", "details": {"status": "succeeded", "model": "claude-sonnet-5-5", "prompt_versions": {"03_barrier_detector": "v1"}, "tool_call_count": 2,
                                                     "started_at": T0.isoformat(), "completed_at": (T0 + timedelta(seconds=30)).isoformat()}},
     ]
@@ -203,6 +204,11 @@ def test_complete_trail_passes():
     events = _trail()
     assert [e.audit_id for e in events][0] == "AU-01" and events[-1].audit_id == "AU-08"
     assert check_audit_trail(events) == []
+
+
+def test_every_audit_event_type_is_in_a_complete_trail(taxonomy):
+    assert {e.event_type for e in _trail()} == {a["event_type"] for a in taxonomy["governance"]["audit_events"]}
+    assert sorted({e.audit_id for e in _trail()}) == [f"AU-0{i}" for i in range(1, 10)]
 
 
 def _without(events, drop):

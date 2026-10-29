@@ -49,7 +49,7 @@ class Stage(str, Enum):
     APPROVAL_GATE = "06_approval_gate"
     POLICY_LAYER = "07_policy_layer"
     OUTPUT_COMPOSER = "08_output_composer"
-    SIGNOFF = "09_signoff"
+    SIGNOFF_REQUEST = "09_signoff_request"
 
 
 class _Strict(BaseModel):

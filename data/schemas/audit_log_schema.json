@@ -444,6 +444,16 @@
           "title": "Case Id",
           "type": "string"
         },
+        "status": {
+          "default": "pending_clinician_signoff",
+          "description": "Every plan is emitted pending_clinician_signoff: the system only proposes, and a clinician signs off outside it. A plan marked final is a governance failure (check_plan_status).",
+          "enum": [
+            "pending_clinician_signoff",
+            "final"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
         "summary": {
           "title": "Summary",
           "type": "string"
@@ -1240,9 +1250,9 @@
       "title": "RunCompletedDetails",
       "type": "object"
     },
-    "SignoffDecision": {
+    "SignoffItem": {
       "additionalProperties": false,
-      "description": "A reviewer's decision on one action the approval gate marked requires_human_approval.",
+      "description": "One action the approval gate marked requires_human_approval, awaiting a clinician.",
       "properties": {
         "recommendation_id": {
           "title": "Recommendation Id",
@@ -1261,42 +1271,45 @@
           "title": "Task Id"
         },
         "matched_rule_id": {
-          "description": "The approval rule being signed off.",
+          "description": "The approval rule the clinician signs off.",
           "pattern": "^GR-A\\d{2}$",
           "title": "Matched Rule Id",
-          "type": "string"
-        },
-        "decision": {
-          "description": "pending: no reviewer has decided yet; the action must not be carried out.",
-          "enum": [
-            "approved",
-            "rejected",
-            "pending"
-          ],
-          "title": "Decision",
-          "type": "string"
-        },
-        "reviewer": {
-          "description": "Who decided, e.g. 'none' or 'simulated:approve_all'.",
-          "title": "Reviewer",
-          "type": "string"
-        },
-        "reason": {
-          "title": "Reason",
           "type": "string"
         }
       },
       "required": [
         "recommendation_id",
-        "matched_rule_id",
-        "decision",
-        "reviewer",
-        "reason"
+        "matched_rule_id"
       ],
-      "title": "SignoffDecision",
+      "title": "SignoffItem",
       "type": "object"
     },
-    "SignoffRecorded": {
+    "SignoffRequest": {
+      "additionalProperties": false,
+      "description": "Logged as AU-09 (signoff_requested) when the plan is emitted. The system never\nrecords a clinician's decision; it only requests one.",
+      "properties": {
+        "status": {
+          "default": "pending_clinician_signoff",
+          "enum": [
+            "pending_clinician_signoff",
+            "final"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "actions": {
+          "description": "Gated actions awaiting sign-off.",
+          "items": {
+            "$ref": "#/$defs/SignoffItem"
+          },
+          "title": "Actions",
+          "type": "array"
+        }
+      },
+      "title": "SignoffRequest",
+      "type": "object"
+    },
+    "SignoffRequested": {
       "additionalProperties": false,
       "properties": {
         "event_id": {
@@ -1353,13 +1366,13 @@
           "type": "string"
         },
         "event_type": {
-          "const": "signoff_recorded",
-          "default": "signoff_recorded",
+          "const": "signoff_requested",
+          "default": "signoff_requested",
           "title": "Event Type",
           "type": "string"
         },
         "details": {
-          "$ref": "#/$defs/SignoffDecision"
+          "$ref": "#/$defs/SignoffRequest"
         }
       },
       "required": [
@@ -1368,7 +1381,7 @@
         "sequence",
         "details"
       ],
-      "title": "SignoffRecorded",
+      "title": "SignoffRequested",
       "type": "object"
     },
     "Stage": {
@@ -1381,7 +1394,7 @@
         "06_approval_gate",
         "07_policy_layer",
         "08_output_composer",
-        "09_signoff"
+        "09_signoff_request"
       ],
       "title": "Stage",
       "type": "string"
@@ -1721,7 +1734,7 @@
       "output_emitted": "#/$defs/OutputEmitted",
       "policy_decision": "#/$defs/PolicyDecisionEvent",
       "run_completed": "#/$defs/RunCompleted",
-      "signoff_recorded": "#/$defs/SignoffRecorded",
+      "signoff_requested": "#/$defs/SignoffRequested",
       "task_recommended": "#/$defs/TaskRecommended",
       "tool_call": "#/$defs/ToolCallEvent"
     },
@@ -1753,7 +1766,7 @@
       "$ref": "#/$defs/RunCompleted"
     },
     {
-      "$ref": "#/$defs/SignoffRecorded"
+      "$ref": "#/$defs/SignoffRequested"
     }
   ],
   "title": "AuditLogLine"

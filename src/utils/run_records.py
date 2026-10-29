@@ -3,7 +3,7 @@
 For each case an arm writes, into its output directory:
 
     <case_id>.json          the plan (only when the run succeeded)
-    <case_id>.signoff.json  sign-off decisions (the pipeline, succeeded runs only)
+    <case_id>.signoff.json  the sign-off request (the pipeline, succeeded runs only)
     <case_id>.run.json      the run record, always: status, error and its kind, items
                             dropped while normalizing, the raw model output (B2), every
                             LLM call with its outcome and tokens, the LLM settings, and
@@ -53,15 +53,15 @@ def key_path(case_id: str) -> Path:
 
 def write_run(out: Path, *, system: str, case_id: str, status: str, plan=None, error: Optional[str] = None,
               error_kind: Optional[str] = None, notes=(), raw_output: Optional[str] = None, llm_calls=(),
-              signoffs=None, audit_path=None, audit_errors=(), llm_settings: Optional[dict] = None) -> None:
+              signoff_request=None, audit_path=None, audit_errors=(), llm_settings: Optional[dict] = None) -> None:
     out.mkdir(parents=True, exist_ok=True)
     plan_file, signoff_file = out / f"{case_id}.json", out / f"{case_id}.signoff.json"
     if plan is not None:
         plan_file.write_text(plan.model_dump_json(indent=2))
     else:
         plan_file.unlink(missing_ok=True)
-    if plan is not None and signoffs is not None:
-        signoff_file.write_text(json.dumps({"decisions": [d.model_dump(mode="json") for d in signoffs]}, indent=2) + "\n")
+    if plan is not None and signoff_request is not None:
+        signoff_file.write_text(signoff_request.model_dump_json(indent=2) + "\n")
     else:
         signoff_file.unlink(missing_ok=True)
     record = {

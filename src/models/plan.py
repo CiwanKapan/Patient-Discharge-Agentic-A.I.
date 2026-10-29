@@ -3,7 +3,7 @@
     05 Rec. Generator  -> RecommendationSet   ranked next steps, LLM output
     06 Approval Gate   -> ApprovalDecisions   deterministic safety tag per recommendation
     08 Output Composer -> DischargePlan       the plan the system produced, in one object
-    09 Sign-off        -> SignoffDecisions    a reviewer's decision on each gated action
+    09 Sign-off request -> SignoffRequest     the plan's status and the actions awaiting a clinician
 
 The agent may propose an approval-required action (GR-A*) but never execute it.
 Such a recommendation must be classified ``requires_human_approval``; anything
@@ -150,12 +150,21 @@ class PlannedAction(_Strict):
         return self
 
 
+PlanStatus = Literal["pending_clinician_signoff", "final"]
+PENDING: PlanStatus = "pending_clinician_signoff"
+
+
 class DischargePlan(_Strict):
     """The structured plan a run returns (logged as AU-07)."""
 
     STAGE: ClassVar[Stage] = Stage.OUTPUT_COMPOSER
 
     case_id: str
+    status: PlanStatus = Field(
+        PENDING,
+        description="Every plan is emitted pending_clinician_signoff: the system only proposes, and a clinician "
+        "signs off outside it. A plan marked final is a governance failure (check_plan_status).",
+    )
     summary: str
     barriers: list[BarrierFinding] = Field(default_factory=list)
     information_gaps: list[InformationGap] = Field(default_factory=list)
@@ -180,37 +189,45 @@ class DischargePlan(_Strict):
         return self
 
 
-# ------------------------------------------------------------------ 09 Sign-off
-SignoffDecisionValue = Literal["approved", "rejected", "pending"]
-
-
-class SignoffDecision(_Strict):
-    """A reviewer's decision on one action the approval gate marked requires_human_approval."""
+# ------------------------------------------------------------------ 09 Sign-off request
+class SignoffItem(_Strict):
+    """One action the approval gate marked requires_human_approval, awaiting a clinician."""
 
     recommendation_id: str
     task_id: Optional[str] = None
-    matched_rule_id: str = Field(pattern=r"^GR-A\d{2}$", description="The approval rule being signed off.")
-    decision: SignoffDecisionValue = Field(
-        description="pending: no reviewer has decided yet; the action must not be carried out."
-    )
-    reviewer: str = Field(description="Who decided, e.g. 'none' or 'simulated:approve_all'.")
-    reason: str
+    matched_rule_id: str = Field(pattern=r"^GR-A\d{2}$", description="The approval rule the clinician signs off.")
 
 
-class SignoffDecisions(_Strict):
-    """Sign-off on a composed plan. Kept apart from the plan so scoring measures the
-    system's output, not the reviewer's choices."""
+class SignoffRequest(_Strict):
+    """Logged as AU-09 (signoff_requested) when the plan is emitted. The system never
+    records a clinician's decision; it only requests one."""
 
-    STAGE: ClassVar[Stage] = Stage.SIGNOFF
+    STAGE: ClassVar[Stage] = Stage.SIGNOFF_REQUEST
 
-    decisions: list[SignoffDecision] = Field(default_factory=list)
+    status: PlanStatus = PENDING
+    actions: list[SignoffItem] = Field(default_factory=list, description="Gated actions awaiting sign-off.")
 
     @model_validator(mode="after")
-    def _one_per_action(self) -> "SignoffDecisions":
-        ids = [d.recommendation_id for d in self.decisions]
+    def _one_per_action(self) -> "SignoffRequest":
+        ids = [a.recommendation_id for a in self.actions]
         if len(ids) != len(set(ids)):
-            raise ValueError("one sign-off decision per recommendation")
+            raise ValueError("one sign-off item per recommendation")
         return self
+
+
+def signoff_request(plan: DischargePlan) -> SignoffRequest:
+    """The request for ``plan``: its status and every gated action."""
+    return SignoffRequest(status=plan.status, actions=[
+        SignoffItem(recommendation_id=a.recommendation.recommendation_id, task_id=a.recommendation.task_id,
+                    matched_rule_id=a.approval.matched_rule_id)
+        for a in gated_actions(plan)])
+
+
+def check_plan_status(plan: DischargePlan) -> list[str]:
+    """A plan must be emitted pending clinician sign-off; one marked final is a governance failure."""
+    if plan.status != PENDING:
+        return [f"plan marked {plan.status}; it must be emitted {PENDING}"]
+    return []
 
 
 def gated_actions(plan: DischargePlan) -> list[PlannedAction]:
@@ -280,6 +297,6 @@ def check_governance(
 
 
 RecommendationMessage = AgentMessage[RecommendationSet]
-SignoffMessage = AgentMessage[SignoffDecisions]
+SignoffMessage = AgentMessage[SignoffRequest]
 ApprovalMessage = AgentMessage[ApprovalDecisions]
 DischargePlanMessage = AgentMessage[DischargePlan]

@@ -1,8 +1,8 @@
 {
   "$defs": {
-    "SignoffDecision": {
+    "SignoffItem": {
       "additionalProperties": false,
-      "description": "A reviewer's decision on one action the approval gate marked requires_human_approval.",
+      "description": "One action the approval gate marked requires_human_approval, awaiting a clinician.",
       "properties": {
         "recommendation_id": {
           "title": "Recommendation Id",
@@ -21,54 +21,42 @@
           "title": "Task Id"
         },
         "matched_rule_id": {
-          "description": "The approval rule being signed off.",
+          "description": "The approval rule the clinician signs off.",
           "pattern": "^GR-A\\d{2}$",
           "title": "Matched Rule Id",
-          "type": "string"
-        },
-        "decision": {
-          "description": "pending: no reviewer has decided yet; the action must not be carried out.",
-          "enum": [
-            "approved",
-            "rejected",
-            "pending"
-          ],
-          "title": "Decision",
-          "type": "string"
-        },
-        "reviewer": {
-          "description": "Who decided, e.g. 'none' or 'simulated:approve_all'.",
-          "title": "Reviewer",
-          "type": "string"
-        },
-        "reason": {
-          "title": "Reason",
           "type": "string"
         }
       },
       "required": [
         "recommendation_id",
-        "matched_rule_id",
-        "decision",
-        "reviewer",
-        "reason"
+        "matched_rule_id"
       ],
-      "title": "SignoffDecision",
+      "title": "SignoffItem",
       "type": "object"
     },
-    "SignoffDecisions": {
+    "SignoffRequest": {
       "additionalProperties": false,
-      "description": "Sign-off on a composed plan. Kept apart from the plan so scoring measures the\nsystem's output, not the reviewer's choices.",
+      "description": "Logged as AU-09 (signoff_requested) when the plan is emitted. The system never\nrecords a clinician's decision; it only requests one.",
       "properties": {
-        "decisions": {
+        "status": {
+          "default": "pending_clinician_signoff",
+          "enum": [
+            "pending_clinician_signoff",
+            "final"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "actions": {
+          "description": "Gated actions awaiting sign-off.",
           "items": {
-            "$ref": "#/$defs/SignoffDecision"
+            "$ref": "#/$defs/SignoffItem"
           },
-          "title": "Decisions",
+          "title": "Actions",
           "type": "array"
         }
       },
-      "title": "SignoffDecisions",
+      "title": "SignoffRequest",
       "type": "object"
     },
     "Stage": {
@@ -81,7 +69,7 @@
         "06_approval_gate",
         "07_policy_layer",
         "08_output_composer",
-        "09_signoff"
+        "09_signoff_request"
       ],
       "title": "Stage",
       "type": "string"
@@ -149,7 +137,7 @@
       "type": "array"
     },
     "payload": {
-      "$ref": "#/$defs/SignoffDecisions"
+      "$ref": "#/$defs/SignoffRequest"
     },
     "warnings": {
       "items": {
@@ -165,6 +153,6 @@
     "stage",
     "payload"
   ],
-  "title": "AgentMessage[SignoffDecisions]",
+  "title": "AgentMessage[SignoffRequest]",
   "type": "object"
 }

@@ -1,16 +1,16 @@
-"""Stage 09: sign-off on gated actions, after the output composer."""
+"""Stage 09: the sign-off request, logged as AU-09 (signoff_requested) when the plan is emitted."""
 import json
 from pathlib import Path
 
 import pytest
 
+from evaluation.evaluate import governance_errors
 from src.models.answer_key import AnswerKey
 from src.models.audit import check_audit_trail
 from src.models.case import PatientCase
 from src.models.messages import Stage
-from src.models.plan import gated_actions
+from src.models.plan import check_plan_status, gated_actions
 from src.pipeline import run_case
-from src.pipeline.runner import signoff
 from src.utils.audit_logger import read_audit_log
 
 from oracle_llm import OracleLLM
@@ -26,107 +26,95 @@ def _load(path):
     return case, key
 
 
-def _run(path, taxonomy, tmp_path, reviewer=None, **oracle_kw):
+def _run(path, taxonomy, tmp_path, **oracle_kw):
     case, key = _load(path)
-    return run_case(path, OracleLLM(case, key, taxonomy, **oracle_kw), taxonomy=taxonomy, audit_dir=tmp_path,
-                    reviewer=reviewer)
+    return run_case(path, OracleLLM(case, key, taxonomy, **oracle_kw), taxonomy=taxonomy, audit_dir=tmp_path)
 
 
 GATED_CASE = next(p for p in CASES if sum(t.task_id in GATED for t in _load(p)[1].tasks) >= 2)
 UNGATED_CASE = next(p for p in CASES if _load(p)[1].tasks and not any(t.task_id in GATED for t in _load(p)[1].tasks))
 
 
-def test_default_leaves_every_gated_action_pending(taxonomy, tmp_path):
+def test_plan_is_emitted_pending_with_a_request_for_every_gated_action(taxonomy, tmp_path):
     r = _run(GATED_CASE, taxonomy, tmp_path)
     assert r.status == "succeeded", r.error
     assert r.audit_errors == []
+    assert r.plan.status == "pending_clinician_signoff"
+    req = r.signoff_request
+    assert req.status == "pending_clinician_signoff"
     gated = [a.recommendation.recommendation_id for a in gated_actions(r.plan)]
-    assert len(gated) >= 2
-    assert [d.recommendation_id for d in r.signoffs] == gated
-    assert all(d.decision == "pending" and d.reviewer == "none" for d in r.signoffs)
-    assert r.messages[-1].stage is Stage.SIGNOFF
+    assert len(gated) >= 2 and [a.recommendation_id for a in req.actions] == gated
+    assert {a.matched_rule_id for a in req.actions} == {a.approval.matched_rule_id for a in gated_actions(r.plan)}
+    assert r.messages[-1].stage is Stage.SIGNOFF_REQUEST
 
 
-def test_signoff_is_logged_after_the_composed_plan(taxonomy, tmp_path):
+def test_request_is_logged_once_right_after_the_plan(taxonomy, tmp_path):
     r = _run(GATED_CASE, taxonomy, tmp_path)
     events = read_audit_log(r.audit_path)
     types = [e.event_type for e in events]
-    signed = [i for i, t in enumerate(types) if t == "signoff_recorded"]
-    assert signed and min(signed) > types.index("output_emitted")
-    assert types[-1] == "run_completed"
-    assert {events[i].audit_id for i in signed} == {"AU-09"}
-    plan = next(e for e in events if e.event_type == "output_emitted").details.plan
-    assert plan == r.plan  # the logged plan is the composed one; sign-off does not edit it
+    assert types.count("signoff_requested") == 1
+    assert types.index("signoff_requested") == types.index("output_emitted") + 1
+    req = events[types.index("signoff_requested")]
+    assert req.audit_id == "AU-09" and req.details.status == "pending_clinician_signoff"
 
 
-def test_approve_all(taxonomy, tmp_path):
-    r = _run(GATED_CASE, taxonomy, tmp_path, reviewer=signoff.ApproveAllReviewer())
-    assert r.signoffs and all(d.decision == "approved" for d in r.signoffs)
-    assert all(d.reviewer == "simulated:approve_all" for d in r.signoffs)
-    assert {d.matched_rule_id for d in r.signoffs} == {a.approval.matched_rule_id for a in gated_actions(r.plan)}
-
-
-def test_reviewer_can_reject_and_the_plan_is_unchanged(taxonomy, tmp_path):
-    class RejectMedChanges:
-        name = "test:reject_meds"
-
-        def review(self, plan, action):
-            if action.recommendation.task_id == "T-MD07":
-                return "rejected", "Dose change not confirmed."
-            return "approved", "ok"
-
-    path = next(p for p in CASES if any(t.task_id == "T-MD07" for t in _load(p)[1].tasks))
-    approved = _run(path, taxonomy, tmp_path / "a", reviewer=signoff.ApproveAllReviewer())
-    r = _run(path, taxonomy, tmp_path / "b", reviewer=RejectMedChanges())
-    assert r.audit_errors == []
-    by_task = {d.task_id: d.decision for d in r.signoffs}
-    assert by_task["T-MD07"] == "rejected"
-    assert all(v == "approved" for t, v in by_task.items() if t != "T-MD07")
-    assert r.plan.actions == approved.plan.actions
+def test_plan_with_nothing_gated_still_requests_signoff(taxonomy, tmp_path):
+    r = _run(UNGATED_CASE, taxonomy, tmp_path)
+    assert r.status == "succeeded" and r.audit_errors == []
+    assert r.signoff_request.actions == [] and r.plan.status == "pending_clinician_signoff"
+    assert "signoff_requested" in [e.event_type for e in read_audit_log(r.audit_path)]
+    assert r.messages[-1].warnings == ["no action needs clinician approval; the plan still awaits sign-off"]
 
 
 def test_forbidden_actions_are_never_offered_for_signoff(taxonomy, tmp_path):
-    r = _run(GATED_CASE, taxonomy, tmp_path, reviewer=signoff.ApproveAllReviewer(),
-             extra_tool_calls=["send_prescription"])
+    r = _run(GATED_CASE, taxonomy, tmp_path, extra_tool_calls=["send_prescription"])
     forbidden = {a.recommendation.recommendation_id for a in r.plan.actions if a.approval.classification == "forbidden"}
-    assert forbidden
-    assert not forbidden & {d.recommendation_id for d in r.signoffs}
+    assert forbidden and not forbidden & {a.recommendation_id for a in r.signoff_request.actions}
     assert r.audit_errors == []
 
 
-def test_plan_with_nothing_gated_logs_no_signoff(taxonomy, tmp_path):
-    r = _run(UNGATED_CASE, taxonomy, tmp_path)
-    assert r.status == "succeeded" and r.signoffs == []
-    assert r.audit_errors == []
-    assert not any(e.event_type == "signoff_recorded" for e in read_audit_log(r.audit_path))
-    assert r.messages[-1].warnings == ["no action needs sign-off"]
+def test_a_plan_marked_final_is_a_governance_failure(taxonomy, tmp_path):
+    r = _run(GATED_CASE, taxonomy, tmp_path)
+    final = r.plan.model_copy(update={"status": "final"})
+    assert check_plan_status(r.plan) == []
+    assert check_plan_status(final) == ["plan marked final; it must be emitted pending_clinician_signoff"]
+    assert any("plan marked final" in e for e in governance_errors(taxonomy, final))
 
 
-def test_invalid_reviewer_decision_fails_the_run(taxonomy, tmp_path):
-    class Broken:
-        name = "test:broken"
-
-        def review(self, plan, action):
-            return "maybe", "?"
-
-    r = _run(GATED_CASE, taxonomy, tmp_path, reviewer=Broken())
-    assert r.status == "failed" and "09_signoff" in r.error and r.plan is None
-    assert any("signoff_recorded" in e for e in r.audit_errors)  # gated actions left without sign-off
+def _tamper(events, fn):
+    events = fn(events)
+    for i, e in enumerate(events):
+        e.sequence = i
+    return events
 
 
 @pytest.mark.parametrize("tamper, message", [
-    (lambda ev: [e for e in ev if e.event_type != "signoff_recorded"], "!= gated plan actions"),
-    (lambda ev: ev + [next(e for e in ev if e.event_type == "signoff_recorded")], "!= gated plan actions"),
+    (lambda ev: [e for e in ev if e.event_type != "signoff_requested"], "missing signoff_requested"),
+    (lambda ev: ev[:-1] + [next(e for e in ev if e.event_type == "signoff_requested")] + ev[-1:], "more than once"),
 ])
-def test_audit_check_catches_bad_signoff_trails(taxonomy, tmp_path, tamper, message):
+def test_audit_check_catches_missing_or_repeated_requests(taxonomy, tmp_path, tamper, message):
     r = _run(GATED_CASE, taxonomy, tmp_path)
-    events = tamper(read_audit_log(r.audit_path))
+    events = _tamper(read_audit_log(r.audit_path), tamper)
     assert any(message in e for e in check_audit_trail(events))
 
 
-def test_audit_check_requires_signoff_after_the_plan(taxonomy, tmp_path):
+def test_audit_check_requires_the_request_right_after_the_plan(taxonomy, tmp_path):
     r = _run(GATED_CASE, taxonomy, tmp_path)
     events = read_audit_log(r.audit_path)
-    s = next(i for i, e in enumerate(events) if e.event_type == "signoff_recorded")
+    s = next(i for i, e in enumerate(events) if e.event_type == "signoff_requested")
     events.insert(1, events.pop(s))
-    assert any("before output_emitted" in e for e in check_audit_trail(events))
+    assert any("right after output_emitted" in e for e in check_audit_trail(_tamper(events, lambda x: x)))
+
+
+def test_audit_check_catches_a_final_status_or_wrong_actions(taxonomy, tmp_path):
+    r = _run(GATED_CASE, taxonomy, tmp_path)
+    events = read_audit_log(r.audit_path)
+    req = next(e for e in events if e.event_type == "signoff_requested")
+    req.details = req.details.model_copy(update={"status": "final"})
+    assert any("must be pending_clinician_signoff" in e for e in check_audit_trail(events))
+    req.details = req.details.model_copy(update={"status": "pending_clinician_signoff",
+                                                 "actions": req.details.actions[1:]})
+    assert any("!= gated plan actions" in e for e in check_audit_trail(events))
+    out = next(e for e in events if e.event_type == "output_emitted")
+    out.details.plan = out.details.plan.model_copy(update={"status": "final"})
+    assert any("plan marked final" in e for e in check_audit_trail(events))

@@ -38,7 +38,7 @@ from baselines import baseline_2_single_llm as b2  # noqa: E402
 from baselines._common import save as save_baseline  # noqa: E402
 from src.pipeline import __main__ as pipeline_cli  # noqa: E402
 from src.pipeline._common import PROMPT_VERSION, load_taxonomy  # noqa: E402
-from src.pipeline.runner import run_case as run_pipeline, signoff  # noqa: E402
+from src.pipeline.runner import run_case as run_pipeline  # noqa: E402
 from src.utils.run_config import check_environment, load_run_config  # noqa: E402
 from src.utils.run_records import CASE_SETS, build_manifest, case_files, case_path, case_set_of, code_version, is_done, write_manifest  # noqa: E402
 
@@ -92,7 +92,6 @@ def main(argv=None, llm=None) -> int:
     p.add_argument("--cases-file", type=Path, help="one case ID per line (default: every case in the case set)")
     p.add_argument("--runs-dir", type=Path, default=ROOT / "runs")
     p.add_argument("--no-batch", action="store_true", help="call B2 one case at a time instead")
-    p.add_argument("--signoff", default="pending", choices=sorted(signoff.REVIEWERS))
     p.add_argument("--allow-dirty", action="store_true", help="allow uncommitted changes (trial runs only)")
     p.add_argument("--dry-run", action="store_true", help="print what would run; call nothing, write nothing")
     a = p.parse_args(argv)
@@ -131,9 +130,7 @@ def main(argv=None, llm=None) -> int:
     if llm is None and any(arm in LLM_ARMS and todo for arm, _, _, todo in jobs):
         from src.utils.llm import AnthropicLLM
         llm = AnthropicLLM.from_settings(settings)
-    reviewer = signoff.REVIEWERS[a.signoff]()
-    extra = {"experiment": a.name, "cases_file": str(a.cases_file) if a.cases_file else None, "signoff": a.signoff,
-             "batch": batch}
+    extra = {"experiment": a.name, "cases_file": str(a.cases_file) if a.cases_file else None, "batch": batch}
 
     failed = 0
     for arm, k, out, todo in jobs:
@@ -145,7 +142,7 @@ def main(argv=None, llm=None) -> int:
         if arm == "agentic":
             for path in todo:
                 r = run_pipeline(path, llm, taxonomy=taxonomy, audit_dir=out / "audit",
-                                 max_attempts=settings.max_attempts, reviewer=reviewer, llm_settings=s)
+                                 max_attempts=settings.max_attempts, llm_settings=s)
                 pipeline_cli.save(out, r, s)
                 failed += not pipeline_cli.report(r)
             continue

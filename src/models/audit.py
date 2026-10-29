@@ -3,7 +3,7 @@
 Every event shares the same header (run, case, sequence, timestamp) and carries
 a typed ``details`` object chosen by ``event_type``. ``check_audit_trail``
 verifies that a run logged every required event type and that the per-item
-events (barriers, tasks, approvals, tool calls, sign-offs) match the plan that was emitted.
+events (barriers, tasks, approvals, tool calls, the sign-off request) match the plan that was emitted.
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from typing import Annotated, Any, Literal, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field, RootModel
 
 from src.models.messages import OwnerRole, Stage, Urgency
-from src.models.plan import Classification, DischargePlan, SignoffDecision, gated_actions
+from src.models.plan import Classification, DischargePlan, SignoffRequest, check_plan_status, signoff_request
 from src.models.tools import ToolCall
 
 
@@ -170,10 +170,10 @@ class RunCompleted(_EventBase):
     details: RunCompletedDetails
 
 
-class SignoffRecorded(_EventBase):
+class SignoffRequested(_EventBase):
     audit_id: Literal["AU-09"] = "AU-09"
-    event_type: Literal["signoff_recorded"] = "signoff_recorded"
-    details: SignoffDecision
+    event_type: Literal["signoff_requested"] = "signoff_requested"
+    details: SignoffRequest
 
 
 AuditEvent = Annotated[
@@ -186,7 +186,7 @@ AuditEvent = Annotated[
         PolicyDecisionEvent,
         OutputEmitted,
         RunCompleted,
-        SignoffRecorded,
+        SignoffRequested,
     ],
     Field(discriminator="event_type"),
 ]
@@ -205,7 +205,7 @@ REQUIRED_EVENT_TYPES = (
     "policy_decision",
     "output_emitted",
     "run_completed",
-    "signoff_recorded",
+    "signoff_requested",
 )
 
 
@@ -221,7 +221,9 @@ def check_audit_trail(events: list[Any]) -> list[str]:
       must equal it. A count of zero is the only way those events may be absent,
       so a dropped event is caught rather than mistaken for "no calls".
     - Barriers, tasks, approvals: judged against the plan in output_emitted (AU-07).
-    - Sign-offs (AU-09): one per gated action in that plan, logged after it.
+    - Sign-off request (AU-09): exactly one per emitted plan, logged right after
+      output_emitted, with status pending_clinician_signoff and exactly the plan's
+      gated actions. A plan marked final is a governance failure.
     """
     errors: list[str] = []
     if not events:
@@ -257,10 +259,8 @@ def check_audit_trail(events: list[Any]) -> list[str]:
             optional.add("task_recommended")
         if not plan.actions:
             optional.add("approval_classification")
-        if not gated_actions(plan):
-            optional.add("signoff_recorded")
     else:
-        optional.add("signoff_recorded")
+        optional.add("signoff_requested")
     for t in REQUIRED_EVENT_TYPES:
         if t not in present and t not in optional:
             errors.append(f"missing {t} event")
@@ -301,13 +301,21 @@ def check_audit_trail(events: list[Any]) -> list[str]:
         denied = {d.call_id for d in by_type.get("policy_decision", []) if d.decision == "denied"}
         if denied != {d.call_id for d in plan.denied_tool_calls}:
             errors.append("denied policy decisions do not match plan.denied_tool_calls")
-        signed = [d.recommendation_id for d in by_type.get("signoff_recorded", [])]
-        gated = {a.recommendation.recommendation_id for a in gated_actions(plan)}
-        if len(signed) != len(set(signed)) or set(signed) != gated:
-            errors.append(f"signoff_recorded events {sorted(signed)} != gated plan actions {sorted(gated)}")
-        emitted_at = events.index(outputs[0])
-        if any(e.event_type == "signoff_recorded" and i < emitted_at for i, e in enumerate(events)):
-            errors.append("signoff_recorded logged before output_emitted; sign-off reviews the composed plan")
-    elif "signoff_recorded" in by_type:
-        errors.append("signoff_recorded logged with no output_emitted plan")
+        errors += check_plan_status(plan)
+        requests = [(i, e) for i, e in enumerate(events) if e.event_type == "signoff_requested"]
+        if len(requests) > 1:
+            errors.append("signoff_requested (AU-09) logged more than once")
+        if requests:
+            i, req = requests[0]
+            emitted_at = events.index(outputs[0])
+            if i != emitted_at + 1:
+                errors.append("signoff_requested (AU-09) must be logged right after output_emitted (AU-07)")
+            if req.details.status != "pending_clinician_signoff":
+                errors.append(f"signoff_requested has status {req.details.status}; it must be pending_clinician_signoff")
+            expected = signoff_request(plan)
+            if req.details.actions != expected.actions:
+                errors.append(f"signoff_requested actions {[a.recommendation_id for a in req.details.actions]} "
+                              f"!= gated plan actions {[a.recommendation_id for a in expected.actions]}")
+    elif "signoff_requested" in by_type:
+        errors.append("signoff_requested logged with no output_emitted plan")
     return errors

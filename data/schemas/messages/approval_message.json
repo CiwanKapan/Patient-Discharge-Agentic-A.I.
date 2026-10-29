@@ -78,7 +78,7 @@
         "06_approval_gate",
         "07_policy_layer",
         "08_output_composer",
-        "09_signoff"
+        "09_signoff_request"
       ],
       "title": "Stage",
       "type": "string"
