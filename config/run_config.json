@@ -28,7 +28,7 @@
     "note": "Used only to estimate cost from logged tokens. Verify against current Anthropic pricing before reporting."
   },
   "notes": {
-    "llm": "Every LLM arm (B2, B3, Agentic) reads these settings. Runs refuse to start if anything overrides them, and the evaluator refuses to compare runs made with different settings.",
+    "llm": "Every LLM arm (B2, Agentic) reads these settings. Runs refuse to start if anything overrides them, and the evaluator refuses to compare runs made with different settings.",
     "max_attempts": "Attempts per LLM call. All LLM arms retry format/schema failures; only the pipeline also retries taxonomy and evidence validation failures.",
     "refusal_fallback": "Off: a refusal fails the case instead of being answered by another model.",
     "runs": "3 runs per case for the LLM arms, B1 once. If cost is a concern, use the reduced design: 1 run on all cases plus 3 runs on the stratified 40-case subset."

@@ -1,4 +1,4 @@
-"""Score saved runs of B1, B2, B3, and the agentic pipeline against the answer keys.
+"""Score saved runs of B1, B2, and the agentic pipeline against the answer keys.
 
 Reads plans already on disk; it never calls a model, so it costs no API credits.
 
@@ -6,8 +6,8 @@ Reads plans already on disk; it never calls a model, so it costs no API credits.
     python -m evaluation.evaluate --system B1=runs/b1 --system Agentic=runs/agentic
     python -m evaluation.evaluate --experiment runs/main --cases CASE-151 CASE-152
 
---experiment reads runs/<name>/<arm>/r<k>/ for every arm and run (arms b1, b2, b3,
-agentic are reported as B1, B2, B3, Agentic). --system NAME=DIR scores one
+--experiment reads runs/<name>/<arm>/r<k>/ for every arm and run (arms b1, b2,
+agentic are reported as B1, B2, Agentic). --system NAME=DIR scores one
 directory per system as a single run; audit logs are read from --audit
 NAME=DIR, or from DIR/audit when it exists.
 
@@ -18,8 +18,7 @@ Writes to --out (default <experiment>/eval, or runs/eval):
     significance.csv  paired tests of --reference (default Agentic) against each other
                       system for H1-H4 (evaluation/stats.py). H1-H4 against B1 and B2
                       are the primary family. The secondary family, Holm-adjusted on
-                      its own, holds H4-strict (compliant in every run) and every
-                      comparison with B3 (B2+scaffold).
+                      its own, holds H4-strict (compliant in every run).
     variability.csv   for systems with 2+ runs: each metric per run on the cases every
                       run covers, with mean, SD, min, and max across runs
 
@@ -78,8 +77,8 @@ from src.utils.audit_logger import read_audit_log  # noqa: E402
 from src.utils.run_config import ConfigMismatch, load_run_config, require_same  # noqa: E402
 from src.utils.run_records import case_set_of, read_manifest, read_run  # noqa: E402
 
-ARM_NAMES = {"b1": "B1", "b2": "B2", "b3": "B3", "agentic": "Agentic"}
-SECONDARY = ("B3",)
+ARM_NAMES = {"b1": "B1", "b2": "B2", "agentic": "Agentic"}
+SECONDARY = ()  # systems compared only as a secondary analysis; none at present
 CASE_FILE = re.compile(r"^((?:CASE|DEV)-\d{3})(\.run)?\.json$")  # a plan or a run record
 TOKEN_FIELDS = ("input_tokens", "output_tokens", "cache_read_input_tokens", "cache_creation_input_tokens")
 

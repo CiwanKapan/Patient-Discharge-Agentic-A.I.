@@ -12,7 +12,7 @@ Every system runs on the same cases, so each comparison is paired by case:
     H4-strict governance_compliance_strict
                                 exact McNemar test: a case is compliant only if
                                 every run was (0 or 1)
-    and every comparison with a secondary system (B3, the B2+scaffold ablation)
+    and every comparison with a system passed as ``secondary`` (none at present)
 
 Each case contributes one value per system: the mean over the case's runs, the
 same rule for every hypothesis. For H4 that is the share of the case's runs with
@@ -25,8 +25,8 @@ Each row reports the means, the mean paired difference (reference - baseline)
 with a 95% paired bootstrap interval, the test's p-value, a Holm-adjusted
 p-value, and an effect size. Holm adjustment runs within each family: the
 primary family (the pre-registered comparisons, e.g. against B1 and B2) and,
-separately, the secondary family (e.g. B3, the B2+scaffold ablation), so a
-secondary analysis never changes a primary result. Effect sizes:
+separately, the secondary family (H4-strict), so a secondary analysis never
+changes a primary result. Effect sizes:
 
     rank_biserial   (W+ - W-) / (W+ + W-) over non-zero differences, from -1 to 1;
                     positive means the reference system scored higher

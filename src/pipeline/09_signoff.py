@@ -59,7 +59,7 @@ def run(ctx: RunContext, plan: AgentMessage[DischargePlan], reviewer: Reviewer) 
 
 
 def decide(plan: DischargePlan, reviewer: Reviewer) -> SignoffDecisions:
-    """One decision per gated action. Also used by B3."""
+    """One decision per gated action."""
     decisions = []
     for a in gated_actions(plan):
         decision, reason = reviewer.review(plan, a)

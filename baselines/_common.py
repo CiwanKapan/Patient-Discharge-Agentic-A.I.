@@ -1,9 +1,8 @@
 """Shared result type and command line for the baselines.
 
-Every system (B1, B2, B3, and the pipeline) returns a ``DischargePlan`` so one
+Every system (B1, B2, and the pipeline) returns a ``DischargePlan`` so one
 scorer can compare them. B1 and B2 write no audit trail; that absence is part of
-what the governance comparison (H4) measures. B3 runs the pipeline's governance
-code and writes one.
+what the governance comparison (H4) measures.
 
 With ``--out``, each case gets a plan and a run record (see
 src/utils/run_records.py), and the directory gets a manifest.json that records
@@ -37,9 +36,6 @@ class BaselineResult:
     notes: list[str] = field(default_factory=list, metadata={"doc": "Output items dropped while normalizing."})
     raw_output: Optional[str] = None
     llm_calls: list = field(default_factory=list)  # LLMCallRecord per model call
-    signoffs: Optional[list] = None  # SignoffDecision per gated action (B3 only)
-    audit_path: Optional[Path] = None
-    audit_errors: list[str] = field(default_factory=list)
     llm_settings: Optional[dict] = None
 
 
@@ -54,7 +50,7 @@ def load_case(path: str | Path, system: str):
 def save(out: Path, r: BaselineResult) -> None:
     write_run(out, system=r.system, case_id=r.case_id, status=r.status, plan=r.plan, error=r.error,
               error_kind=r.error_kind, notes=r.notes, raw_output=r.raw_output, llm_calls=r.llm_calls,
-              signoffs=r.signoffs, audit_path=r.audit_path, audit_errors=r.audit_errors, llm_settings=r.llm_settings)
+              llm_settings=r.llm_settings)
 
 
 def report(r: BaselineResult) -> bool:
@@ -64,9 +60,8 @@ def report(r: BaselineResult) -> bool:
     dropped = f", {len(r.notes)} items dropped" if r.notes else ""
     retries = sum(c.outcome == "format_error" for c in r.llm_calls)
     retried = f", {retries} format retries" if retries else ""
-    audit = f", audit: {'; '.join(r.audit_errors)}" if r.audit_errors else ""
     print(f"{r.case_id}: {len(r.plan.barriers)} barriers, {len(r.plan.information_gaps)} gaps, "
-          f"{len(r.plan.tasks)} tasks, {len(r.plan.actions)} actions{dropped}{retried}{audit}")
+          f"{len(r.plan.tasks)} tasks, {len(r.plan.actions)} actions{dropped}{retried}")
     return True
 
 

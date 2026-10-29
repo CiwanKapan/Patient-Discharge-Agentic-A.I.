@@ -5,7 +5,7 @@
 
 Needs Anthropic credentials (ANTHROPIC_API_KEY, or an `ant auth login` profile).
 Model, effort, max_tokens, and attempts per stage come from config/run_config.json,
-the same settings B2 and B3 use; the run refuses to start if CLAUDE_MODEL disagrees.
+the same settings B2 uses; the run refuses to start if CLAUDE_MODEL disagrees.
 
 With --out, each case gets a plan, a sign-off file, and a run record (see
 src/utils/run_records.py), and the directory gets manifest.json. Audit logs go

@@ -1,10 +1,10 @@
-"""The one model call that B2 and B3 make, with the same format retry as the pipeline.
+"""B2's one model call, with the same format retry as the pipeline.
 
 A response that does not parse against ``SinglePromptOutput`` is a format
 failure. It is retried with the same follow-up prompt the pipeline uses
-(``retry_prompt``), up to ``max_attempts`` attempts. This is the only retry the
-single-prompt arms get: they have no taxonomy or evidence validation, so the
-pipeline's validation retries have nothing to correspond to here.
+(``retry_prompt``), up to ``max_attempts`` attempts. This is the only retry B2
+gets: it has no taxonomy or evidence validation, so the pipeline's validation
+retries have nothing to correspond to here.
 
 Two ways to make the call, with identical retry behavior:
 

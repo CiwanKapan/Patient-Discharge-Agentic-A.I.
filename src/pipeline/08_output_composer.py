@@ -30,7 +30,7 @@ def run(
 
 def compose(case_id: str, summary: str, barriers: BarrierDetection, tasks: TaskDetection, recs: RecommendationSet,
             approvals: ApprovalDecisions, policy: PolicyLayerOutput) -> DischargePlan:
-    """The plan from stage payloads. Also used by B3, which reaches these payloads in one model call."""
+    """The plan from stage payloads."""
     by_id = {c.recommendation_id: c for c in approvals.classifications}
     ordered = sorted(recs.recommendations, key=lambda r: r.rank)  # stable: ties keep list order
     return DischargePlan(

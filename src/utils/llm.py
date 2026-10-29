@@ -1,4 +1,4 @@
-"""LLM client used by the reasoning stages (02-05) and the single-prompt baselines (B2, B3).
+"""LLM client used by the reasoning stages (02-05) and the single-prompt baseline (B2).
 
 Stages depend on the small ``LLMClient`` protocol, not on the Anthropic SDK, so
 tests can run the whole pipeline offline with a scripted client. The client

@@ -3,11 +3,11 @@
 For each case an arm writes, into its output directory:
 
     <case_id>.json          the plan (only when the run succeeded)
-    <case_id>.signoff.json  sign-off decisions (arms with a sign-off stage, succeeded runs only)
+    <case_id>.signoff.json  sign-off decisions (the pipeline, succeeded runs only)
     <case_id>.run.json      the run record, always: status, error and its kind, items
-                            dropped while normalizing, the raw model output (single-prompt
-                            arms), every LLM call with its outcome and tokens, the LLM
-                            settings, and the audit log path and its check result
+                            dropped while normalizing, the raw model output (B2), every
+                            LLM call with its outcome and tokens, the LLM settings, and
+                            the audit log path and its check result
 
 A failed run removes any plan or sign-off file an earlier run left, so a stale
 plan is never scored. ``manifest.json`` in the same directory records what

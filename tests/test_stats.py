@@ -83,7 +83,7 @@ def test_h4_primary_is_mean_compliance_and_strict_is_secondary():
                          "task_recall": 1.0, "plan_completeness": 1.0, "governance_violations": v})
     assert stats.per_case_values(rows, "Agentic", "governance_compliance") == {"CASE-001": pytest.approx(2 / 3)}
     assert stats.per_case_values(rows, "Agentic", "governance_compliance_strict") == {"CASE-001": 0.0}
-    out = stats.compare(rows, "Agentic", ["B2"], secondary=["B3"])
+    out = stats.compare(rows, "Agentic", ["B2"])
     h4 = next(r for r in out if r["hypothesis"] == "H4")
     assert h4["mean_difference"] == pytest.approx(1 / 3)
     strict = next(r for r in out if r["hypothesis"] == "H4-strict")

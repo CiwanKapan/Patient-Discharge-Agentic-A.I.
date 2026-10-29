@@ -215,16 +215,14 @@ python scripts/generate_cases.py --n 300 --extra 0      # a different size, same
 ### Experimental Baselines
 1. **Baseline 1 (B1 - Rule-Based):** Static, hard-coded checklist performing field validation without semantic reasoning. Each tracked field is checked on its own. `in_progress` or `not_started` flags the barrier tied to that field, `unknown` or absent becomes an information gap, and free-text notes are never read. It cannot find cross-field or note-only barriers.
 2. **Baseline 2 (B2 - Single-Prompt LLM):** Zero-shot LLM (Claude Sonnet 5.5) operating without external tool access, policy enforcement, or approval gates. One call returns the whole plan. It gets the same taxonomy and chart-reading rules as the pipeline, but no deterministic readings, no taxonomy or evidence validation, and no audit trail. It marks its own steps as needing approval. Proposed tool calls are recorded, but nothing reviews them.
-3. **Baseline 3 (B3 - B2+scaffold), pre-registered secondary analysis:** B2 plus every deterministic part of the pipeline, and nothing else. Its input adds what the pipeline computes in code and shows its models: a reading for each tracked field and the documented time windows. (The pipeline never shows its models a transport-timing verdict, so B3 does not get one either; both must compare the times themselves.) Its output goes through the pipeline's approval gate, policy layer, output composer, sign-off stage, and audit trail, and the model's own approval flags are ignored. What B3 lacks is the multi-stage decomposition: the case analyzer's summary, separate calls per stage, and per-stage validation with retries. Comparing the pipeline with B3 asks whether the gains come from decomposition or from the deterministic code around one model call. The success criteria rest on B1 vs. B2 vs. Agentic; B3 is analyzed as a separate family.
 
-All systems return a `DischargePlan`, so they are scored the same way. B2's and B3's output is normalized into that shape. Items that break the contract, such as unknown IDs or duplicates, cannot be represented, so they are dropped and recorded in `BaselineResult.notes`. They are never corrected.
+All systems return a `DischargePlan`, so they are scored the same way. B2's output is normalized into that shape. Items that break the contract, such as unknown IDs or duplicates, cannot be represented, so they are dropped and recorded in `BaselineResult.notes`. They are never corrected.
 
-**Same settings and the same format retry for every LLM arm.** B2, B3, and the pipeline read model, effort, `max_tokens`, and attempts from `config/run_config.json` (Claude Sonnet 5.5, medium effort, 16,000 tokens, 2 attempts). Runs refuse to start if `CLAUDE_MODEL` overrides the configured model, and the evaluator refuses to compare runs whose recorded settings differ. Every LLM arm retries a response that does not parse against its output schema, with the same follow-up prompt. Only the pipeline also retries taxonomy and evidence validation failures, since only it has those checks. Each call is logged with its outcome (`accepted`, `format_error`, `validation_error`, `llm_error`) and token usage, so retry counts are reported per arm. Refusal fallback to another model is off: a refusal fails the case.
+**Same settings and the same format retry for every LLM arm.** B2 and the pipeline read model, effort, `max_tokens`, and attempts from `config/run_config.json` (Claude Sonnet 5.5, medium effort, 16,000 tokens, 2 attempts). Runs refuse to start if `CLAUDE_MODEL` overrides the configured model, and the evaluator refuses to compare runs whose recorded settings differ. Every LLM arm retries a response that does not parse against its output schema, with the same follow-up prompt. Only the pipeline also retries taxonomy and evidence validation failures, since only it has those checks. Each call is logged with its outcome (`accepted`, `format_error`, `validation_error`, `llm_error`) and token usage, so retry counts are reported per arm. Refusal fallback to another model is off: a refusal fails the case.
 
 ```bash
 python -m baselines.baseline_1_rule_based data/synthetic_cases/ --out runs/b1
 python -m baselines.baseline_2_single_llm data/synthetic_cases/ --out runs/b2 --batch   # needs ANTHROPIC_API_KEY
-python -m baselines.baseline_3_scaffold data/synthetic_cases/ --out runs/b3 --batch
 ```
 
 ---
@@ -258,7 +256,7 @@ agentic_discharge_coordinator/
 │   ├── pipeline/                    # Pipeline modules 01 through 09
 │   ├── tools/                       # Mock allowed (GA-T*) and forbidden (GF-T*) tools
 │   └── utils/                       # LLM client, run config and records, JSONL logger, case checks
-├── baselines/                       # B1 (rules), B2 (single prompt), B3 (B2+scaffold)
+├── baselines/                       # B1 (rules) and B2 (single prompt)
 ├── scripts/
 │   ├── build_config.py              # Builds config/*.json from the source .docx files
 │   ├── export_schemas.py            # Regenerates data/schemas/*.json from src/models
@@ -340,7 +338,7 @@ pytest tests/
 ```
 
 ### Run Baseline Comparison & Evaluation Suite
-`scripts/run_experiment.py` runs every arm into one experiment directory, `runs/<name>/<arm>/r<k>/`. B2, B3, and the pipeline call Claude and use API credits (1 call per case for B2 and B3, sent through the Batch API at half price; 4 per case for the pipeline, more with retries). B1 makes no calls and runs once. `--dry-run` prints the plan and the minimum number of model calls without calling anything.
+`scripts/run_experiment.py` runs every arm into one experiment directory, `runs/<name>/<arm>/r<k>/`. B2 and the pipeline call Claude and use API credits (1 call per case for B2, sent through the Batch API at half price; 4 per case for the pipeline, more with retries). B1 makes no calls and runs once. `--dry-run` prints the plan and the minimum number of model calls without calling anything.
 
 ```bash
 python scripts/make_subsets.py      # writes data/subsets/stratified_40.txt (seeded)
@@ -360,7 +358,7 @@ The 40-case subset has exactly 8 cases per condition and 12/20/8 easy/medium/har
 
 **Development vs. evaluation cases.** Pilots and live checks run on the development set in `data/dev/` (`DEV-001` to `DEV-015`, `--case-set dev`), never on the 160 evaluation cases. It comes from the same generator with its own seed (`python scripts/generate_cases.py --dev`), one case per condition and difficulty, and is not in `data/dataset_manifest.csv`. Each run's manifest records which case set it used, and the runner refuses a cases file that mixes sets. The runner refuses to start if the working tree has uncommitted changes (`--allow-dirty` for trial runs only), so results tie to a commit. Each run directory gets a `manifest.json` recording the commit, LLM settings, prompt version, and hashes of the taxonomy and dataset manifest, and the runner refuses to add to a directory made differently. Re-running the same command resumes: finished cases are skipped, and cases that failed for infrastructure reasons (rate limits, server or connection errors) are run again. Refusals and truncated output are results and are kept.
 
-Every arm writes, per case, the plan, a run record `<case_id>.run.json` (status, the error and its kind, items dropped while normalizing, the raw model output for B2 and B3, and every LLM call with its outcome and tokens), and, for B3 and the pipeline, sign-off decisions and an audit log. A failed run removes any plan an earlier run left behind, so a stale plan is never scored.
+Every arm writes, per case, the plan, a run record `<case_id>.run.json` (status, the error and its kind, items dropped while normalizing, the raw model output for B2, and every LLM call with its outcome and tokens), and, for the pipeline, sign-off decisions and an audit log. A failed run removes any plan an earlier run left behind, so a stale plan is never scored.
 
 Then score the saved plans against the answer keys. This step makes no API calls:
 ```bash
@@ -373,11 +371,11 @@ The evaluator writes to `<experiment>/eval/`: `per_case.csv` (one row per system
 
 For systems with two or more runs it also writes `variability.csv`: each metric per run on the cases every run covers, with mean, SD, min, and max, and the share of cases where every run flagged the same barriers.
 
-It also writes `significance.csv`, which compares the agentic pipeline with each baseline for H1 to H4. Each case contributes one value per system: the mean over its runs, the same rule for every hypothesis. For H4 that is the share of the case's runs with no governance violation, tested with Wilcoxon like H1 to H3. If runs cover cases unevenly (the reduced design), the tests use run 1 only, so each case counts once. H1 to H4 against B1 and B2 form the primary family. A separate secondary family, Holm-adjusted on its own so it cannot change a primary result, holds H4-strict (a case is compliant only if every run was; exact McNemar test) and every comparison with B3. All systems run on the same cases, so the tests are paired by case. Recall, completeness, and compliance (H1 to H4) use the Wilcoxon signed-rank test; the secondary H4-strict uses an exact McNemar test. Each row gives the mean paired difference with a 95% bootstrap interval, an effect size (rank-biserial correlation, or for H4-strict the difference in compliance rates), and a p-value adjusted for multiple comparisons with the Holm method. Identical per-case scores carry no information for these tests, so `n_nonzero` shows how many pairs actually differed. Rows with fewer than 10 are marked as small samples. The tests are two-sided by default. Since the hypotheses predict a direction, `--alternative greater` is defensible, but the team should choose it before looking at the results.
+It also writes `significance.csv`, which compares the agentic pipeline with each baseline for H1 to H4. Each case contributes one value per system: the mean over its runs, the same rule for every hypothesis. For H4 that is the share of the case's runs with no governance violation, tested with Wilcoxon like H1 to H3. If runs cover cases unevenly (the reduced design), the tests use run 1 only, so each case counts once. H1 to H4 against B1 and B2 form the primary family. A separate secondary family, Holm-adjusted on its own so it cannot change a primary result, holds H4-strict (a case is compliant only if every run was; exact McNemar test). All systems run on the same cases, so the tests are paired by case. Recall, completeness, and compliance (H1 to H4) use the Wilcoxon signed-rank test; the secondary H4-strict uses an exact McNemar test. Each row gives the mean paired difference with a 95% bootstrap interval, an effect size (rank-biserial correlation, or for H4-strict the difference in compliance rates), and a p-value adjusted for multiple comparisons with the Holm method. Identical per-case scores carry no information for these tests, so `n_nonzero` shows how many pairs actually differed. Rows with fewer than 10 are marked as small samples. The tests are two-sided by default. Since the hypotheses predict a direction, `--alternative greater` is defensible, but the team should choose it before looking at the results.
 
 Two hypothesis metrics use **provisional definitions** that the team should confirm:
 - **H3 `plan_completeness`:** the share of keyed tasks and information gaps that reached the plan as a recommendation.
-- **H4 `governance_compliance`:** the share of case runs with no governance violations, meaning `check_governance` errors plus, for systems with an audit log (B3 and the pipeline), audit trail errors.
+- **H4 `governance_compliance`:** the share of case runs with no governance violations, meaning `check_governance` errors plus, for the pipeline, audit trail errors.
 
 ---
 

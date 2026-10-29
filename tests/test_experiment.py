@@ -85,7 +85,7 @@ class FakeLLM:
         self.batches += 1
         out = {}
         for cid, p in requests.items():
-            step = "baseline_3_scaffold" if "## Field readings" in p["user"] else "baseline_2_single_llm"
+            step = "baseline_2_single_llm"
             try:
                 out[cid] = {"text": self._answer(step, p["user"]), "usage": {**USAGE, "batch": True}, "error": None}
             except LLMInfraError as e:
@@ -124,28 +124,29 @@ def test_layout_and_run_counts(experiment):
     root, llm = experiment
     exp = root / "exp"
     assert sorted(p.name for p in (exp / "b1").iterdir()) == ["r1"]  # B1 runs once
-    for arm in ("b2", "b3", "agentic"):
+    for arm in ("b2", "agentic"):
         assert sorted(p.name for p in (exp / arm).iterdir()) == ["r1", "r2"]
-    for arm in ("b1", "b2", "b3", "agentic"):
+    assert not (exp / "b3").exists()
+    for arm in ("b1", "b2", "agentic"):
         m = json.loads((exp / arm / "r1" / "manifest.json").read_text())
         assert m["arm"] == arm and m["run"] == 1 and m["taxonomy_sha256"]
         assert (m["llm_settings"] is None) == (arm == "b1")
-    # pipeline: 4 calls per case per run; B2 and B3 went through the Batch API, one batch per arm per run
+    # pipeline: 4 calls per case per run; B2 went through the Batch API, one batch per run
     assert sum(isinstance(s, Stage) for s, _ in llm.calls) == 4 * 3 * 2
-    assert llm.batches == 4
+    assert llm.batches == 2
 
 
 def test_every_case_has_a_run_record_with_calls_and_settings(experiment):
     root, _ = experiment
-    for arm, n_calls in (("b2", 1), ("b3", 1), ("agentic", 4)):
+    for arm, n_calls in (("b2", 1), ("agentic", 4)):
         r = read_run(root / "exp" / arm / "r1", "CASE-151")
         assert r["status"] == "succeeded" and len(r["llm_calls"]) == n_calls
         assert r["llm_settings"]["effort"] == "medium"
         assert all(c["outcome"] == "accepted" and c["input_tokens"] == 1000 for c in r["llm_calls"])
         assert all(c["batch"] == (arm != "agentic") for c in r["llm_calls"])
-    b3 = read_run(root / "exp" / "b3" / "r1", "CASE-151")
-    assert b3["audit_path"] and b3["audit_errors"] == []
-    assert (root / "exp" / "b3" / "r1" / "CASE-151.signoff.json").exists()
+    agentic = read_run(root / "exp" / "agentic" / "r1", "CASE-151")
+    assert agentic["audit_path"] and agentic["audit_errors"] == []
+    assert (root / "exp" / "agentic" / "r1" / "CASE-151.signoff.json").exists()
 
 
 def test_rerun_resumes_without_calling_again(experiment, taxonomy):
@@ -169,11 +170,10 @@ def test_infrastructure_failures_are_retried_on_resume(tmp_path, taxonomy):
 
 def test_format_retry_in_the_batch_path(tmp_path, taxonomy):
     llm = FakeLLM(taxonomy, bad_first={"CASE-154"})
-    assert _run(tmp_path, llm, "--arms", "b2,b3", runs="1") == 0
-    for arm in ("b2", "b3"):
-        r = read_run(tmp_path / "exp" / arm / "r1", "CASE-154")
-        assert [c["outcome"] for c in r["llm_calls"]] == ["format_error", "accepted"]
-    assert llm.batches == 4  # one first-attempt batch and one retry batch per arm
+    assert _run(tmp_path, llm, "--arms", "b2", runs="1") == 0
+    r = read_run(tmp_path / "exp" / "b2" / "r1", "CASE-154")
+    assert [c["outcome"] for c in r["llm_calls"]] == ["format_error", "accepted"]
+    assert llm.batches == 2  # one first-attempt batch and one retry batch
 
 
 def test_refuses_a_model_override(tmp_path, taxonomy, monkeypatch):
@@ -198,52 +198,23 @@ def test_dry_run_calls_and_writes_nothing(tmp_path, taxonomy, capsys):
     assert "model calls: at least" in capsys.readouterr().out
 
 
-# ---------------------------------------------------------------- B3 behaviour
-def test_b3_prompt_adds_the_pipeline_readings_and_nothing_more(taxonomy):
-    from baselines import baseline_2_single_llm as b2
-    from baselines import baseline_3_scaffold as b3
-    case, _ = _load("CASE-151")
-    prompt = b3.user_prompt(case)
-    assert prompt.startswith(b2.user_prompt(case))
-    assert "## Field readings (computed from status)" in prompt and "## Time windows" in prompt
-    assert "conflict" not in prompt.split(b2.user_prompt(case))[1]  # no transport-timing verdict
-
-
-def test_b3_gate_overrides_the_models_approval_flags(tmp_path, taxonomy):
-    def drop_flags(step, out):
-        for r in out["recommendations"]:
-            r["requires_human_approval"], r["proposed_action"] = False, None
-        out["recommendations"][0]["proposed_tool_calls"].append({"tool_name": "send_prescription", "reason": "note"})
-
-    llm = FakeLLM(taxonomy, edit_single=drop_flags)
-    assert _run(tmp_path, llm, "--arms", "b2,b3", runs="1", ids=["CASE-151"]) == 0
-    code, rows, summary, sig, _ = _eval(tmp_path)
-    by = {r["system"]: r for r in rows}
-    assert int(by["B2"]["governance_violations"]) > 0  # B2 keeps the model's flags: violations
-    assert by["B3"]["governance_violations"] == "0"     # B3's gate decides: no violations
-    assert int(by["B3"]["denied_tool_calls"]) == 1      # and its policy layer denied the forbidden call
-    assert int(float(next(s for s in summary if s["system"] == "B3" and s["slice"] == "all")
-                     ["approval_label_omissions"])) >= 1
-
-
 # ---------------------------------------------------------------- evaluation
 def test_evaluation_of_the_experiment(experiment):
     root, _ = experiment
     code, rows, summary, sig, var = _eval(root)
     assert code == 0
-    assert len(rows) == 3 * (1 + 2 + 2 + 2)  # B1 once, the LLM arms twice
+    assert len(rows) == 3 * (1 + 2 + 2)  # B1 once, the LLM arms twice
     assert {r["run"] for r in rows if r["system"] == "B1"} == {"r1"}
     allrows = {s["system"]: s for s in summary if s["slice"] == "all"}
     assert allrows["Agentic"]["llm_calls"] == "24" and allrows["B2"]["llm_calls"] == "6"
     assert allrows["Agentic"]["validation_retries"] == "0"
-    # cost: batch calls (B2, B3) at half price
+    # cost: batch calls (B2) at half price
     per_call = (1000 * 2.0 + 200 * 10.0 + 500 * 0.2) / 1e6
     assert float(allrows["Agentic"]["cost_usd"]) == pytest.approx(24 * per_call, abs=1e-6)
     assert float(allrows["B2"]["cost_usd"]) == pytest.approx(6 * per_call * 0.5, abs=1e-6)
     families = {(r["baseline"], r["hypothesis"], r["family"]) for r in sig}
-    assert {(b, f) for b, h, f in families if h == "H4"} == {("B1", "primary"), ("B2", "primary"), ("B3", "secondary")}
-    assert {(b, f) for b, h, f in families if h == "H4-strict"} == {("B1", "secondary"), ("B2", "secondary"),
-                                                                    ("B3", "secondary")}
+    assert {(b, f) for b, h, f in families if h == "H4"} == {("B1", "primary"), ("B2", "primary")}
+    assert {(b, f) for b, h, f in families if h == "H4-strict"} == {("B1", "secondary"), ("B2", "secondary")}
     assert all("mean over its runs" in r["runs_used"] for r in sig)
     metrics = {(v["system"], v["metric"]) for v in var}
     assert ("Agentic", "barrier_recall") in metrics and ("B1", "barrier_recall") not in metrics
@@ -265,7 +236,7 @@ def test_reduced_design_scores_each_run_on_its_own_cases(tmp_path, taxonomy):
 
 def test_evaluation_refuses_mixed_settings(experiment):
     root, _ = experiment
-    rec_path = root / "exp" / "b3" / "r2" / "CASE-152.run.json"
+    rec_path = root / "exp" / "b2" / "r2" / "CASE-152.run.json"
     rec = json.loads(rec_path.read_text())
     rec["llm_settings"]["effort"] = "high"
     rec_path.write_text(json.dumps(rec))

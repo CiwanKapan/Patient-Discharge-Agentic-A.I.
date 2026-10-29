@@ -101,7 +101,7 @@ def call_llm(
     warning on the stage's message. If every attempt is rejected the stage fails.
 
     Both kinds of rejection are retried here: format errors (the response does
-    not parse against ``schema``; B2 and B3 retry these too) and validation
+    not parse against ``schema``; B2 retries these too) and validation
     errors from ``accept`` (taxonomy and evidence rules; only the pipeline has
     these). Every attempt is logged on ``ctx.llm_calls`` with its outcome and tokens.
     """

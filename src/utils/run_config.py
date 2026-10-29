@@ -1,6 +1,6 @@
 """Shared run settings for every LLM arm, from config/run_config.json.
 
-B2, B3, and the pipeline all build their client from ``LLMSettings``, so they
+B2 and the pipeline both build their client from ``LLMSettings``, so they
 cannot drift apart. ``check_environment`` refuses to run when CLAUDE_MODEL (the
 only override the client used to honor) disagrees with the config, and
 ``require_same`` refuses to compare runs whose recorded settings differ.

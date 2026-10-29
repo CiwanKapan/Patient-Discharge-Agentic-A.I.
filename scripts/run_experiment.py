@@ -13,7 +13,7 @@ never part of the results. One experiment uses one case set.
 Layout: runs/<name>/<arm>/r<k>/ holds each arm's plans, run records, audit logs
 (audit/), and manifest.json. B1 is deterministic and runs once (r1 only).
 
-Every LLM arm (B2, B3, agentic) is built from the same settings in
+Every LLM arm (B2, agentic) is built from the same settings in
 config/run_config.json. The run refuses to start if:
   * CLAUDE_MODEL overrides the configured model,
   * the working tree has uncommitted changes (results must tie to a commit;
@@ -22,7 +22,7 @@ config/run_config.json. The run refuses to start if:
     settings, prompts, taxonomy, or dataset.
 Re-running the same command resumes: finished cases are skipped, and cases that
 failed for infrastructure reasons (rate limits, server or connection errors)
-are run again. B2 and B3 go through the Batch API unless --no-batch.
+are run again. B2 goes through the Batch API unless --no-batch.
 """
 from __future__ import annotations
 
@@ -35,7 +35,6 @@ sys.path.insert(0, str(ROOT))
 
 from baselines import baseline_1_rule_based as b1  # noqa: E402
 from baselines import baseline_2_single_llm as b2  # noqa: E402
-from baselines import baseline_3_scaffold as b3  # noqa: E402
 from baselines._common import save as save_baseline  # noqa: E402
 from src.pipeline import __main__ as pipeline_cli  # noqa: E402
 from src.pipeline._common import PROMPT_VERSION, load_taxonomy  # noqa: E402
@@ -43,11 +42,11 @@ from src.pipeline.runner import run_case as run_pipeline, signoff  # noqa: E402
 from src.utils.run_config import check_environment, load_run_config  # noqa: E402
 from src.utils.run_records import CASE_SETS, build_manifest, case_files, case_path, case_set_of, code_version, is_done, write_manifest  # noqa: E402
 
-ARMS = ("b1", "b2", "b3", "agentic")
-LLM_ARMS = ("b2", "b3", "agentic")
-PROMPTS = {"b1": None, "b2": b2.PROMPT_VERSION, "b3": b3.PROMPT_VERSION, "agentic": PROMPT_VERSION}
+ARMS = ("b1", "b2", "agentic")
+LLM_ARMS = ("b2", "agentic")
+PROMPTS = {"b1": None, "b2": b2.PROMPT_VERSION, "agentic": PROMPT_VERSION}
 # Model calls per case for one attempt; a format or validation retry adds calls.
-CALLS_PER_CASE = {"b1": 0, "b2": 1, "b3": 1, "agentic": 4}
+CALLS_PER_CASE = {"b1": 0, "b2": 1, "agentic": 4}
 
 
 def parse_runs(text: str) -> list[int]:
@@ -92,7 +91,7 @@ def main(argv=None, llm=None) -> int:
                    help="eval: the 160 evaluation cases (default); dev: the 15 development cases")
     p.add_argument("--cases-file", type=Path, help="one case ID per line (default: every case in the case set)")
     p.add_argument("--runs-dir", type=Path, default=ROOT / "runs")
-    p.add_argument("--no-batch", action="store_true", help="call B2 and B3 one case at a time instead")
+    p.add_argument("--no-batch", action="store_true", help="call B2 one case at a time instead")
     p.add_argument("--signoff", default="pending", choices=sorted(signoff.REVIEWERS))
     p.add_argument("--allow-dirty", action="store_true", help="allow uncommitted changes (trial runs only)")
     p.add_argument("--dry-run", action="store_true", help="print what would run; call nothing, write nothing")
@@ -114,7 +113,7 @@ def main(argv=None, llm=None) -> int:
 
     print(f"experiment {root} | commit {version['git_commit']}{' (dirty)' if version['git_dirty'] else ''}")
     print(f"case set: {a.case_set} ({len(paths)} cases)")
-    print(f"settings: {settings.model_dump()} | B2/B3 via {'Batch API' if batch else 'direct calls'}")
+    print(f"settings: {settings.model_dump()} | B2 via {'Batch API' if batch else 'direct calls'}")
     for arm, k, out, todo in jobs:
         print(f"  {arm:8} r{k}: {len(todo)} of {len(paths)} cases to run")
     print(f"model calls: at least {max_calls} (more if responses are retried; "
@@ -153,12 +152,9 @@ def main(argv=None, llm=None) -> int:
         if arm == "b1":
             results = (b1.run_case(path, taxonomy) for path in todo)
         else:
-            mod = b2 if arm == "b2" else b3
             kw = dict(taxonomy=taxonomy, max_attempts=settings.max_attempts)
-            if arm == "b3":
-                kw.update(audit_dir=out / "audit", reviewer=reviewer, llm_settings=s)
-            results = (mod.run_cases_batch(todo, llm, **kw, on_poll=_progress(arm, k)) if batch
-                       else (mod.run_case(path, llm, **kw) for path in todo))
+            results = (b2.run_cases_batch(todo, llm, **kw, on_poll=_progress(arm, k)) if batch
+                       else (b2.run_case(path, llm, **kw) for path in todo))
         for r in results:
             if arm in LLM_ARMS:
                 r.llm_settings = s
