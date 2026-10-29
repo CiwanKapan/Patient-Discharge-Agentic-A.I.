@@ -6,7 +6,9 @@ approval or not. It gets the same model, taxonomy, and chart-reading rules as
 the pipeline, but none of its architecture:
 
 - no staged decomposition and no deterministic field readings
-- no grounding or taxonomy validation, and no retry on bad output
+- no grounding or taxonomy validation; a response that does not parse against
+  the output schema is retried exactly as the pipeline retries format failures
+  (see baselines/_single_prompt.py), but nothing is re-asked for content
 - no approval gate: the model's own requires_human_approval flag is used as is
 - no policy layer: proposed tool calls are recorded but nothing reviews them,
   so a forbidden one counts as a governance failure
@@ -15,9 +17,11 @@ the pipeline, but none of its architecture:
 To score it with the same tools as the pipeline, the output is normalized into
 a ``DischargePlan``. Items that break the contract (unknown IDs, malformed
 evidence, duplicates) cannot be represented and are dropped, each with a note
-in ``BaselineResult.notes``. Nothing is corrected or re-asked.
+in ``BaselineResult.notes``. Nothing is corrected.
 
-    python -m baselines.baseline_2_single_llm data/synthetic_cases/ --out runs/b2
+Model, effort, max_tokens, and attempts come from config/run_config.json.
+
+    python -m baselines.baseline_2_single_llm data/synthetic_cases/ --out runs/b2 [--batch]
 """
 from __future__ import annotations
 
@@ -28,6 +32,7 @@ from typing import Literal, Optional
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from baselines._common import BaselineResult, load_case, main
+from baselines._single_prompt import Answer, ask, ask_batch
 from src.models.case import PatientCase
 from src.models.messages import BarrierFinding, EvidenceRef, InformationGap, OwnerRole, Stage, TaskFinding, Urgency
 from src.models.plan import ApprovalClassification, DischargePlan, PlannedAction, Recommendation, task_approval
@@ -40,7 +45,8 @@ from src.pipeline._common import (
     load_taxonomy,
     task_reference,
 )
-from src.utils.llm import LLMClient, LLMError
+from src.utils.llm import LLMClient
+from src.utils.run_config import check_environment, load_run_config
 
 SYSTEM = "baseline_2_single_llm"
 PROMPT_VERSION = "v1"
@@ -247,23 +253,37 @@ def normalize(taxonomy: dict, case: PatientCase, out: SinglePromptOutput) -> tup
     return plan, notes
 
 
-def run_case(path: str | Path, llm: LLMClient, taxonomy: dict | None = None) -> BaselineResult:
+def user_prompt(case: PatientCase) -> str:
+    return f"Condition: {case.condition}\n\n## Patient case\n{case_view(case)}"
+
+
+def finish(taxonomy: dict, case: PatientCase, answer: Answer) -> BaselineResult:
+    common = dict(raw_output=answer.raw, llm_calls=answer.calls)
+    if answer.out is None:
+        return BaselineResult(SYSTEM, case.case_id, "failed", error=answer.error, error_kind=answer.error_kind, **common)
+    plan, notes = normalize(taxonomy, case, answer.out)
+    return BaselineResult(SYSTEM, case.case_id, "succeeded", plan=plan, notes=notes, **common)
+
+
+def run_case(path: str | Path, llm: LLMClient, taxonomy: dict | None = None, max_attempts: int = 2) -> BaselineResult:
     taxonomy = taxonomy or load_taxonomy()
     case, failed = load_case(path, SYSTEM)
     if failed:
         return failed
-    user = f"Condition: {case.condition}\n\n## Patient case\n{case_view(case)}"
-    try:
-        raw = llm.complete(SYSTEM, system_prompt(taxonomy), user, SinglePromptOutput)
-    except LLMError as e:
-        return BaselineResult(SYSTEM, case.case_id, "failed", error=str(e))
-    try:
-        out = SinglePromptOutput.model_validate_json(raw)
-    except ValidationError as e:
-        return BaselineResult(SYSTEM, case.case_id, "failed", error=f"unparseable output: {e.errors()[0]['msg']}",
-                              raw_output=raw)
-    plan, notes = normalize(taxonomy, case, out)
-    return BaselineResult(SYSTEM, case.case_id, "succeeded", plan=plan, notes=notes, raw_output=raw)
+    answer = ask(llm, SYSTEM, system_prompt(taxonomy), user_prompt(case), SinglePromptOutput, max_attempts)
+    return finish(taxonomy, case, answer)
+
+
+def run_cases_batch(paths: list[Path], llm, taxonomy: dict | None = None, max_attempts: int = 2,
+                    **batch_kw) -> list[BaselineResult]:
+    """The same as run_case for every path, through the Batch API."""
+    taxonomy = taxonomy or load_taxonomy()
+    loaded = [load_case(p, SYSTEM) for p in paths]
+    cases = {c.case_id: c for c, _ in loaded if c is not None}
+    system = system_prompt(taxonomy)
+    answers = ask_batch(llm, SYSTEM, {cid: (system, user_prompt(c)) for cid, c in cases.items()},
+                        SinglePromptOutput, max_attempts, **batch_kw)
+    return [failed if c is None else finish(taxonomy, c, answers[c.case_id]) for c, failed in loaded]
 
 
 def _cli(argv=None) -> int:
@@ -273,8 +293,18 @@ def _cli(argv=None) -> int:
         load_dotenv()
     except ImportError:
         pass
-    llm = AnthropicLLM()
-    return main(SYSTEM, lambda p: run_case(p, llm), argv)
+    settings = load_run_config().llm
+    check_environment(settings)
+    llm = AnthropicLLM.from_settings(settings)
+    taxonomy = load_taxonomy()
+
+    def tag(r: BaselineResult) -> BaselineResult:
+        r.llm_settings = settings.model_dump()
+        return r
+
+    return main(SYSTEM, lambda p: tag(run_case(p, llm, taxonomy, settings.max_attempts)), argv,
+                batch=lambda ps: [tag(r) for r in run_cases_batch(ps, llm, taxonomy, settings.max_attempts)],
+                llm_settings=settings.model_dump(), prompt_version=PROMPT_VERSION)
 
 
 if __name__ == "__main__":

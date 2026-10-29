@@ -1,0 +1,16 @@
+# written by scripts/make_subsets.py (seed 20261030); one case ID per line
+CASE-042
+CASE-044
+CASE-045
+CASE-056
+CASE-063
+CASE-064
+CASE-066
+CASE-069
+CASE-074
+CASE-078
+CASE-085
+CASE-107
+CASE-112
+CASE-116
+CASE-117

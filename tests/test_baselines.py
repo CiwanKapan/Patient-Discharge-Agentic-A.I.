@@ -192,10 +192,40 @@ def test_b2_ranks_are_compressed(taxonomy):
     assert [a.recommendation.rank for a in r.plan.actions] == list(range(1, len(r.plan.actions) + 1))
 
 
-def test_b2_unparseable_output_fails_without_retry(taxonomy):
+def test_b2_unparseable_output_is_retried_like_the_pipeline(taxonomy):
+    """A format failure gets the same retry as in the pipeline (2 attempts), then fails."""
     r, _, llm = _b2(CASES[0], taxonomy, raw="not json")
-    assert r.status == "failed" and "unparseable" in r.error
-    assert llm.calls == 1 and r.raw_output == "not json"
+    assert r.status == "failed" and "unparseable" in r.error and r.error_kind == "output"
+    assert llm.calls == 2 and r.raw_output == "not json"
+    assert [c.outcome for c in r.llm_calls] == ["format_error", "format_error"]
+
+
+def test_b2_format_retry_recovers(taxonomy):
+    path = CASES[0]
+    case, key = _load(path)
+    good = FakeSinglePrompt(case, key, taxonomy)
+
+    class FirstBad:
+        model = "fake"
+        prompts = []
+
+        def complete(self, stage, system, user, schema):
+            self.prompts.append(user)
+            return "{" if len(self.prompts) == 1 else good.complete(stage, system, user, schema)
+
+    llm = FirstBad()
+    r = b2.run_case(path, llm, taxonomy)
+    assert r.status == "succeeded"
+    assert [c.outcome for c in r.llm_calls] == ["format_error", "accepted"]
+    assert "Your previous response was rejected" in llm.prompts[1]
+
+
+def test_b2_content_problems_are_not_retried(taxonomy):
+    """Unlike the pipeline, B2 never re-asks for taxonomy or evidence problems; it drops the item."""
+    r, _, llm = _b2(CASES[0], taxonomy, edit=lambda out: out["barriers"][0].update(barrier_id="B-Z99"))
+    assert r.status == "succeeded" and llm.calls == 1
+    assert any("B-Z99" in n for n in r.notes)
+    assert [c.outcome for c in r.llm_calls] == ["accepted"]
 
 
 def test_b2_prompt_matches_pipeline_domain_rules(taxonomy):
