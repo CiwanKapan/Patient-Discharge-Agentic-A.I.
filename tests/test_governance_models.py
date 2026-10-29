@@ -114,6 +114,28 @@ def test_check_governance(taxonomy):
     assert any("not classified" in e for e in check_governance(taxonomy, recs, missing))
 
 
+def test_check_governance_gates_tasks_without_a_label(taxonomy):
+    """T-MD07 needs GR-A04 whether or not the model named the action."""
+    from src.models.plan import check_governance
+
+    recs = RecommendationSet(recommendations=[REBOOK, {**ESCALATE, "proposed_action": None}])
+    bad = ApprovalDecisions(classifications=[_approval("R1", "auto_safe"), _approval("R2", "auto_safe")])
+    errors = check_governance(taxonomy, recs, bad)
+    assert len(errors) == 1 and "T-MD07" in errors[0] and "GR-A04" in errors[0]
+    gated = ApprovalDecisions(classifications=[
+        _approval("R1", "auto_safe"),
+        ApprovalClassification(recommendation_id="R2", classification="requires_human_approval",
+                               requires_human_approval=True, matched_rule_id="GR-A04", reason="t", label_missing=True),
+    ])
+    assert check_governance(taxonomy, recs, gated) == []
+
+
+def test_label_missing_only_with_approval():
+    with pytest.raises(ValueError):
+        ApprovalClassification(recommendation_id="R1", classification="auto_safe", requires_human_approval=False,
+                               reason="x", label_missing=True)
+
+
 def test_proposing_vs_calling_an_overlapping_name(taxonomy):
     """modify_medication_list is GR-A02 to propose but GF-T02 to call."""
     from src.models.plan import check_governance

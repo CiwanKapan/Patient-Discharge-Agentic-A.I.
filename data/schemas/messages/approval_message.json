@@ -37,6 +37,12 @@
         "reason": {
           "title": "Reason",
           "type": "string"
+        },
+        "label_missing": {
+          "default": false,
+          "description": "True when approval comes from the task (governance.task_approvals) because the recommendation named no approval-required action. Records the model's omission.",
+          "title": "Label Missing",
+          "type": "boolean"
         }
       },
       "required": [

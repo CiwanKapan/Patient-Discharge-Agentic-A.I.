@@ -85,7 +85,7 @@ The system is structured as an 8-stage pipeline with strict deterministic govern
 | 3 | **Barrier Detector** | `CaseSummary` | `AgentMessage[BarrierDetection]` | Links every flagged barrier directly to case evidence. | LLM Reasoning |
 | 4 | **Task Detector** | `CaseSummary` + `BarrierDetection` | `AgentMessage[TaskDetection]` | Identifies pending clinical/logistical obligations. | LLM Reasoning |
 | 5 | **Rec. Generator** | Barriers, Gaps & Tasks | `AgentMessage[RecommendationSet]` | Ranks urgent vs. routine recommended next steps. | LLM Reasoning |
-| 6 | **Approval Gate** | `RecommendationSet` | `AgentMessage[ApprovalDecisions]` | Deterministically tags: `auto_safe`, `requires_human_approval`, `forbidden`. | Deterministic Code |
+| 6 | **Approval Gate** | `RecommendationSet` | `AgentMessage[ApprovalDecisions]` | Deterministically tags: `auto_safe`, `requires_human_approval`, `forbidden`. A task that needs sign-off is gated even if the model named no action; `label_missing` records the omission. | Deterministic Code |
 | 7 | **Policy Layer** | `ToolCall` requests | `AgentMessage[PolicyLayerOutput]` | Intercepts forbidden EHR tools (e.g., ordering meds). | Deterministic Code |
 | 8 | **Audit Logger** | All Pipeline Events | `AuditEvent` JSONL lines | Ensures end-to-end traceability and reproducibility (`AU-01` to `AU-08`). | Deterministic Code |
 
@@ -119,6 +119,8 @@ Contract rules:
 - **No silent repair.** LLM output that fails validation is rejected and logged.
 - **Recommendations are either tasks or checks.** A `complete_task` recommendation names a task and the barriers it resolves. A `verify_information` recommendation names an information gap and claims no barrier.
 - **Approval classifications are consistent.** `requires_human_approval` is true exactly when the classification says so, and it must cite a `GR-A*` rule. A `forbidden` classification must cite a `GF-T*` tool. `check_governance()` confirms every approval-required action was classified correctly.
+- **Some tasks always need sign-off.** `governance.task_approvals` in the taxonomy maps the tasks whose completion needs an approval-required action: `T-MD01` (GR-A06), `T-MD04` (GR-A07), `T-MD05` (GR-A05), `T-MD07` (GR-A04), `T-PH01` (GR-A02), and `T-PH02` (GR-A03). A recommendation for one of these must be classified `requires_human_approval` even if the model left `proposed_action` empty. The approval gate applies the task's rule and sets `label_missing = true`, so the model's omission is still counted.
+- **Unaddressed barriers are visible.** A flagged barrier that no task resolves is listed in the plan's `unaddressed_barriers` and warned about by the task detector. The warning says whether a task was available for the case's condition. The taxonomy has no task for `B-S05`, and none for `B-C03` in `OR` cases, so those always appear there.
 - **Proposing is not calling.** Some names are both an approval-required action and a forbidden tool, such as `modify_medication_list`. Proposing the action for a clinician needs approval. Calling the tool is always forbidden.
 - **Default deny for tools.** The policy layer allows only tools on the `GA-T*` list. Forbidden tools and unknown tools are denied, and tool results exist only for allowed calls. `check_policy()` verifies each decision against the taxonomy.
 
@@ -165,13 +167,15 @@ Some barriers only appear when fields are read together. `B-S07` (transport timi
 - **`information_gap_recall`** is how many undocumented items the system asked about instead of ignoring.
 - **`gap_misflags`** counts barriers flagged where the information was only missing.
 - **`negative_control_hits`** counts flags on barriers listed in `must_not_flag`.
+- **`approval_recall`** and **`approval_precision`** compare the tasks a plan gated for sign-off with the keyed tasks in `governance.task_approvals`. This is the H4 measure.
+- **`approval_label_omissions`** counts approvals the gate applied because the model named no action. It is reported separately so the gate cannot hide the model's mistakes when the pipeline is compared with B2, which has no gate.
 
 ---
 
 ## 📊 Dataset & Baseline Specifications
 
 ### Dataset Structure
-- **Size:** 150 synthetic cases in `data/synthetic_cases/`, each paired with an answer key in `data/answer_keys/`.
+- **Size:** 160 synthetic cases in `data/synthetic_cases/`, each paired with an answer key in `data/answer_keys/`.
 - **Stratification:** Easy, Medium, and Hard difficulty levels across 5 medical conditions:
   - Heart Failure (`HF`)
   - COPD (`CO`)
@@ -183,20 +187,20 @@ Some barriers only appear when fields are read together. `B-S07` (transport timi
 
 | Difficulty | Cases | Barriers per case | What makes it that level |
 |---|---|---|---|
-| Easy | 45 | 1-2 | All barriers are in structured fields. No information gaps or distractors. |
-| Medium | 75 | 2-4 | At least one cross-field or note-only barrier. One distractor. |
-| Hard | 30 | 4 or more | A cross-field barrier and a note-only barrier. One or two distractors. |
+| Easy | 48 | 1-2 | All barriers are in structured fields. No information gaps or distractors. |
+| Medium | 80 | 2-4 | At least one cross-field or note-only barrier. One distractor. |
+| Hard | 32 | 4 or more | A cross-field barrier and a note-only barrier. One or two distractors. |
 
-Each condition has 30 cases. All 26 taxonomy barriers appear at least once. 79 cases include a cross-field barrier, and 64 include at least one information gap. 29 cases use a `B-S07` negative control, where the pickup fits the discharge window. 30 cases include a note that tempts the system toward a forbidden tool.
+Each condition has 32 cases. All 26 taxonomy barriers appear at least once. 84 cases include a cross-field barrier, and 66 include at least one information gap. 32 cases use a `B-S07` negative control, where the pickup fits the discharge window. 32 cases include a note that tempts the system toward a forbidden tool.
 
 `data/dataset_manifest.csv` has one row per case. It records the barriers, cross-field and note-only barriers, information gaps, near-miss controls, distractor IDs, and any forbidden-tool temptation, for stratified analysis.
 
 ### Generating the Dataset
-`scripts/generate_cases.py` builds the cases, answer keys, and manifest from recipes. It always uses the same random seed, so the same command recreates the same files. It validates every case and key before writing anything.
+`scripts/generate_cases.py` builds the cases, answer keys, and manifest from recipes. It builds a main batch of 150 cases (CASE-001 to CASE-150) and an add-on batch of 10 (CASE-151 to CASE-160), each from its own fixed seed, so the same command recreates the same files. The add-on batch keeps the 30/50/20 difficulty split and two cases per condition, and leaves the first 150 cases unchanged. It validates every case and key before writing anything.
 
 ```bash
-python scripts/generate_cases.py              # 150 cases, the committed dataset
-python scripts/generate_cases.py --n 160      # a different size, same proportions
+python scripts/generate_cases.py                       # 150 + 10 cases, the committed dataset
+python scripts/generate_cases.py --n 300 --extra 0      # a different size, same proportions
 ```
 
 `tests/test_synthetic_cases.py` checks every case and key on each test run. It applies the same rules as the scenarios, plus the difficulty rules, the distractor rules, and the targets for the whole dataset.
@@ -234,7 +238,7 @@ agentic_discharge_coordinator/
 │   │   ├── messages/                # Inter-agent message schemas (stages 02-08)
 │   │   └── audit_log_schema.json   # Schema for JSONL audit events
 │   ├── scenarios/                   # Targeted cross-field and missing-info scenarios
-│   ├── synthetic_cases/             # Stratified dataset (150 cases)
+│   ├── synthetic_cases/             # Stratified dataset (160 cases)
 │   ├── answer_keys/                 # Gold-standard evaluation mappings (drafts, need review)
 │   └── dataset_manifest.csv         # One row per case for stratified analysis
 ├── src/
@@ -317,16 +321,30 @@ How a run behaves:
 ## 🧪 Running Evaluations & Tests
 
 ### Run Pipeline Tests
-Execute the pytest suite to verify governance gates, policy interception, component validation, the inter-agent contracts, the targeted scenarios, and all 150 synthetic cases. The pipeline tests run offline: `tests/oracle_llm.py` answers each LLM stage from the answer key, so a correct pipeline must score perfectly with a clean audit trail.
+Execute the pytest suite to verify governance gates, policy interception, component validation, the inter-agent contracts, the targeted scenarios, and all 160 synthetic cases. The pipeline tests run offline: `tests/oracle_llm.py` answers each LLM stage from the answer key, so a correct pipeline must score perfectly with a clean audit trail. These runs test the deterministic code on correct model output, not a real model's behavior. `tests/test_incomplete_responses.py` starts from the oracle and removes or bends one part of a response, such as a missing approval label, a barrier with no task, or a duplicate recommendation, to pin down how the pipeline handles imperfect output.
 ```bash
 pytest tests/
 ```
 
 ### Run Baseline Comparison & Evaluation Suite
-Run the full benchmark script against the 150 synthetic cases:
+First run each system and save its plans. B2 and the pipeline call Claude and use API credits (1 call per case for B2; 4 per case for the pipeline, up to 8 with retries). B1 makes no calls.
 ```bash
-python evaluation/evaluate.py --all-baselines --dataset data/synthetic_cases/
+python -m baselines.baseline_1_rule_based data/synthetic_cases/ --out runs/b1
+python -m baselines.baseline_2_single_llm data/synthetic_cases/ --out runs/b2
+python -m src.pipeline data/synthetic_cases/ --audit-dir runs/audit --out runs/plans
 ```
+
+Then score the saved plans against the answer keys. This step makes no API calls:
+```bash
+python -m evaluation.evaluate                                   # every case with a plan from any system
+python -m evaluation.evaluate --cases CASE-151 CASE-152         # selected cases
+```
+
+It writes `runs/eval/per_case.csv` (one row per system and case, with missed and extra barriers and any governance violations) and `runs/eval/summary.csv` (one row per system for all cases, each difficulty, and each condition), and prints the overall and per-difficulty tables. All systems are scored on the same cases. A system with no plan for a case is scored as if it returned an empty plan and counted under `failed`. For the pipeline, the audit log says whether the run failed and why. Precision and recall are summed over cases before dividing, and a ratio with nothing to count is left blank rather than reported as 1.0.
+
+Two hypothesis metrics use **provisional definitions** that the team should confirm:
+- **H3 `plan_completeness`:** the share of keyed tasks and information gaps that reached the plan as a recommendation.
+- **H4 `governance_compliance`:** the share of cases with no governance violations, meaning `check_governance` errors plus, for the pipeline, audit trail errors.
 
 ---
 

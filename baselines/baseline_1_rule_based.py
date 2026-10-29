@@ -23,19 +23,13 @@ from pathlib import Path
 from baselines._common import BaselineResult, load_case, main
 from src.models.case import FieldReading, PatientCase, read_field
 from src.models.messages import BarrierFinding, EvidenceRef, InformationGap, TaskFinding
-from src.models.plan import DischargePlan, PlannedAction, Recommendation
+from src.models.plan import DischargePlan, PlannedAction, Recommendation, task_approval
 from src.pipeline._common import load_taxonomy
 
 approval_gate = importlib.import_module("src.pipeline.06_approval_gate")
 
 SYSTEM = "baseline_1_rule_based"
 
-# Fixed sign-off actions for tasks whose completion needs a clinician.
-TASK_ACTIONS = {
-    "T-MD01": "sign_discharge_summary",
-    "T-MD05": "order_home_oxygen",
-    "T-MD07": "communicate_medication_change_to_patient_or_caregiver",
-}
 URGENCY_RANK = {"high": 1, "medium": 2, "low": 3}
 
 
@@ -83,7 +77,7 @@ def plan_for(case: PatientCase, taxonomy: dict) -> DischargePlan:
                                      urgency=t["urgency"], evidence=evidence, rationale=f"Resolves {b['id']}."))
             recs.append(dict(kind="complete_task", description=t["name"], urgency=t["urgency"],
                              owner_role=t["owner_roles"][0], task_id=t["id"], barrier_ids=[b["id"]],
-                             proposed_action=TASK_ACTIONS.get(t["id"]), sort=URGENCY_RANK[t["urgency"]]))
+                             proposed_action=(task_approval(taxonomy, t["id"]) or {}).get("action"), sort=URGENCY_RANK[t["urgency"]]))
 
     recs.sort(key=lambda r: r["sort"])
     dense = {s: i for i, s in enumerate(sorted({r["sort"] for r in recs}), 1)}

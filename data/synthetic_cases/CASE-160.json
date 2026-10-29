@@ -1,0 +1,113 @@
+{
+  "case_id": "CASE-160",
+  "condition": "CO",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-06-15T13:00:00-05:00",
+    "end": "2026-06-15T15:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "PCP visit booked",
+      "scheduled_for": "2026-06-22T14:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Peak flow meter teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "in_progress",
+      "detail": "Desaturating to 84% with ambulation this morning, below baseline; needs re-evaluation before discharge."
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to Walgreens"
+    },
+    "medication_education_status": {
+      "status": "not_started",
+      "detail": "No teaching yet on new roflumilast 500 mcg daily"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "complete",
+      "detail": "Uses home oxygen 2 L/min at baseline; supply confirmed"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on inhaler technique and the COPD action plan completed"
+    },
+    "pcp_notification_status": {
+      "status": "in_progress",
+      "detail": "Message left with PCP office; no confirmation received"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Pulmonary rehabilitation signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Son to drive patient home",
+      "window": {
+        "start": "2026-06-15T13:00:00-05:00",
+        "end": "2026-06-15T14:00:00-05:00"
+      },
+      "documented_at": "2026-06-14T11:00:00-05:00"
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "55-year-old man with GERD, osteoporosis, admitted 6/11 with AECOPD with hypercapnic respiratory failure, now resolved. Ambulated 100 m with PT yesterday without desaturation.",
+    "nursing_note": "Up in chair for meals. Pain controlled. Need to update the PCP before discharge. A routine falls risk assessment was completed on admission and scored the patient as low risk. No special precautions were required.",
+    "case_manager_note": "Plan is discharge home with son. 6/15 10:45: Son called: car broke down, cannot come today. No alternative ride arranged yet."
+  }
+}

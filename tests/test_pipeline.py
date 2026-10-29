@@ -26,9 +26,10 @@ def _load(path):
     return case, key
 
 
-def _assert_perfect(key, plan):
+def _assert_perfect(key, plan, taxonomy):
     s = score_case(key, BarrierDetection(barriers=plan.barriers, information_gaps=plan.information_gaps),
-                   TaskDetection(tasks=plan.tasks)).summary()
+                   TaskDetection(tasks=plan.tasks), actions=plan.actions, taxonomy=taxonomy).summary()
+    assert s["approval_precision"] == s["approval_recall"] == 1.0 and s["approval_label_omissions"] == 0
     assert s["barrier_precision"] == s["barrier_recall"] == s["task_precision"] == s["task_recall"] == 1.0
     assert s["information_gap_recall"] == 1.0
     assert s["gap_misflags"] == s["negative_control_hits"] == s["task_link_mismatches"] == 0
@@ -41,7 +42,7 @@ def test_oracle_run_is_perfect_and_fully_audited(path, taxonomy, tmp_path):
     r = run_case(path, OracleLLM(case, key, taxonomy), taxonomy=taxonomy, audit_dir=tmp_path)
     assert r.status == "succeeded", r.error
     assert r.audit_errors == []
-    _assert_perfect(key, r.plan)
+    _assert_perfect(key, r.plan, taxonomy)
     assert [m.stage for m in r.messages] == list(Stage)
 
 
@@ -53,7 +54,7 @@ def test_oracle_run_on_scenarios(path, taxonomy, tmp_path):
     r = run_case(case_file, OracleLLM(scn.case, scn.answer_key, taxonomy), taxonomy=taxonomy, audit_dir=tmp_path)
     assert r.status == "succeeded", r.error
     assert r.audit_errors == []
-    _assert_perfect(scn.answer_key, r.plan)
+    _assert_perfect(scn.answer_key, r.plan, taxonomy)
 
 
 def test_messages_chain_upstream(taxonomy, tmp_path):
@@ -123,7 +124,7 @@ def test_barrier_on_undocumented_field_is_rejected_then_retried(taxonomy, tmp_pa
     assert r.status == "succeeded", r.error
     warnings = next(m for m in r.messages if m.stage is Stage.BARRIER_DETECTOR).warnings
     assert any("attempt 1 rejected" in w and "information gap" in w for w in warnings)
-    _assert_perfect(key, r.plan)
+    _assert_perfect(key, r.plan, taxonomy)
 
 
 @pytest.mark.parametrize("mutate, message", [

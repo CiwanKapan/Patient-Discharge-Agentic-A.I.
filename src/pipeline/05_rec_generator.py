@@ -7,11 +7,12 @@ the model should not have proposed, goes to the approval gate and the policy
 layer, which classify and deny it there so the attempt is measured and logged.
 
 Rejected here: recommendations that point at tasks or gaps the earlier stages
-did not report, tasks or gaps left without a recommendation, and action names
-outside the governance vocabulary.
+did not report, tasks or gaps left without a recommendation or given more than
+one, and action names outside the governance vocabulary.
 """
 from __future__ import annotations
 
+from collections import Counter
 from typing import Literal, Optional
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -130,10 +131,13 @@ def run(
                 recs.append(Recommendation(**d.model_dump(exclude={"proposed_tool_calls"}), proposed_tool_calls=calls))
             except ValueError as e:
                 errors.append(f"{where}: {e}")
-        covered_tasks = {d.task_id for d in draft.recommendations if d.kind == "complete_task"}
-        covered_gaps = {d.information_gap_field for d in draft.recommendations if d.kind == "verify_information"}
-        errors += [f"task {t} has no recommendation" for t in sorted(set(task_resolves) - covered_tasks)]
-        errors += [f"information gap {g} has no recommendation" for g in sorted(gap_fields - covered_gaps)]
+        task_recs = Counter(d.task_id for d in draft.recommendations if d.kind == "complete_task")
+        gap_recs = Counter(d.information_gap_field for d in draft.recommendations if d.kind == "verify_information")
+        errors += [f"task {t} has no recommendation" for t in sorted(set(task_resolves) - set(task_recs))]
+        errors += [f"information gap {g} has no recommendation" for g in sorted(gap_fields - set(gap_recs))]
+        errors += [f"task {t} has {n} recommendations; write exactly one" for t, n in sorted(task_recs.items()) if n > 1]
+        errors += [f"information gap {g} has {n} recommendations; write exactly one"
+                   for g, n in sorted(gap_recs.items()) if n > 1]
         if errors:
             raise Rejected(errors)
         try:

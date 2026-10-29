@@ -1,0 +1,117 @@
+{
+  "case_id": "CASE-154",
+  "condition": "OR",
+  "difficulty": "medium",
+  "planned_discharge_window": {
+    "start": "2026-03-23T09:00:00-05:00",
+    "end": "2026-03-23T11:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete",
+      "detail": "Nephew will stay with patient for the first week"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Orthopedic surgery clinic visit booked",
+      "scheduled_for": "2026-04-04T11:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "complete",
+      "detail": "Single-level home; grab bars installed"
+    },
+    "insurance_authorization_status": {
+      "status": "in_progress",
+      "detail": "Prior authorization for knee scooter and home PT submitted; decision pending"
+    },
+    "medical_device_education_status": {
+      "status": "complete",
+      "detail": "Incision vacuum dressing teaching done with return demonstration"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to Walgreens"
+    },
+    "medication_education_status": {
+      "status": "complete",
+      "detail": "Teach-back completed for discharge medication list"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete"
+    },
+    "mobile_device_education_status": {
+      "status": "complete",
+      "detail": "Knee scooter training completed with PT"
+    },
+    "outpatient_therapy_status": {
+      "status": "complete",
+      "detail": "Outpatient PT referral placed and accepted"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on hip/knee precautions and DVT warning signs completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Internal medicine (co-management) signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "complete",
+      "detail": "All results reviewed"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Nephew to drive patient home",
+      "window": {
+        "start": "2026-03-23T09:00:00-05:00",
+        "end": "2026-03-23T10:00:00-05:00"
+      },
+      "documented_at": "2026-03-22T09:00:00-05:00"
+    },
+    "wound_status": {
+      "status": "in_progress",
+      "detail": "Surgical site pain 7/10 despite oral regimen; not yet controlled"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "70-year-old woman with hypothyroidism, osteoarthritis, admitted 3/19 for elective right total knee arthroplasty. Post-op day 3; working with PT twice daily.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. The patient is on a controlled medication that requires a special prescription. This was prepared and reviewed by the pharmacist before discharge, and everything is in order.",
+    "case_manager_note": "CM following for discharge planning. 3/23 07:00: Nephew tested positive for COVID and cannot pick the patient up. Patient does not drive; no other ride identified."
+  }
+}

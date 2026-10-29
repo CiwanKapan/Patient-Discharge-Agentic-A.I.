@@ -1,0 +1,110 @@
+{
+  "case_id": "CASE-156",
+  "condition": "PN",
+  "difficulty": "easy",
+  "planned_discharge_window": {
+    "start": "2026-03-30T14:00:00-05:00",
+    "end": "2026-03-30T16:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "complete"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "not_applicable"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Pulmonology clinic visit booked",
+      "scheduled_for": "2026-04-02T13:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "complete",
+      "detail": "Home health nursing referral accepted"
+    },
+    "home_safety_status": {
+      "status": "not_applicable"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete",
+      "detail": "Meets discharge criteria per morning rounds"
+    },
+    "medication_availability_status": {
+      "status": "in_progress",
+      "detail": "Discharge prescriptions not yet sent; CVS does not stock amoxicillin-clavulanate 875/125 mg twice daily x5 days"
+    },
+    "medication_education_status": {
+      "status": "complete"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "not_applicable"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_applicable"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on completing the antibiotic course and pneumonia warning signs completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Speech-language pathology (swallow) signed off"
+    },
+    "pending_imaging": {
+      "status": "in_progress",
+      "detail": "CT chest to exclude empyema completed; awaiting radiology read"
+    },
+    "pending_labs": {
+      "status": "complete"
+    },
+    "physical_function_status": {
+      "status": "complete",
+      "detail": "Ambulating independently per PT"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Wife to take patient home",
+      "window": {
+        "start": "2026-03-30T14:00:00-05:00",
+        "end": "2026-03-30T15:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "59-year-old man with dementia (mild), asthma, admitted 3/25 with aspiration pneumonia, improving. Afebrile for 48 hours on IV antibiotics; switched to oral today.",
+    "nursing_note": "Slept well overnight. Voiding without difficulty.",
+    "case_manager_note": "CM following for discharge planning."
+  }
+}

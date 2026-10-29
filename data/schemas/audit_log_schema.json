@@ -37,6 +37,12 @@
         "reason": {
           "title": "Reason",
           "type": "string"
+        },
+        "label_missing": {
+          "default": false,
+          "description": "True when approval comes from the task (governance.task_approvals) because the recommendation named no approval-required action. Records the model's omission.",
+          "title": "Label Missing",
+          "type": "boolean"
         }
       },
       "required": [
@@ -83,6 +89,11 @@
         "reason": {
           "title": "Reason",
           "type": "string"
+        },
+        "label_missing": {
+          "default": false,
+          "title": "Label Missing",
+          "type": "boolean"
         }
       },
       "required": [
@@ -471,6 +482,14 @@
             "$ref": "#/$defs/PolicyDecision"
           },
           "title": "Denied Tool Calls",
+          "type": "array"
+        },
+        "unaddressed_barriers": {
+          "description": "Flagged barriers that no task resolves. Derived from barriers and tasks; any value passed in is replaced.",
+          "items": {
+            "type": "string"
+          },
+          "title": "Unaddressed Barriers",
           "type": "array"
         }
       },

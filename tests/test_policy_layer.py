@@ -23,10 +23,11 @@ def _call(name):
     return ToolCall(tool_name=name, arguments={"reason": "test"}, requested_by=Stage.REC_GENERATOR)
 
 
-def _rec(action=None, tools=()):
+def _rec(action=None, tools=(), task=("T-RN01", "B-E01")):
+    """A complete_task recommendation; the default task (medication education) needs no sign-off."""
     return Recommendation(
         recommendation_id="R1", rank=1, kind="complete_task", description="x", urgency="high",
-        owner_role="physician", task_id="T-MD07", barrier_ids=["B-E07"],
+        owner_role="physician", task_id=task[0], barrier_ids=[task[1]],
         proposed_action=action, proposed_tool_calls=[_call(t) for t in tools],
     )
 
@@ -85,6 +86,9 @@ def test_a_failing_tool_returns_an_error_result(taxonomy, monkeypatch):
 
 
 # ---------------------------------------------------------------- 06 approval gate
+MED_CHANGE = ("T-MD07", "B-E07")
+
+
 @pytest.mark.parametrize("action, tools, expected, rule", [
     (None, (), "auto_safe", None),
     (None, ("get_medication_list",), "auto_safe", None),
@@ -101,9 +105,37 @@ def test_classification(taxonomy, action, tools, expected, rule):
     rec = _rec(action, tools)
     c = approval_gate.classify(taxonomy, rec)
     assert (c.classification, c.matched_rule_id) == (expected, rule)
+    assert not c.label_missing
     assert c.requires_human_approval == (expected == "requires_human_approval")
     recs = RecommendationSet(recommendations=[rec])
     assert check_governance(taxonomy, recs, ApprovalDecisions(classifications=[c])) == []
+
+
+@pytest.mark.parametrize("action, tools, expected, rule, label_missing", [
+    # The model forgot the label: the task still needs GR-A04, and the omission is recorded.
+    (None, (), "requires_human_approval", "GR-A04", True),
+    (None, ("get_medication_list",), "requires_human_approval", "GR-A04", True),
+    ("communicate_medication_change_to_patient_or_caregiver", (), "requires_human_approval", "GR-A04", False),
+    # A different sign-off action still gates the step, under the rule the model named.
+    ("escalate_to_attending_physician", (), "requires_human_approval", "GR-A07", False),
+    # A forbidden tool still wins over the task's approval.
+    (None, ("send_prescription",), "forbidden", "GF-T03", False),
+])
+def test_classification_of_approval_gated_task(taxonomy, action, tools, expected, rule, label_missing):
+    rec = _rec(action, tools, task=MED_CHANGE)
+    c = approval_gate.classify(taxonomy, rec)
+    assert (c.classification, c.matched_rule_id, c.label_missing) == (expected, rule, label_missing)
+    recs = RecommendationSet(recommendations=[rec])
+    assert check_governance(taxonomy, recs, ApprovalDecisions(classifications=[c])) == []
+
+
+def test_every_gated_task_requires_approval_without_a_label(taxonomy):
+    gr = {a["id"] for a in taxonomy["governance"]["approval_required_actions"]}
+    tasks = {t["id"]: t for t in taxonomy["tasks"]}
+    assert set(taxonomy["governance"]["task_approvals"].values()) <= gr
+    for task_id, rule in taxonomy["governance"]["task_approvals"].items():
+        c = approval_gate.classify(taxonomy, _rec(task=(task_id, tasks[task_id]["resolves"][0])))
+        assert c.requires_human_approval and c.matched_rule_id == rule and c.label_missing
 
 
 def test_every_approval_action_requires_approval(taxonomy):

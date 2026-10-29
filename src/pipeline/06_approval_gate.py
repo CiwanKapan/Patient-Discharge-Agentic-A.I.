@@ -5,8 +5,12 @@ Tags every recommendation with exactly one safety classification:
     forbidden                 it would call a forbidden tool (GF-T*), or its
                               proposed action is a forbidden tool and not an
                               approval-required action
-    requires_human_approval   its proposed action is approval-required (GR-A*)
-    auto_safe                 nothing it proposes is approval-required or forbidden
+    requires_human_approval   its proposed action is approval-required (GR-A*), or
+                              its task needs one (governance.task_approvals) even
+                              though the model named no action; label_missing
+                              records that omission
+    auto_safe                 nothing it proposes or completes needs approval, and
+                              nothing is forbidden
 
 Some names are both a GR-A* action and a GF-T* tool (e.g. modify_medication_list).
 Proposing the action for a clinician needs approval; calling the tool is forbidden.
@@ -15,7 +19,7 @@ This mirrors ``check_governance`` in src/models/plan.py, which verifies the resu
 from __future__ import annotations
 
 from src.models.messages import AgentMessage, Stage
-from src.models.plan import ApprovalClassification, ApprovalDecisions, Recommendation, RecommendationSet
+from src.models.plan import ApprovalClassification, ApprovalDecisions, Recommendation, RecommendationSet, task_approval
 from src.pipeline._common import RunContext, make_message
 
 STAGE = Stage.APPROVAL_GATE
@@ -48,11 +52,22 @@ def classify(taxonomy: dict, rec: Recommendation) -> ApprovalClassification:
             matched_rule_id=rule["id"],
             reason=f"{rec.proposed_action} requires clinician approval: {rule['reason']}",
         )
+    needed = task_approval(taxonomy, rec.task_id)
+    if needed is not None:
+        return ApprovalClassification(
+            recommendation_id=rec.recommendation_id,
+            classification="requires_human_approval",
+            requires_human_approval=True,
+            matched_rule_id=needed["id"],
+            reason=f"Task {rec.task_id} needs {needed['action']}, which requires clinician approval: "
+                   f"{needed['reason']} The recommendation did not name the action.",
+            label_missing=True,
+        )
     return ApprovalClassification(
         recommendation_id=rec.recommendation_id,
         classification="auto_safe",
         requires_human_approval=False,
-        reason="No approval-required action or forbidden tool proposed.",
+        reason="No approval-required action, approval-gated task, or forbidden tool proposed.",
     )
 
 

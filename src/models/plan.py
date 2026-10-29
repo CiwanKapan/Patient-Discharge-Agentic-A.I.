@@ -6,8 +6,10 @@
 
 The agent may propose an approval-required action (GR-A*) but never execute it.
 Such a recommendation must be classified ``requires_human_approval``; anything
-else is a governance failure. ``check_governance`` enforces this against the
-taxonomy.
+else is a governance failure. Some tasks need such an action to be completed at
+all (the taxonomy's ``governance.task_approvals``), so a recommendation for one
+of them needs approval even when the model left ``proposed_action`` empty.
+``check_governance`` enforces both against the taxonomy.
 """
 from __future__ import annotations
 
@@ -102,6 +104,11 @@ class ApprovalClassification(_Strict):
         description="GR-A* for approval-required actions, GF-T* for forbidden tools.",
     )
     reason: str
+    label_missing: bool = Field(
+        False,
+        description="True when approval comes from the task (governance.task_approvals) because the "
+        "recommendation named no approval-required action. Records the model's omission.",
+    )
 
     @model_validator(mode="after")
     def _consistent(self) -> "ApprovalClassification":
@@ -112,6 +119,8 @@ class ApprovalClassification(_Strict):
             raise ValueError("requires_human_approval must cite a GR-A* rule")
         if self.classification == "forbidden" and not rule.startswith("GF-T"):
             raise ValueError("forbidden must cite a GF-T* rule")
+        if self.label_missing and self.classification != "requires_human_approval":
+            raise ValueError("label_missing applies only to requires_human_approval")
         return self
 
 
@@ -152,9 +161,16 @@ class DischargePlan(_Strict):
     tasks: list[TaskFinding] = Field(default_factory=list)
     actions: list[PlannedAction] = Field(default_factory=list, description="In rank order.")
     denied_tool_calls: list[PolicyDecision] = Field(default_factory=list)
+    unaddressed_barriers: list[str] = Field(
+        default_factory=list,
+        description="Flagged barriers that no task resolves. Derived from barriers and tasks; "
+        "any value passed in is replaced.",
+    )
 
     @model_validator(mode="after")
     def _ordered_and_denied_only(self) -> "DischargePlan":
+        resolved = {b for t in self.tasks for b in t.resolves}
+        self.unaddressed_barriers = [b.barrier_id for b in self.barriers if b.barrier_id not in resolved]
         ranks = [a.recommendation.rank for a in self.actions]
         if ranks != sorted(ranks):
             raise ValueError("actions must be listed in rank order")
@@ -164,6 +180,13 @@ class DischargePlan(_Strict):
 
 
 # ------------------------------------------------------------------ governance check
+def task_approval(taxonomy: dict, task_id: Optional[str]) -> Optional[dict]:
+    """The approval-required action (GR-A* entry) that completing ``task_id`` needs, if any."""
+    gov = taxonomy["governance"]
+    rule_id = gov.get("task_approvals", {}).get(task_id or "")
+    return next((a for a in gov["approval_required_actions"] if a["id"] == rule_id), None)
+
+
 def check_governance(
     taxonomy: dict, recommendations: RecommendationSet, approvals: ApprovalDecisions
 ) -> list[str]:
@@ -172,6 +195,8 @@ def check_governance(
     - every recommendation is classified exactly once
     - a recommendation that would call a GF-T* tool is classified forbidden
     - otherwise a GR-A* action is classified requires_human_approval with that rule
+    - otherwise a task that needs approval (governance.task_approvals) is classified
+      requires_human_approval with the task's rule, even with no proposed_action
 
     Some names are both a GR-A* action and a GF-T* tool (e.g. modify_medication_list).
     Proposing the action for a human is allowed with approval; calling the tool is not.
@@ -203,6 +228,12 @@ def check_governance(
                 errors.append(
                     f"{r.recommendation_id} proposes {r.proposed_action} ({gr[r.proposed_action]}) "
                     f"but is {c.classification}/{c.matched_rule_id}"
+                )
+        elif (needed := task_approval(taxonomy, r.task_id)) is not None:
+            if c.classification != "requires_human_approval" or c.matched_rule_id != needed["id"]:
+                errors.append(
+                    f"{r.recommendation_id} is task {r.task_id}, which needs {needed['action']} "
+                    f"({needed['id']}), but is {c.classification}/{c.matched_rule_id}"
                 )
         elif c.classification == "forbidden":
             errors.append(f"{r.recommendation_id} classified forbidden with no forbidden tool or action")

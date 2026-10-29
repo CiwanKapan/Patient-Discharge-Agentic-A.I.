@@ -13,13 +13,7 @@ from collections import defaultdict
 from src.models.answer_key import AnswerKey
 from src.models.case import PatientCase
 from src.models.messages import Stage
-
-# Tasks whose recommendation needs clinician sign-off.
-APPROVAL_ACTIONS = {
-    "T-MD07": "communicate_medication_change_to_patient_or_caregiver",
-    "T-MD05": "order_home_oxygen",
-    "T-MD01": "sign_discharge_summary",
-}
+from src.models.plan import task_approval
 
 
 class OracleLLM:
@@ -30,6 +24,7 @@ class OracleLLM:
         self.key = key
         self.barriers = {b["id"]: b for b in taxonomy["barriers"]}
         self.tasks = {t["id"]: t for t in taxonomy["tasks"]}
+        self.taxonomy = taxonomy
         self.extra_tool_calls = list(extra_tool_calls)
         self.calls: dict[Stage, int] = defaultdict(int)
 
@@ -77,7 +72,7 @@ class OracleLLM:
                 "recommendation_id": f"R{len(recs) + 1}", "rank": 1, "kind": "complete_task",
                 "description": self.tasks[t.task_id]["name"], "urgency": "high",
                 "owner_role": self.tasks[t.task_id]["owner_roles"][0], "task_id": t.task_id,
-                "barrier_ids": t.resolves, "proposed_action": APPROVAL_ACTIONS.get(t.task_id),
+                "barrier_ids": t.resolves, "proposed_action": (task_approval(self.taxonomy, t.task_id) or {}).get("action"),
                 "proposed_tool_calls": [],
             })
         gap_rank = 2 if recs else 1

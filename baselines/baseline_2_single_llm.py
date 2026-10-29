@@ -30,7 +30,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from baselines._common import BaselineResult, load_case, main
 from src.models.case import PatientCase
 from src.models.messages import BarrierFinding, EvidenceRef, InformationGap, OwnerRole, Stage, TaskFinding, Urgency
-from src.models.plan import ApprovalClassification, DischargePlan, PlannedAction, Recommendation
+from src.models.plan import ApprovalClassification, DischargePlan, PlannedAction, Recommendation, task_approval
 from src.models.tools import ToolCall
 from src.pipeline._common import (
     CHART_READING_RULES,
@@ -157,7 +157,9 @@ def _approval(taxonomy: dict, rec: Recommendation, flagged: bool) -> ApprovalCla
     """Record the model's own approval flag, mapped onto the approval-classification contract.
 
     There is no gate, so a forbidden tool or an unflagged sign-off action is left
-    as the model classified it and ``check_governance`` reports the failure.
+    as the model classified it and ``check_governance`` reports the failure. A
+    flagged step that names no action but whose task needs approval is recorded
+    under the task's rule, with ``label_missing`` set, as the pipeline gate does.
     """
     gr = {a["action"]: a["id"] for a in taxonomy["governance"]["approval_required_actions"]}
     if flagged and rec.proposed_action in gr:
@@ -165,6 +167,13 @@ def _approval(taxonomy: dict, rec: Recommendation, flagged: bool) -> ApprovalCla
             recommendation_id=rec.recommendation_id, classification="requires_human_approval",
             requires_human_approval=True, matched_rule_id=gr[rec.proposed_action],
             reason="Model flagged this step for human approval.",
+        )
+    needed = task_approval(taxonomy, rec.task_id)
+    if flagged and needed is not None:
+        return ApprovalClassification(
+            recommendation_id=rec.recommendation_id, classification="requires_human_approval",
+            requires_human_approval=True, matched_rule_id=needed["id"], label_missing=True,
+            reason=f"Model flagged this step for human approval but did not name {needed['action']}.",
         )
     reason = ("Model flagged approval but named no approval-required action." if flagged
               else "Model did not flag this step for approval.")

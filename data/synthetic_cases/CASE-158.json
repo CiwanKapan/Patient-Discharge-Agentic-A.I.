@@ -1,0 +1,112 @@
+{
+  "case_id": "CASE-158",
+  "condition": "ST",
+  "difficulty": "hard",
+  "planned_discharge_window": {
+    "start": "2026-05-25T14:00:00-05:00",
+    "end": "2026-05-25T16:00:00-05:00"
+  },
+  "tracked_fields": {
+    "caregiver_status": {
+      "status": "not_started",
+      "detail": "No caregiver identified; patient lives alone and needs help with ADLs"
+    },
+    "case_manager_status": {
+      "status": "complete"
+    },
+    "diet_education_status": {
+      "status": "complete",
+      "detail": "mechanical soft dysphagia diet with thin liquids reviewed with teach-back"
+    },
+    "discharge_summary_status": {
+      "status": "complete",
+      "detail": "Signed by attending"
+    },
+    "financial_status": {
+      "status": "complete"
+    },
+    "followup_appointment_status": {
+      "status": "complete",
+      "detail": "Stroke clinic visit booked",
+      "scheduled_for": "2026-05-31T13:00:00-05:00"
+    },
+    "home_health_referral_status": {
+      "status": "not_applicable"
+    },
+    "home_safety_status": {
+      "status": "complete"
+    },
+    "insurance_authorization_status": {
+      "status": "not_applicable"
+    },
+    "medical_device_education_status": {
+      "status": "not_applicable"
+    },
+    "medical_stability_status": {
+      "status": "complete"
+    },
+    "medication_availability_status": {
+      "status": "complete",
+      "detail": "Discharge prescriptions sent to CVS",
+      "documented_at": "2026-05-24T11:00:00-05:00"
+    },
+    "medication_education_status": {
+      "status": "complete"
+    },
+    "medication_reconciliation_status": {
+      "status": "complete",
+      "detail": "Reconciled by pharmacist"
+    },
+    "mobile_device_education_status": {
+      "status": "in_progress",
+      "detail": "Wheelchair training started; patient not yet safe on stairs"
+    },
+    "outpatient_therapy_status": {
+      "status": "not_started",
+      "detail": "Outpatient PT/OT referral not placed"
+    },
+    "oxygen_requirement": {
+      "status": "not_applicable"
+    },
+    "patient_education_status": {
+      "status": "complete",
+      "detail": "Teaching on stroke warning signs (BE FAST) and secondary prevention completed"
+    },
+    "pcp_notification_status": {
+      "status": "complete"
+    },
+    "pending_consult": {
+      "status": "complete",
+      "detail": "Cardiology (for loop recorder) signed off"
+    },
+    "pending_imaging": {
+      "status": "complete"
+    },
+    "pending_labs": {
+      "status": "unknown",
+      "detail": "Not addressed in flowsheet"
+    },
+    "physical_function_status": {
+      "status": "complete"
+    },
+    "return_precautions_documented": {
+      "status": "complete"
+    },
+    "transport_status": {
+      "status": "complete",
+      "detail": "Sister will pick patient up before work",
+      "window": {
+        "start": "2026-05-25T07:00:00-05:00",
+        "end": "2026-05-25T08:00:00-05:00"
+      }
+    },
+    "wound_status": {
+      "status": "not_applicable"
+    }
+  },
+  "free_text_notes": {
+    "physician_note": "75-year-old man with atrial fibrillation, hypertension, admitted 5/20 with left thalamic infarct with sensory deficits. Deficits stable for 48 hours; passed bedside swallow. The patient has a well-healed surgical scar on the abdomen from an operation several years ago. No wound care is needed and this has no impact on the discharge plan. A routine review of the patient's long-term conditions was completed by the attending physician. No new diagnoses were made and no changes to ongoing management were recommended.",
+    "nursing_note": "Vitals stable this shift. Tolerating diet. 5/25 12:00: CVS called: atorvastatin is out of stock until next week. No alternate pharmacy arranged.",
+    "case_manager_note": "CM following for discharge planning."
+  }
+}

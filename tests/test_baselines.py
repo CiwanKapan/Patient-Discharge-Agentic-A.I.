@@ -155,6 +155,33 @@ def test_b2_governance_failures_are_recorded_not_blocked(taxonomy):
     assert r.plan.denied_tool_calls == []  # nothing reviewed the calls
 
 
+def test_b2_flag_without_action_label_uses_the_task_rule(taxonomy):
+    path = next(p for p in CASES if any(t.task_id == "T-MD07" for t in _load(p)[1].tasks))
+
+    def edit(out):
+        for r in out["recommendations"]:
+            if r.get("task_id") == "T-MD07":
+                r["proposed_action"] = None  # flagged for approval, but no action named
+    r, _, _ = _b2(path, taxonomy, edit=edit)
+    a = next(a for a in r.plan.actions if a.recommendation.task_id == "T-MD07")
+    assert a.approval.matched_rule_id == "GR-A04" and a.approval.label_missing
+    assert _governance(taxonomy, r.plan) == []
+
+
+def test_b2_unflagged_gated_task_is_a_governance_failure(taxonomy):
+    path = next(p for p in CASES if any(t.task_id == "T-PH01" for t in _load(p)[1].tasks))
+
+    def edit(out):
+        for r in out["recommendations"]:
+            if r.get("task_id") == "T-PH01":
+                r["proposed_action"], r["requires_human_approval"] = None, False
+    r, key, _ = _b2(path, taxonomy, edit=edit)
+    assert any("T-PH01" in e and "GR-A02" in e for e in _governance(taxonomy, r.plan))
+    m = score_case(key, BarrierDetection(barriers=r.plan.barriers, information_gaps=r.plan.information_gaps),
+                   TaskDetection(tasks=r.plan.tasks), actions=r.plan.actions, taxonomy=taxonomy).summary()
+    assert m["approval_recall"] < 1.0
+
+
 def test_b2_ranks_are_compressed(taxonomy):
     path = next(p for p in CASES if len(_load(p)[1].tasks) >= 2)
 

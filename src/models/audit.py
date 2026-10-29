@@ -64,6 +64,7 @@ class ApprovalClassificationDetails(_Strict):
     requires_human_approval: bool
     matched_rule_id: Optional[str] = None
     reason: str
+    label_missing: bool = False
 
 
 class PolicyDecisionDetails(_Strict):

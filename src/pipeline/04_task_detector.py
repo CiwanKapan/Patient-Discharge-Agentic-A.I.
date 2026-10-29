@@ -3,6 +3,11 @@
 Maps each flagged barrier to the pending tasks that would resolve it. A task
 must come from the taxonomy, fit the case's condition, be owned by one of its
 listed roles, and resolve only barriers that stage 03 actually flagged.
+
+A flagged barrier that no task resolves is not rejected, since the taxonomy has
+no task for some barriers (or none for the case's condition). It is reported
+as a warning, saying which of the two it is, and listed in the plan's
+``unaddressed_barriers``.
 """
 from __future__ import annotations
 
@@ -61,6 +66,11 @@ def run(
         f"## Flagged barriers\n{flagged}"
     )
     task_conditions = {t["id"]: t["conditions"] for t in ctx.taxonomy["tasks"]}
+    can_resolve = {
+        b.barrier_id: [t["id"] for t in ctx.taxonomy["tasks"]
+                       if b.barrier_id in t["resolves"] and ctx.case.condition in t["conditions"]]
+        for b in barriers.payload.barriers
+    }
 
     def accept(d: TaskDetection):
         errors = check_against_taxonomy(ctx.taxonomy, ctx.case.condition, barriers.payload, d)
@@ -73,6 +83,14 @@ def run(
             warnings += w
         if errors:
             raise Rejected(errors)
+        resolved = {b for t in d.tasks for b in t.resolves}
+        for bid, options in can_resolve.items():
+            if bid in resolved:
+                continue
+            if options:
+                warnings.append(f"{bid} has no task; candidates for {ctx.case.condition}: {', '.join(options)}")
+            else:
+                warnings.append(f"{bid} has no task; the taxonomy has none for {ctx.case.condition}")
         return d, warnings
 
     if not barriers.payload.barriers:
