@@ -578,6 +578,123 @@
       "title": "InformationGap",
       "type": "object"
     },
+    "LLMCallRecord": {
+      "additionalProperties": false,
+      "description": "One model call: which step made it, which attempt it was, how it ended, and its tokens.\n\noutcome:\n  accepted          the response was used\n  format_error      it did not parse against the response schema; retried in every LLM arm\n  validation_error  it parsed but broke taxonomy or evidence rules; retried by the pipeline only\n  llm_error         no usable response (API error, refusal, truncation); never retried\nToken counts are None when the client reports none (offline test clients, failed requests).",
+      "properties": {
+        "step": {
+          "description": "Pipeline stage or baseline name that made the call.",
+          "title": "Step",
+          "type": "string"
+        },
+        "attempt": {
+          "minimum": 1,
+          "title": "Attempt",
+          "type": "integer"
+        },
+        "outcome": {
+          "enum": [
+            "accepted",
+            "format_error",
+            "validation_error",
+            "llm_error"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        },
+        "errors": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Errors",
+          "type": "array"
+        },
+        "input_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Input Tokens"
+        },
+        "output_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Tokens"
+        },
+        "cache_read_input_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cache Read Input Tokens"
+        },
+        "cache_creation_input_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Cache Creation Input Tokens"
+        },
+        "stop_reason": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stop Reason"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Id"
+        },
+        "batch": {
+          "default": false,
+          "title": "Batch",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "step",
+        "attempt",
+        "outcome"
+      ],
+      "title": "LLMCallRecord",
+      "type": "object"
+    },
     "OutputEmitted": {
       "additionalProperties": false,
       "properties": {
@@ -1088,6 +1205,28 @@
           ],
           "default": null,
           "title": "Error"
+        },
+        "llm_calls": {
+          "description": "Every model call in the run, in order.",
+          "items": {
+            "$ref": "#/$defs/LLMCallRecord"
+          },
+          "title": "Llm Calls",
+          "type": "array"
+        },
+        "llm_settings": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Model, effort, max_tokens, and max_attempts from config/run_config.json.",
+          "title": "Llm Settings"
         }
       },
       "required": [
@@ -1101,6 +1240,137 @@
       "title": "RunCompletedDetails",
       "type": "object"
     },
+    "SignoffDecision": {
+      "additionalProperties": false,
+      "description": "A reviewer's decision on one action the approval gate marked requires_human_approval.",
+      "properties": {
+        "recommendation_id": {
+          "title": "Recommendation Id",
+          "type": "string"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Id"
+        },
+        "matched_rule_id": {
+          "description": "The approval rule being signed off.",
+          "pattern": "^GR-A\\d{2}$",
+          "title": "Matched Rule Id",
+          "type": "string"
+        },
+        "decision": {
+          "description": "pending: no reviewer has decided yet; the action must not be carried out.",
+          "enum": [
+            "approved",
+            "rejected",
+            "pending"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "reviewer": {
+          "description": "Who decided, e.g. 'none' or 'simulated:approve_all'.",
+          "title": "Reviewer",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "recommendation_id",
+        "matched_rule_id",
+        "decision",
+        "reviewer",
+        "reason"
+      ],
+      "title": "SignoffDecision",
+      "type": "object"
+    },
+    "SignoffRecorded": {
+      "additionalProperties": false,
+      "properties": {
+        "event_id": {
+          "title": "Event Id",
+          "type": "string"
+        },
+        "run_id": {
+          "title": "Run Id",
+          "type": "string"
+        },
+        "case_id": {
+          "title": "Case Id",
+          "type": "string"
+        },
+        "sequence": {
+          "description": "0 for the first event in a run, then +1 per event.",
+          "minimum": 0,
+          "title": "Sequence",
+          "type": "integer"
+        },
+        "timestamp": {
+          "format": "date-time",
+          "title": "Timestamp",
+          "type": "string"
+        },
+        "stage": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Stage"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "message_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Pipeline message this event came from, if any.",
+          "title": "Message Id"
+        },
+        "audit_id": {
+          "const": "AU-09",
+          "default": "AU-09",
+          "title": "Audit Id",
+          "type": "string"
+        },
+        "event_type": {
+          "const": "signoff_recorded",
+          "default": "signoff_recorded",
+          "title": "Event Type",
+          "type": "string"
+        },
+        "details": {
+          "$ref": "#/$defs/SignoffDecision"
+        }
+      },
+      "required": [
+        "run_id",
+        "case_id",
+        "sequence",
+        "details"
+      ],
+      "title": "SignoffRecorded",
+      "type": "object"
+    },
     "Stage": {
       "enum": [
         "01_input_reader",
@@ -1110,7 +1380,8 @@
         "05_rec_generator",
         "06_approval_gate",
         "07_policy_layer",
-        "08_output_composer"
+        "08_output_composer",
+        "09_signoff"
       ],
       "title": "Stage",
       "type": "string"
@@ -1450,6 +1721,7 @@
       "output_emitted": "#/$defs/OutputEmitted",
       "policy_decision": "#/$defs/PolicyDecisionEvent",
       "run_completed": "#/$defs/RunCompleted",
+      "signoff_recorded": "#/$defs/SignoffRecorded",
       "task_recommended": "#/$defs/TaskRecommended",
       "tool_call": "#/$defs/ToolCallEvent"
     },
@@ -1479,6 +1751,9 @@
     },
     {
       "$ref": "#/$defs/RunCompleted"
+    },
+    {
+      "$ref": "#/$defs/SignoffRecorded"
     }
   ],
   "title": "AuditLogLine"

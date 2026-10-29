@@ -21,7 +21,7 @@ from src.models.messages import (  # noqa: E402
     CaseSummaryMessage,
     TaskDetectionMessage,
 )
-from src.models.plan import ApprovalMessage, DischargePlanMessage, RecommendationMessage  # noqa: E402
+from src.models.plan import ApprovalMessage, DischargePlanMessage, RecommendationMessage, SignoffMessage  # noqa: E402
 from src.models.tools import PolicyLayerMessage, ToolCall  # noqa: E402
 
 SCHEMAS = {
@@ -35,6 +35,7 @@ SCHEMAS = {
     "data/schemas/messages/approval_message.json": ApprovalMessage,
     "data/schemas/messages/policy_layer_message.json": PolicyLayerMessage,
     "data/schemas/messages/discharge_plan_message.json": DischargePlanMessage,
+    "data/schemas/messages/signoff_message.json": SignoffMessage,
     "data/schemas/tool_call_schema.json": ToolCall,
     "data/schemas/audit_log_schema.json": AuditLogLine,
 }

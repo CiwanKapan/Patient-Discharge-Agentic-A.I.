@@ -1,0 +1,36 @@
+{
+  "llm": {
+    "model": "claude-sonnet-5-5",
+    "effort": "medium",
+    "max_tokens": 16000,
+    "max_attempts": 2
+  },
+  "refusal_fallback": false,
+  "prompt_caching": true,
+  "batch_single_prompt_arms": true,
+  "runs": {
+    "llm_arms": 3,
+    "b1": 1,
+    "reduced_design": {
+      "runs_on_all_cases": 1,
+      "subset": "data/subsets/stratified_40.txt",
+      "runs_on_subset": 3
+    }
+  },
+  "pricing_usd_per_mtok": {
+    "model": "claude-sonnet-5-5",
+    "input": 2.0,
+    "output": 10.0,
+    "cache_read": 0.2,
+    "cache_write": 2.5,
+    "batch_discount": 0.5,
+    "checked": "2026-10-06",
+    "note": "Used only to estimate cost from logged tokens. Verify against current Anthropic pricing before reporting."
+  },
+  "notes": {
+    "llm": "Every LLM arm (B2, B3, Agentic) reads these settings. Runs refuse to start if anything overrides them, and the evaluator refuses to compare runs made with different settings.",
+    "max_attempts": "Attempts per LLM call. All LLM arms retry format/schema failures; only the pipeline also retries taxonomy and evidence validation failures.",
+    "refusal_fallback": "Off: a refusal fails the case instead of being answered by another model.",
+    "runs": "3 runs per case for the LLM arms, B1 once. If cost is a concern, use the reduced design: 1 run on all cases plus 3 runs on the stratified 40-case subset."
+  }
+}

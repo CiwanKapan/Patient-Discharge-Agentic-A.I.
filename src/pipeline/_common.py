@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import json
 import re
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Callable, Optional, TypeVar
 
@@ -19,7 +19,7 @@ from src.models.case import (
     read_field,
 )
 from src.models.messages import AgentMessage, EvidenceRef, Stage
-from src.utils.llm import LLMClient
+from src.utils.llm import LLMClient, LLMError, call_record, retry_prompt
 
 ROOT = Path(__file__).resolve().parents[2]
 TAXONOMY_PATH = ROOT / "config" / "taxonomy.json"
@@ -58,6 +58,7 @@ class RunContext:
     taxonomy: dict
     llm: Optional[LLMClient] = None
     max_attempts: int = 2
+    llm_calls: list = field(default_factory=list)  # LLMCallRecord per model call, in order
 
     @property
     def case_id(self) -> str:
@@ -98,29 +99,42 @@ def call_llm(
     A rejected response is never patched: the model is asked again with the
     errors, up to ``ctx.max_attempts`` times, and each rejection is kept as a
     warning on the stage's message. If every attempt is rejected the stage fails.
+
+    Both kinds of rejection are retried here: format errors (the response does
+    not parse against ``schema``; B2 and B3 retry these too) and validation
+    errors from ``accept`` (taxonomy and evidence rules; only the pipeline has
+    these). Every attempt is logged on ``ctx.llm_calls`` with its outcome and tokens.
     """
     if ctx.llm is None:
         raise StageError(stage, "no LLM client configured")
     rejections: list[str] = []
     prompt = user
     for attempt in range(1, ctx.max_attempts + 1):
-        raw = ctx.llm.complete(stage, system, prompt, schema)
+        try:
+            raw = ctx.llm.complete(stage, system, prompt, schema)
+        except LLMError as e:
+            ctx.llm_calls.append(call_record(ctx.llm, stage.value, attempt, "llm_error", [str(e)]))
+            raise
         try:
             parsed = schema.model_validate_json(raw)
-            payload, warnings = accept(parsed)
         except ValidationError as e:
-            errors = [f"{'.'.join(map(str, err['loc'])) or '<root>'}: {err['msg']}" for err in e.errors()]
-        except Rejected as e:
-            errors = e.errors
+            errors, outcome = format_errors(e), "format_error"
         else:
-            return payload, rejections + warnings
+            try:
+                payload, warnings = accept(parsed)
+            except Rejected as e:
+                errors, outcome = e.errors, "validation_error"
+            else:
+                ctx.llm_calls.append(call_record(ctx.llm, stage.value, attempt, "accepted"))
+                return payload, rejections + warnings
+        ctx.llm_calls.append(call_record(ctx.llm, stage.value, attempt, outcome, errors))
         rejections.append(f"attempt {attempt} rejected: " + "; ".join(errors))
-        prompt = (
-            f"{user}\n\n## Your previous response was rejected\n\n{raw}\n\n"
-            "Problems found:\n" + "\n".join(f"- {e}" for e in errors) +
-            "\n\nReturn a corrected response that fixes every problem."
-        )
+        prompt = retry_prompt(user, raw, errors)
     raise StageError(stage, " | ".join(rejections))
+
+
+def format_errors(e: ValidationError) -> list[str]:
+    return [f"{'.'.join(map(str, err['loc'])) or '<root>'}: {err['msg']}" for err in e.errors()]
 
 
 # ------------------------------------------------------------------ evidence grounding

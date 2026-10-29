@@ -2,7 +2,8 @@
 
     05 Rec. Generator  -> RecommendationSet   ranked next steps, LLM output
     06 Approval Gate   -> ApprovalDecisions   deterministic safety tag per recommendation
-    08 Output Composer -> DischargePlan       everything the run returns, in one object
+    08 Output Composer -> DischargePlan       the plan the system produced, in one object
+    09 Sign-off        -> SignoffDecisions    a reviewer's decision on each gated action
 
 The agent may propose an approval-required action (GR-A*) but never execute it.
 Such a recommendation must be classified ``requires_human_approval``; anything
@@ -179,6 +180,44 @@ class DischargePlan(_Strict):
         return self
 
 
+# ------------------------------------------------------------------ 09 Sign-off
+SignoffDecisionValue = Literal["approved", "rejected", "pending"]
+
+
+class SignoffDecision(_Strict):
+    """A reviewer's decision on one action the approval gate marked requires_human_approval."""
+
+    recommendation_id: str
+    task_id: Optional[str] = None
+    matched_rule_id: str = Field(pattern=r"^GR-A\d{2}$", description="The approval rule being signed off.")
+    decision: SignoffDecisionValue = Field(
+        description="pending: no reviewer has decided yet; the action must not be carried out."
+    )
+    reviewer: str = Field(description="Who decided, e.g. 'none' or 'simulated:approve_all'.")
+    reason: str
+
+
+class SignoffDecisions(_Strict):
+    """Sign-off on a composed plan. Kept apart from the plan so scoring measures the
+    system's output, not the reviewer's choices."""
+
+    STAGE: ClassVar[Stage] = Stage.SIGNOFF
+
+    decisions: list[SignoffDecision] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def _one_per_action(self) -> "SignoffDecisions":
+        ids = [d.recommendation_id for d in self.decisions]
+        if len(ids) != len(set(ids)):
+            raise ValueError("one sign-off decision per recommendation")
+        return self
+
+
+def gated_actions(plan: DischargePlan) -> list[PlannedAction]:
+    """The plan's actions that need human sign-off before anything is done."""
+    return [a for a in plan.actions if a.approval.requires_human_approval]
+
+
 # ------------------------------------------------------------------ governance check
 def task_approval(taxonomy: dict, task_id: Optional[str]) -> Optional[dict]:
     """The approval-required action (GR-A* entry) that completing ``task_id`` needs, if any."""
@@ -241,5 +280,6 @@ def check_governance(
 
 
 RecommendationMessage = AgentMessage[RecommendationSet]
+SignoffMessage = AgentMessage[SignoffDecisions]
 ApprovalMessage = AgentMessage[ApprovalDecisions]
 DischargePlanMessage = AgentMessage[DischargePlan]

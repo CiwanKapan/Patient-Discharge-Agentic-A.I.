@@ -77,7 +77,8 @@
         "05_rec_generator",
         "06_approval_gate",
         "07_policy_layer",
-        "08_output_composer"
+        "08_output_composer",
+        "09_signoff"
       ],
       "title": "Stage",
       "type": "string"

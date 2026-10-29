@@ -1,4 +1,4 @@
-"""Append-only JSONL audit logger (AU-01..AU-08).
+"""Append-only JSONL audit logger (AU-01..AU-09).
 
 One file per run. The logger refuses to open a file that already exists, only
 ever appends, assigns sequence numbers itself, and validates every event

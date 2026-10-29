@@ -1,9 +1,9 @@
-"""Audit log events (AU-01 .. AU-08), one JSON object per line in a JSONL file.
+"""Audit log events (AU-01 .. AU-09), one JSON object per line in a JSONL file.
 
 Every event shares the same header (run, case, sequence, timestamp) and carries
 a typed ``details`` object chosen by ``event_type``. ``check_audit_trail``
 verifies that a run logged every required event type and that the per-item
-events (barriers, tasks, approvals, tool calls) match the plan that was emitted.
+events (barriers, tasks, approvals, tool calls, sign-offs) match the plan that was emitted.
 """
 from __future__ import annotations
 
@@ -14,7 +14,7 @@ from typing import Annotated, Any, Literal, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field, RootModel
 
 from src.models.messages import OwnerRole, Stage, Urgency
-from src.models.plan import Classification, DischargePlan
+from src.models.plan import Classification, DischargePlan, SignoffDecision, gated_actions
 from src.models.tools import ToolCall
 
 
@@ -79,6 +79,30 @@ class OutputEmittedDetails(_Strict):
     plan: DischargePlan
 
 
+class LLMCallRecord(_Strict):
+    """One model call: which step made it, which attempt it was, how it ended, and its tokens.
+
+    outcome:
+      accepted          the response was used
+      format_error      it did not parse against the response schema; retried in every LLM arm
+      validation_error  it parsed but broke taxonomy or evidence rules; retried by the pipeline only
+      llm_error         no usable response (API error, refusal, truncation); never retried
+    Token counts are None when the client reports none (offline test clients, failed requests).
+    """
+
+    step: str = Field(description="Pipeline stage or baseline name that made the call.")
+    attempt: int = Field(ge=1)
+    outcome: Literal["accepted", "format_error", "validation_error", "llm_error"]
+    errors: list[str] = Field(default_factory=list)
+    input_tokens: Optional[int] = None
+    output_tokens: Optional[int] = None
+    cache_read_input_tokens: Optional[int] = None
+    cache_creation_input_tokens: Optional[int] = None
+    stop_reason: Optional[str] = None
+    request_id: Optional[str] = None
+    batch: bool = False
+
+
 class RunCompletedDetails(_Strict):
     status: Literal["succeeded", "failed"]
     model: str = Field(description="Model id used by LLM stages, e.g. claude-sonnet-5-5.")
@@ -92,6 +116,9 @@ class RunCompletedDetails(_Strict):
         "Lets the log show on its own that a run made no tool calls.",
     )
     error: Optional[str] = None
+    llm_calls: list[LLMCallRecord] = Field(default_factory=list, description="Every model call in the run, in order.")
+    llm_settings: Optional[dict[str, Any]] = Field(
+        None, description="Model, effort, max_tokens, and max_attempts from config/run_config.json.")
 
 
 # ---------------------------------------------------------------- one class per AU id
@@ -143,6 +170,12 @@ class RunCompleted(_EventBase):
     details: RunCompletedDetails
 
 
+class SignoffRecorded(_EventBase):
+    audit_id: Literal["AU-09"] = "AU-09"
+    event_type: Literal["signoff_recorded"] = "signoff_recorded"
+    details: SignoffDecision
+
+
 AuditEvent = Annotated[
     Union[
         CaseLoaded,
@@ -153,6 +186,7 @@ AuditEvent = Annotated[
         PolicyDecisionEvent,
         OutputEmitted,
         RunCompleted,
+        SignoffRecorded,
     ],
     Field(discriminator="event_type"),
 ]
@@ -171,13 +205,14 @@ REQUIRED_EVENT_TYPES = (
     "policy_decision",
     "output_emitted",
     "run_completed",
+    "signoff_recorded",
 )
 
 
 def check_audit_trail(events: list[Any]) -> list[str]:
     """Check one run's audit trail (empty list = OK).
 
-    Per the taxonomy, every run must log all AU-01..AU-08 event types. Some runs
+    Per the taxonomy, every run must log all AU-01..AU-09 event types. Some runs
     cannot log every type, so the trail is checked against what the run itself
     reports:
 
@@ -186,6 +221,7 @@ def check_audit_trail(events: list[Any]) -> list[str]:
       must equal it. A count of zero is the only way those events may be absent,
       so a dropped event is caught rather than mistaken for "no calls".
     - Barriers, tasks, approvals: judged against the plan in output_emitted (AU-07).
+    - Sign-offs (AU-09): one per gated action in that plan, logged after it.
     """
     errors: list[str] = []
     if not events:
@@ -221,6 +257,10 @@ def check_audit_trail(events: list[Any]) -> list[str]:
             optional.add("task_recommended")
         if not plan.actions:
             optional.add("approval_classification")
+        if not gated_actions(plan):
+            optional.add("signoff_recorded")
+    else:
+        optional.add("signoff_recorded")
     for t in REQUIRED_EVENT_TYPES:
         if t not in present and t not in optional:
             errors.append(f"missing {t} event")
@@ -261,4 +301,13 @@ def check_audit_trail(events: list[Any]) -> list[str]:
         denied = {d.call_id for d in by_type.get("policy_decision", []) if d.decision == "denied"}
         if denied != {d.call_id for d in plan.denied_tool_calls}:
             errors.append("denied policy decisions do not match plan.denied_tool_calls")
+        signed = [d.recommendation_id for d in by_type.get("signoff_recorded", [])]
+        gated = {a.recommendation.recommendation_id for a in gated_actions(plan)}
+        if len(signed) != len(set(signed)) or set(signed) != gated:
+            errors.append(f"signoff_recorded events {sorted(signed)} != gated plan actions {sorted(gated)}")
+        emitted_at = events.index(outputs[0])
+        if any(e.event_type == "signoff_recorded" and i < emitted_at for i, e in enumerate(events)):
+            errors.append("signoff_recorded logged before output_emitted; sign-off reviews the composed plan")
+    elif "signoff_recorded" in by_type:
+        errors.append("signoff_recorded logged with no output_emitted plan")
     return errors

@@ -1,0 +1,170 @@
+{
+  "$defs": {
+    "SignoffDecision": {
+      "additionalProperties": false,
+      "description": "A reviewer's decision on one action the approval gate marked requires_human_approval.",
+      "properties": {
+        "recommendation_id": {
+          "title": "Recommendation Id",
+          "type": "string"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Id"
+        },
+        "matched_rule_id": {
+          "description": "The approval rule being signed off.",
+          "pattern": "^GR-A\\d{2}$",
+          "title": "Matched Rule Id",
+          "type": "string"
+        },
+        "decision": {
+          "description": "pending: no reviewer has decided yet; the action must not be carried out.",
+          "enum": [
+            "approved",
+            "rejected",
+            "pending"
+          ],
+          "title": "Decision",
+          "type": "string"
+        },
+        "reviewer": {
+          "description": "Who decided, e.g. 'none' or 'simulated:approve_all'.",
+          "title": "Reviewer",
+          "type": "string"
+        },
+        "reason": {
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "recommendation_id",
+        "matched_rule_id",
+        "decision",
+        "reviewer",
+        "reason"
+      ],
+      "title": "SignoffDecision",
+      "type": "object"
+    },
+    "SignoffDecisions": {
+      "additionalProperties": false,
+      "description": "Sign-off on a composed plan. Kept apart from the plan so scoring measures the\nsystem's output, not the reviewer's choices.",
+      "properties": {
+        "decisions": {
+          "items": {
+            "$ref": "#/$defs/SignoffDecision"
+          },
+          "title": "Decisions",
+          "type": "array"
+        }
+      },
+      "title": "SignoffDecisions",
+      "type": "object"
+    },
+    "Stage": {
+      "enum": [
+        "01_input_reader",
+        "02_case_analyzer",
+        "03_barrier_detector",
+        "04_task_detector",
+        "05_rec_generator",
+        "06_approval_gate",
+        "07_policy_layer",
+        "08_output_composer",
+        "09_signoff"
+      ],
+      "title": "Stage",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "message_id": {
+      "title": "Message Id",
+      "type": "string"
+    },
+    "run_id": {
+      "title": "Run Id",
+      "type": "string"
+    },
+    "case_id": {
+      "title": "Case Id",
+      "type": "string"
+    },
+    "stage": {
+      "$ref": "#/$defs/Stage"
+    },
+    "produced_at": {
+      "format": "date-time",
+      "title": "Produced At",
+      "type": "string"
+    },
+    "model": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Model id for LLM stages, null for deterministic code.",
+      "title": "Model"
+    },
+    "prompt_version": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Prompt Version"
+    },
+    "upstream": {
+      "description": "message_ids this message was built from.",
+      "items": {
+        "type": "string"
+      },
+      "title": "Upstream",
+      "type": "array"
+    },
+    "payload": {
+      "$ref": "#/$defs/SignoffDecisions"
+    },
+    "warnings": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+    }
+  },
+  "required": [
+    "run_id",
+    "case_id",
+    "stage",
+    "payload"
+  ],
+  "title": "AgentMessage[SignoffDecisions]",
+  "type": "object"
+}
