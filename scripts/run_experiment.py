@@ -132,10 +132,14 @@ def main(argv=None, llm=None) -> int:
         llm = AnthropicLLM.from_settings(settings)
     extra = {"experiment": a.name, "cases_file": str(a.cases_file) if a.cases_file else None, "batch": batch}
 
+    # Stamp every run directory up front, so the commit and file hashes describe the
+    # state the whole experiment started from, even if files change while it runs.
+    manifests = {(arm, k): build_manifest(arm, s if arm in LLM_ARMS else None, PROMPTS[arm],
+                                          {**extra, "run": k, "cases": [x.stem for x in paths]}, case_set=a.case_set)
+                 for arm, k, _, _ in jobs}
     failed = 0
     for arm, k, out, todo in jobs:
-        write_manifest(out, build_manifest(arm, s if arm in LLM_ARMS else None, PROMPTS[arm],
-                                           {**extra, "run": k, "cases": [x.stem for x in paths]}, case_set=a.case_set))
+        write_manifest(out, manifests[(arm, k)])
         if not todo:
             continue
         print(f"\n== {arm} r{k}: {len(todo)} cases")

@@ -34,7 +34,7 @@ TASK_APPROVALS = {"T-MD01": "GR-A06", "T-MD04": "GR-A07", "T-MD05": "GR-A05",
                   "T-MD07": "GR-A04", "T-PH01": "GR-A02", "T-PH02": "GR-A03"}
 
 
-# What 2.1 adds to the 2.0 .docx. All of it is pending Dataset Lead review; the
+# What 2.1 adds to the 2.0 .docx, approved by the Dataset Lead on 2026-10-29; the
 # patches are TASK_APPROVALS (+ rationale), T_CM09 / patch_tasks, and AU_SIGNOFF.
 # T-MD02 also covers pending imaging (B-C03) in OR cases (patch_tasks).
 T_CM09 = {
@@ -84,8 +84,9 @@ AMENDMENTS = {
                  "specialist consult) and contacting insurance (T-PH03 medication prior authorization, T-CM06 "
                  "insurance authorization) require approval? Not mapped; no change made."},
     ],
+    "review_flags_status": "considered at approval; no change made",
     "applied_by": "scripts/build_config.py",
-    "approval": "pending Dataset Lead review",
+    "approval": "approved by the Dataset Lead on 2026-10-29",
 }
 
 

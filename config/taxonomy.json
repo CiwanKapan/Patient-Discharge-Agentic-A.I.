@@ -34,8 +34,9 @@
           "flag": "Undecided: should placing orders and referrals (T-MD06 home-health or PT/OT referral, T-MD03 specialist consult) and contacting insurance (T-PH03 medication prior authorization, T-CM06 insurance authorization) require approval? Not mapped; no change made."
         }
       ],
+      "review_flags_status": "considered at approval; no change made",
       "applied_by": "scripts/build_config.py",
-      "approval": "pending Dataset Lead review"
+      "approval": "approved by the Dataset Lead on 2026-10-29"
     },
     "rule": "Answer keys and normalized system outputs use these IDs only, never free text. Only the Dataset Lead may add entries, after team review.",
     "counts": {
