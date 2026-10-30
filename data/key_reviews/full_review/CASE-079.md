@@ -1,0 +1,70 @@
+# CASE-079 — condition PN
+
+**Planned discharge window:** 2026-06-16T12:00:00-05:00 to 2026-06-16T14:00:00-05:00
+
+## Tracked fields
+
+| Field | Status | Details |
+|---|---|---|
+| caregiver_status | in_progress | detail: Niece may be able to help but has not confirmed availability |
+| case_manager_status | complete |  |
+| diet_education_status | not_applicable |  |
+| discharge_summary_status | complete | detail: Signed by attending |
+| financial_status | complete |  |
+| followup_appointment_status | complete | detail: PCP visit booked; scheduled_for: 2026-06-22T11:00:00-05:00 |
+| home_health_referral_status | not_applicable |  |
+| home_safety_status | not_applicable |  |
+| insurance_authorization_status | not_applicable |  |
+| medical_device_education_status | not_started | detail: Home pulse oximeter education not completed |
+| medical_stability_status | complete | detail: Meets discharge criteria per morning rounds |
+| medication_availability_status | complete | detail: Discharge prescriptions sent to a local independent pharmacy |
+| medication_education_status | complete | detail: Teach-back completed for discharge medication list |
+| medication_reconciliation_status | complete | detail: Reconciled by pharmacist |
+| mobile_device_education_status | not_applicable |  |
+| outpatient_therapy_status | not_applicable |  |
+| oxygen_requirement | not_applicable |  |
+| patient_education_status | complete | detail: Teaching on completing the antibiotic course and pneumonia warning signs completed |
+| pcp_notification_status | complete |  |
+| pending_consult | complete |  |
+| pending_imaging | complete |  |
+| pending_labs | complete |  |
+| physical_function_status | complete | detail: Ambulating independently per PT |
+| return_precautions_documented | complete |  |
+| transport_status | complete | detail: Medical transport to take patient home; window: {'start': '2026-06-16T12:00:00-05:00', 'end': '2026-06-16T13:00:00-05:00'} |
+| wound_status | not_applicable |  |
+
+(A field not listed is undocumented.)
+
+## Free-text notes
+
+**case_manager_note**
+
+CM following for discharge planning.
+
+**nursing_note**
+
+Vitals stable this shift. Tolerating diet.
+
+**physician_note**
+
+68-year-old man with dementia (mild), type 2 diabetes, admitted 6/9 with left lower lobe pneumonia with small parapneumonic effusion. Afebrile for 48 hours on IV antibiotics; switched to oral today.
+
+---
+
+## Answer key (generated draft)
+
+**Barriers**
+
+- B-E06 (single-field) — evidence: tracked_fields.medical_device_education_status
+- B-F03 (single-field) — evidence: tracked_fields.caregiver_status
+
+**Information gaps**
+
+- none
+
+**Tasks**
+
+- T-RN08 resolves B-E06
+- T-CM02 resolves B-F03
+
+**Must not flag (negative controls):** none

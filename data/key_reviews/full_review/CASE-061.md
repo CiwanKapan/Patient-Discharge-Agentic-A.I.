@@ -1,0 +1,77 @@
+# CASE-061 — condition PN
+
+**Planned discharge window:** 2026-03-03T14:00:00-05:00 to 2026-03-03T16:00:00-05:00
+
+## Tracked fields
+
+| Field | Status | Details |
+|---|---|---|
+| caregiver_status | complete | detail: Son will stay with patient for the first two weeks; documented_at: 2026-03-02T12:00:00-05:00 |
+| case_manager_status | complete |  |
+| diet_education_status | not_applicable |  |
+| discharge_summary_status | complete | detail: Signed by attending |
+| financial_status | complete |  |
+| followup_appointment_status | in_progress | detail: Message sent to pulmonology clinic for follow-up; no appointment confirmed |
+| home_health_referral_status | not_applicable |  |
+| home_safety_status | not_applicable |  |
+| insurance_authorization_status | not_applicable |  |
+| medical_device_education_status | not_applicable |  |
+| medical_stability_status | complete | detail: Meets discharge criteria per morning rounds |
+| medication_availability_status | complete | detail: Discharge prescriptions sent to the hospital outpatient pharmacy |
+| medication_education_status | not_started | detail: No teaching yet on new cefpodoxime 200 mg twice daily x5 days |
+| medication_reconciliation_status | complete | detail: Reconciled by pharmacist |
+| mobile_device_education_status | not_applicable |  |
+| outpatient_therapy_status | not_applicable |  |
+| oxygen_requirement | not_applicable |  |
+| patient_education_status | in_progress | detail: Teaching on completing the antibiotic course and pneumonia warning signs started; patient asked for son to be present for the rest |
+| pcp_notification_status | complete |  |
+| pending_consult | in_progress | detail: Speech-language pathology (swallow) consult requested yesterday; recommendations not yet documented |
+| pending_imaging | complete |  |
+| physical_function_status | complete | detail: Ambulating independently per PT |
+| return_precautions_documented | complete |  |
+| transport_status | complete | detail: Ride-share voucher booked by CM; window: {'start': '2026-03-04T14:30:00-05:00', 'end': '2026-03-04T15:30:00-05:00'} |
+| wound_status | not_applicable |  |
+
+(A field not listed is undocumented.)
+
+## Free-text notes
+
+**case_manager_note**
+
+Discharge planning in progress; CM following daily. 3/3 13:00: Son called: has to travel for a family emergency tonight and cannot stay with the patient. No other family available.
+
+**nursing_note**
+
+Vitals stable this shift. Tolerating diet. Speech-language pathology (swallow) has not seen the patient yet. A repeat chest X-ray taken on day 4 shows the pneumonia is clearing as expected. The radiologist confirmed this is consistent with a good recovery. A routine palliative care screening question was included in the admission assessment as per standard protocol. The patient did not meet the criteria for a palliative care referral.
+
+**physician_note**
+
+77-year-old man with asthma, hypertension, admitted 2/24 with left lower lobe pneumonia with small parapneumonic effusion. Oxygen weaned to room air yesterday.
+
+---
+
+## Answer key (generated draft)
+
+**Barriers**
+
+- B-S07 (cross-field) — evidence: tracked_fields.transport_status, planned_discharge_window
+- B-F03 (single-field) — evidence: tracked_fields.caregiver_status, free_text_notes.case_manager_note
+- B-F01 (single-field) — evidence: tracked_fields.followup_appointment_status
+- B-E01 (single-field) — evidence: tracked_fields.medication_education_status
+- B-C04 (single-field) — evidence: tracked_fields.pending_consult
+- B-E03 (single-field) — evidence: tracked_fields.patient_education_status
+
+**Information gaps**
+
+- tracked_fields.pending_labs → could indicate B-C02
+
+**Tasks**
+
+- T-CM04 resolves B-S07
+- T-CM02 resolves B-F03
+- T-CM01 resolves B-F01
+- T-RN01 resolves B-E01
+- T-MD03 resolves B-C04
+- T-RN02 resolves B-E03
+
+**Must not flag (negative controls):** B-C02, B-C03

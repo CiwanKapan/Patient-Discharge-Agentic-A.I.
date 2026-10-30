@@ -31,12 +31,16 @@ run** on any case. It is not part of this study.
 
 - **Evaluation set:** 160 synthetic cases (`data/synthetic_cases/`, seeded generator), 30/50/20
   easy/medium/hard, 32 per condition, 32 forbidden-tool temptation cases.
-- **Answer keys:** generated drafts, reviewed per `data/key_reviews/`. Every pending review sheet must be decided
-  before the run. Key changes since generation: T-CM09 and T-MD02 coverage (taxonomy 2.1, approved by the
-  Dataset Lead 2026-10-29); B-E02 prior authorization keyed to T-PH03 (review sheet
-  `2026-10-29_b-e02_prior_authorization.csv`).
+- **Answer keys:** generated drafts. **All key review happens before the run** (`data/key_reviews/README.md`):
+  first a 20-case independent key check with agreement measured (Amendment 10), then every change review sheet
+  (row by row), then a review of all 160 keys. Key changes since generation: T-CM09 and T-MD02 coverage (17 keys);
+  B-E02 prior authorization keyed to T-PH03 (9 keys, row-by-row review sheet); B-F02 removed (30 keys,
+  Amendment 3).
 - **Development set:** 15 separate cases (`data/dev/`) for pilots and checks only, never reported as results.
-- **Taxonomy:** version 2.3 (25 barriers): 2.1 approved by the Dataset Lead 2026-10-29; 2.2 review-packet decisions of the same day (T-RN01 follows the T-MD07 sign-off; B-S07 pickup-time wording); 2.3 removes B-F02 (Amendment 3). Pipeline prompt v3, B2 prompt v4. Prompts do not tell any arm which tasks
+- **Taxonomy:** version 2.4 (25 barriers), approved by the mentor, the Dataset Lead, and the clinical lead on
+  2026-10-29: 2.1 (task-to-sign-off list, T-CM09, T-MD02 for OR, AU-09); 2.2 (T-RN01 follows the T-MD07 sign-off;
+  B-S07 pickup-time wording); 2.3 (B-F02 removed, Amendment 3); 2.4 (B-C02 covers OR; documented-status wording for
+  B-C07, B-C05, B-C06, B-S03, B-C04). Pipeline prompt v4, B2 prompt v5. Prompts do not tell any arm which tasks
   need which sign-off action (`governance.task_approvals`).
 
 ## 3. Settings and design
@@ -111,8 +115,8 @@ composite and audit completeness are secondary and approval accuracy is the prim
 ## 8. Success criteria (methodology §7.6)
 
 **Non-negligible effect:** the 95% paired-bootstrap confidence interval for the difference (agentic minus
-baseline) excludes zero, **and** the difference is at least **0.05** (absolute). **[CONFIRM: the 0.05 threshold
-is pending mentor confirmation.]**
+baseline) excludes zero, **and** the difference is at least **0.05** (absolute). The 0.05 threshold was
+confirmed by the mentor on 2026-10-29.
 
 **Beats a baseline on a hypothesis:** higher than that baseline, Holm-adjusted two-sided p < 0.05, with a
 non-negligible effect. For H1–H3 the criterion is exactly this: higher than each baseline, Holm-adjusted
@@ -202,6 +206,24 @@ meet the medium rule (3 now have a single barrier). Difficulty-stratified result
 these 8 cases. Overall results are unaffected.
 
 **Prompts.** Changed (taxonomy text and the chart-reading rule): pipeline prompt v3, B2 prompt v4. The development
-pilot is re-run once, together with the pending item 9 decision, before the evaluation run.
+pilot is re-run once, after all prompt changes (including taxonomy 2.4), before the evaluation run. Reporting
+difficulty strata with and without the 8 cases was approved on 2026-10-29.
+
+**State when recorded.** Only development-set (pilot) outputs had been seen; no evaluation-set run had started.
+
+### Amendments 4–10 — 2026-10-29 (recorded before the evaluation-set run)
+
+Proposed in `docs/change_log.md` (which lists each change with its reason) and approved on 2026-10-29 by the
+mentor, the Dataset Lead, and the clinical lead (go-ahead for all changes, relayed by the project team).
+
+| # | Change |
+|---|---|
+| 4 | **Dataset:** 160 evaluation cases (10 added to the original 150, which are unchanged); a separate 15-case development set for pilots and checks. |
+| 5 | **Taxonomy and keys:** taxonomy 2.1–2.4 (see §2), the key changes they caused, and the B-E02 prior-authorization key fix (decided row by row). Every taxonomy change since generation leaves the case files byte-identical. |
+| 6 | **Architecture:** 9 stages with a sign-off request after the output composer; plans emitted `pending_clinician_signoff`; the approval gate requires sign-off for tasks on the sign-off list even when the model omits the label, and records the omission; unaddressed barriers listed; duplicate recommendations re-asked. |
+| 7 | **Baselines:** B2 retries format failures as the pipeline does; B2's output instructions and schema are the pipeline's word for word (`docs/arm_output_contract.md`); B2 runs through the Batch API; B3 dropped before it ever ran. |
+| 8 | **Settings and design:** one settings file for every LLM arm (§3); 3 runs per case for the LLM arms, B1 once; prompts do not say which tasks need which sign-off. |
+| 9 | **Analysis:** H3 defined (§4); two-sided tests, Holm families, per-case mean over runs, precision and F1 secondary (§4–5); failed runs and over-labeling handled as in §6; variability, retries, items dropped, and cost reported. |
+| 10 | **Independent answer keys:** before the run, two annotators who did not write the generator key 20 stratified cases from the case text alone (`data/key_reviews/independent_check/`); agreement with the generated keys and between annotators is measured (Cohen's kappa, `evaluation/key_agreement.py`); every disagreement is adjudicated; systematic generator errors are fixed before the run. Decision threshold: barrier kappa of at least 0.80 per annotator (**to be confirmed before annotation starts**). All 160 keys are then reviewed before the run. |
 
 **State when recorded.** Only development-set (pilot) outputs had been seen; no evaluation-set run had started.

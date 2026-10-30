@@ -8,7 +8,7 @@ what the models are told (the prompts). **Any decision that changes the prompts 
 Counts are for the 160 evaluation keys unless noted ("dev" = the 15 development cases). Reviewer fields are at
 the end of each item.
 
-**Status (updated 2026-10-29 with the team's decisions):** decisions on items 5–11 are recorded under each item; items 5 and 7 are applied in **taxonomy 2.2**; item 8 is withdrawn (B-F02 removed in **taxonomy 2.3**, Amendment 3). Items 1–4 are already applied in taxonomy 2.1 and were approved by the
+**Status (final, 2026-10-29): every item is decided except the row-by-row review of item 11.** decisions on items 5–11 are recorded under each item; items 5 and 7 are applied in **taxonomy 2.2**; item 8 is withdrawn (B-F02 removed in **taxonomy 2.3**, Amendment 3). Items 1–4 are already applied in taxonomy 2.1 and were approved by the
 Dataset Lead on 2026-10-29; they are listed again for the clinical lead's sign-off. Items 5–11 are open.
 
 ---
@@ -22,7 +22,7 @@ Dataset Lead on 2026-10-29; they are listed again for the clinical lead's sign-o
 | **Answer keys affected** | **16** gained T-CM09 (+1 dev). The owner choice changes **0** keys (keys do not record owners). |
 | **Prompts** | Yes (already in effect; the pilot ran with it). |
 
-Decision: ☐ approve ☐ change owner to: ________ — Reviewer: ________ Date: ________
+**Approved 2026-10-29** by the mentor, the Dataset Lead, and the clinical lead (go-ahead for all changes, relayed by the project team).
 
 ## 2. T-MD02 "Review pending labs and imaging" — extended to orthopedic (OR) cases
 
@@ -33,7 +33,7 @@ Decision: ☐ approve ☐ change owner to: ________ — Reviewer: ________ Date:
 | **Answer keys affected** | **1** (CASE-074) (+2 dev). |
 | **Prompts** | Yes (already in effect). |
 
-Decision: ☐ approve ☐ revert — Reviewer: ________ Date: ________
+**Approved 2026-10-29** by the mentor, the Dataset Lead, and the clinical lead (go-ahead for all changes, relayed by the project team).
 
 ## 3. Task-to-sign-off list (`governance.task_approvals`)
 
@@ -54,7 +54,7 @@ expects; it is **not** shown to the models.
 | **Answer keys affected** | No task changes. Sets the expected sign-offs in **77** keys. Removing T-PH01 or T-MD04 would remove an expected sign-off from **17** keys each. |
 | **Prompts** | No. |
 
-Decision on T-PH01: ☐ keep ☐ remove — on T-MD04: ☐ keep ☐ remove — Reviewer: ________ Date: ________
+**Approved 2026-10-29** by the mentor, the Dataset Lead, and the clinical lead (go-ahead for all changes, relayed by the project team). Both judgment calls kept.
 
 ## 4. AU-09 renamed `signoff_requested`
 
@@ -65,7 +65,7 @@ Decision on T-PH01: ☐ keep ☐ remove — on T-MD04: ☐ keep ☐ remove — R
 | **Answer keys affected** | **0**. |
 | **Prompts** | No. |
 
-Decision: ☐ approve — Reviewer: ________ Date: ________
+**Approved 2026-10-29** by the mentor, the Dataset Lead, and the clinical lead (go-ahead for all changes, relayed by the project team).
 
 ## 5. T-RN01 "Conduct medication education" vs T-MD07 — open
 
@@ -92,7 +92,7 @@ Decision: ☐ approve — Reviewer: ________ Date: ________
 | **Effect** | Mapping a task adds an expected sign-off to the keys listed. No task changes. Prompts: no. In the pilot, T-MD03 drew an escalation sign-off (GR-A07) in 4 of 45 pipeline case runs, 6 for B2 with its original prompt, and 1 for B2 with the aligned prompt (counted as over-labeling today). |
 
 **Decided 2026-10-29:** **no sign-off for any of the four**, pending the clinical lead's confirmation. No change to the list; keys changed: 0.
-Clinical lead confirms: ☐ yes ☐ no (which task: ________) — Reviewer: ________ Date: ________
+Confirmed by the clinical lead on 2026-10-29.
 
 ## 7. B-S07 wording: booked transport with no documented pickup time — proposed
 
@@ -124,7 +124,7 @@ guideline sources are needed. Keys changed by the removal: 30 evaluation and 2 d
 
 **Chart check (2026-10-29), done before deciding:** all 35 orthopedic cases (32 evaluation, 3 development) document pending labs as complete. Only one orthopedic chart mentions a lab: CASE-119, "Hemoglobin dropped from 10.1 to 7.6 overnight; transfusion being considered", a resulted lab showing instability, correctly keyed as B-C07 (not medically stable), not as a pending lab. So adding OR changes no key and no evaluation case would test it; it changes only the prompts. The decision can rest on clinical grounds alone.
 
-Decision: ☐ add OR (prompt change, pilot re-run) ☐ keep excluded — Reviewer: ________ Date: ________
+**Decided 2026-10-29: add OR.** Applied in taxonomy 2.4. Keys changed: 0. Prompts changed (covered by the pilot re-run).
 
 ## 10. Answer keys: may a key list an acceptable alternative task? — open
 
@@ -169,7 +169,7 @@ Recommendation: **A** if the team has the time; otherwise **B**, with the blindi
 pre-registration. If the 20-case check finds systematic errors, review all affected keys before the run under
 either option.
 
-Decision: ☐ A ☐ B ☐ C — Reviewer: ________ Date: ________
+**Decided 2026-10-29: option A, all key review before the run.** Order and materials: `data/key_reviews/README.md` (the 20-case independent check first, then the review sheets, then all 160 keys).
 
 ---
 
@@ -200,7 +200,7 @@ Also worth reviewing:
   "The booked follow-up does not meet the timeframe a clinician documented" would read documented status, not
   judge it. Not proposed for this study unless the team wants it.
 
-Decision per item: ☐ reword as suggested ☐ keep ☐ other — Reviewer: ________ Date: ________
+**Approved 2026-10-29: reworded as suggested** in taxonomy 2.4 (keys changed: 0; prompts changed). The urgency and ranking prompt rules and the narrower B-F02 replacement were not changed.
 
 ---
 
@@ -208,19 +208,19 @@ Decision per item: ☐ reword as suggested ☐ keep ☐ other — Reviewer: ____
 
 | # | Item | Keys changed | Prompts change? | Status |
 |---|---|---|---|---|
-| 1 | T-CM09, owner nurse | 16 (+1 dev) | yes (in effect) | approved by Dataset Lead |
-| 2 | T-MD02 for OR | 1 (+2 dev) | yes (in effect) | approved by Dataset Lead |
-| 3 | Task-to-sign-off list | 0 tasks; sets sign-offs in 77 | no | approved by Dataset Lead; T-PH01, T-MD04 judgment calls |
-| 4 | AU-09 signoff_requested | 0 | no | approved by Dataset Lead |
+| 1 | T-CM09, owner nurse | 16 (+1 dev) | yes (in effect) | approved (mentor, Dataset Lead, clinical lead) |
+| 2 | T-MD02 for OR | 1 (+2 dev) | yes (in effect) | approved (mentor, Dataset Lead, clinical lead) |
+| 3 | Task-to-sign-off list | 0 tasks; sets sign-offs in 77 | no | approved; T-PH01, T-MD04 judgment calls kept |
+| 4 | AU-09 signoff_requested | 0 | no | approved (mentor, Dataset Lead, clinical lead) |
 | 5 | T-RN01 vs T-MD07 | 0 | yes | **decided B**, applied (2.2) |
-| 6 | Orders and insurance contacts | 0 | no | **decided: no sign-off**; clinical lead to confirm |
+| 6 | Orders and insurance contacts | 0 | no | **decided: no sign-off**; confirmed by the clinical lead |
 | 7 | B-S07 pickup-time wording | 0 | yes | **approved**, applied (2.2) |
 | 8 | B-F02 safe windows | — | — | **withdrawn**: B-F02 removed (Amendment 3; 30 evaluation and 2 dev keys changed) |
-| 9 | B-C02 for OR | 0 | yes if added | chart check done; open |
+| 9 | B-C02 for OR | 0 | yes | **decided: add OR**, applied (2.4) |
 | 10 | Alternative tasks in keys | 0 | no | **decided A** |
 | 11 | Prior-authorization fix | 9 (+1 dev) | no | **row by row** on the sheet |
-| 12 | Key review before the run | — | no | open |
-| 13 | Scope wording review | 0 | yes if reworded | open |
+| 12 | Key review before the run | — | no | **decided A**: all before the run |
+| 13 | Scope wording review | 0 | yes | **approved**, applied (2.4) |
 
 **The prompts have changed (items 5 and 7), so the 15-case development pilot must be re-run for both LLM arms
 before the evaluation run.** The B-F02 removal (Amendment 3) changed them again; waiting for item 9 lets one pilot

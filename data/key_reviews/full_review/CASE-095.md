@@ -1,0 +1,68 @@
+# CASE-095 — condition ST
+
+**Planned discharge window:** 2026-04-06T14:00:00-05:00 to 2026-04-06T16:00:00-05:00
+
+## Tracked fields
+
+| Field | Status | Details |
+|---|---|---|
+| caregiver_status | complete | detail: Son will stay with patient for the first week |
+| case_manager_status | complete |  |
+| diet_education_status | complete |  |
+| discharge_summary_status | complete | detail: Signed by attending |
+| financial_status | complete |  |
+| followup_appointment_status | complete | detail: Stroke clinic visit booked; scheduled_for: 2026-04-10T15:00:00-05:00 |
+| home_health_referral_status | not_applicable |  |
+| home_safety_status | complete | detail: Single-level home; grab bars installed |
+| insurance_authorization_status | not_applicable |  |
+| medical_device_education_status | complete | detail: Home blood pressure monitor teaching done with return demonstration |
+| medical_stability_status | complete |  |
+| medication_availability_status | complete |  |
+| medication_education_status | complete | detail: Teach-back completed for discharge medication list |
+| medication_reconciliation_status | complete |  |
+| mobile_device_education_status | in_progress | detail: Wheelchair training started; patient not yet safe on stairs |
+| outpatient_therapy_status | complete | detail: Outpatient PT referral placed and accepted |
+| oxygen_requirement | not_applicable |  |
+| patient_education_status | complete |  |
+| pcp_notification_status | complete |  |
+| pending_consult | complete | detail: Neurology signed off |
+| pending_imaging | complete |  |
+| pending_labs | complete | detail: All results reviewed |
+| physical_function_status | complete |  |
+| return_precautions_documented | complete |  |
+| transport_status | complete | detail: Wheelchair van to take patient home; window: {'start': '2026-04-06T14:30:00-05:00', 'end': '2026-04-06T15:30:00-05:00'} |
+| wound_status | not_applicable |  |
+
+(A field not listed is undocumented.)
+
+## Free-text notes
+
+**case_manager_note**
+
+Plan is discharge home with son.
+
+**nursing_note**
+
+Slept well overnight. Voiding without difficulty.
+
+**physician_note**
+
+69-year-old woman with atrial fibrillation, hyperlipidemia, admitted 4/3 with right pontine lacunar infarct. MRI confirmed small infarct; no hemorrhagic conversion.
+
+---
+
+## Answer key (generated draft)
+
+**Barriers**
+
+- B-E05 (single-field) — evidence: tracked_fields.mobile_device_education_status
+
+**Information gaps**
+
+- none
+
+**Tasks**
+
+- T-RN07 resolves B-E05
+
+**Must not flag (negative controls):** none

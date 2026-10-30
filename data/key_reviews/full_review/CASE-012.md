@@ -1,0 +1,70 @@
+# CASE-012 — condition PN
+
+**Planned discharge window:** 2026-05-12T10:00:00-05:00 to 2026-05-12T12:00:00-05:00
+
+## Tracked fields
+
+| Field | Status | Details |
+|---|---|---|
+| caregiver_status | not_started | detail: No caregiver identified; patient lives alone and needs help with ADLs |
+| case_manager_status | complete |  |
+| diet_education_status | not_applicable |  |
+| discharge_summary_status | complete |  |
+| financial_status | complete |  |
+| followup_appointment_status | complete | detail: PCP visit booked; scheduled_for: 2026-05-19T11:00:00-05:00 |
+| home_health_referral_status | complete | detail: Home health nursing referral accepted |
+| home_safety_status | not_applicable |  |
+| insurance_authorization_status | not_applicable |  |
+| medical_device_education_status | complete | detail: Home pulse oximeter teaching done with return demonstration |
+| medical_stability_status | complete | detail: Meets discharge criteria per morning rounds |
+| medication_availability_status | complete | detail: Discharge prescriptions sent to Walgreens |
+| medication_education_status | complete |  |
+| medication_reconciliation_status | complete | detail: Reconciled by pharmacist |
+| mobile_device_education_status | not_applicable |  |
+| outpatient_therapy_status | not_applicable |  |
+| oxygen_requirement | not_applicable |  |
+| patient_education_status | complete | detail: Teaching on completing the antibiotic course and pneumonia warning signs completed |
+| pcp_notification_status | in_progress | detail: Message left with PCP office; no confirmation received |
+| pending_consult | complete |  |
+| pending_imaging | complete |  |
+| pending_labs | complete |  |
+| physical_function_status | complete | detail: Ambulating independently per PT |
+| return_precautions_documented | complete |  |
+| transport_status | complete | detail: Wheelchair van to take patient home; window: {'start': '2026-05-12T10:00:00-05:00', 'end': '2026-05-12T11:00:00-05:00'} |
+| wound_status | not_applicable |  |
+
+(A field not listed is undocumented.)
+
+## Free-text notes
+
+**case_manager_note**
+
+CM following for discharge planning.
+
+**nursing_note**
+
+Up in chair for meals. Pain controlled.
+
+**physician_note**
+
+59-year-old man with hypertension, type 2 diabetes, admitted 5/6 with right lower lobe community-acquired pneumonia. Leukocytosis resolved; tolerating diet.
+
+---
+
+## Answer key (generated draft)
+
+**Barriers**
+
+- B-F05 (single-field) — evidence: tracked_fields.pcp_notification_status
+- B-F03 (single-field) — evidence: tracked_fields.caregiver_status
+
+**Information gaps**
+
+- none
+
+**Tasks**
+
+- T-CM08 resolves B-F05
+- T-CM02 resolves B-F03
+
+**Must not flag (negative controls):** none

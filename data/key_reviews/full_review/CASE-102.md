@@ -1,0 +1,68 @@
+# CASE-102 — condition HF
+
+**Planned discharge window:** 2026-04-28T09:00:00-05:00 to 2026-04-28T11:00:00-05:00
+
+## Tracked fields
+
+| Field | Status | Details |
+|---|---|---|
+| caregiver_status | complete | detail: Nephew will stay with patient for the first week |
+| case_manager_status | complete |  |
+| diet_education_status | complete |  |
+| discharge_summary_status | complete |  |
+| financial_status | complete |  |
+| followup_appointment_status | complete | detail: Cardiology clinic visit booked; scheduled_for: 2026-05-03T09:00:00-05:00 |
+| home_health_referral_status | complete |  |
+| home_safety_status | not_applicable |  |
+| insurance_authorization_status | not_applicable |  |
+| medical_device_education_status | complete | detail: Telemonitoring scale teaching done with return demonstration |
+| medical_stability_status | in_progress | detail: Creatinine rose from 1.4 to 2.1 after diuresis; holding diuretics and rechecking. |
+| medication_availability_status | complete |  |
+| medication_education_status | complete |  |
+| medication_reconciliation_status | complete | detail: Reconciled by pharmacist |
+| mobile_device_education_status | not_applicable |  |
+| outpatient_therapy_status | not_applicable |  |
+| oxygen_requirement | not_applicable |  |
+| patient_education_status | complete | detail: Teaching on daily weights and heart failure symptom monitoring completed |
+| pcp_notification_status | complete |  |
+| pending_consult | complete | detail: Nephrology signed off |
+| pending_imaging | complete |  |
+| pending_labs | complete | detail: All results reviewed |
+| physical_function_status | complete |  |
+| return_precautions_documented | complete |  |
+| transport_status | complete | detail: Nephew to take patient home; window: {'start': '2026-04-28T09:00:00-05:00', 'end': '2026-04-28T10:00:00-05:00'} |
+| wound_status | not_applicable |  |
+
+(A field not listed is undocumented.)
+
+## Free-text notes
+
+**case_manager_note**
+
+Met with patient and nephew to review the discharge plan.
+
+**nursing_note**
+
+Ambulated in hallway with nephew present.
+
+**physician_note**
+
+82-year-old man with type 2 diabetes, hypertension, admitted 4/25 with acute on chronic HFrEF exacerbation with volume overload. Diuresed 6 kg with IV furosemide; now euvolemic on oral regimen.
+
+---
+
+## Answer key (generated draft)
+
+**Barriers**
+
+- B-C07 (single-field) — evidence: tracked_fields.medical_stability_status
+
+**Information gaps**
+
+- none
+
+**Tasks**
+
+- T-MD04 resolves B-C07 — needs sign-off GR-A07 (escalate_to_attending_physician)
+
+**Must not flag (negative controls):** none

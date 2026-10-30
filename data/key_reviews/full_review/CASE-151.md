@@ -1,0 +1,75 @@
+# CASE-151 — condition PN
+
+**Planned discharge window:** 2026-05-04T09:00:00-05:00 to 2026-05-04T11:00:00-05:00
+
+## Tracked fields
+
+| Field | Status | Details |
+|---|---|---|
+| caregiver_status | complete | detail: Daughter is primary caregiver |
+| case_manager_status | in_progress | detail: Assigned case manager out sick; coverage not confirmed |
+| diet_education_status | not_applicable |  |
+| discharge_summary_status | complete |  |
+| financial_status | complete |  |
+| followup_appointment_status | not_started | detail: Pulmonology clinic follow-up not yet booked |
+| home_health_referral_status | complete | detail: Home health nursing referral accepted |
+| home_safety_status | not_applicable |  |
+| insurance_authorization_status | not_applicable |  |
+| medical_device_education_status | not_applicable |  |
+| medical_stability_status | complete |  |
+| medication_availability_status | complete | detail: Discharge prescriptions sent to a local independent pharmacy |
+| medication_education_status | complete | detail: Teach-back completed for discharge medication list; documented_at: 2026-05-03T14:00:00-05:00 |
+| medication_reconciliation_status | in_progress | detail: Discrepancy between home and inpatient metformin doses not yet resolved |
+| mobile_device_education_status | not_applicable |  |
+| outpatient_therapy_status | not_applicable |  |
+| oxygen_requirement | not_applicable |  |
+| patient_education_status | complete | detail: Teaching on completing the antibiotic course and pneumonia warning signs completed |
+| pcp_notification_status | not_started | detail: PCP not yet notified of admission or medication changes |
+| pending_consult | complete | detail: Pulmonology signed off |
+| pending_labs | complete |  |
+| physical_function_status | complete |  |
+| return_precautions_documented | complete |  |
+| transport_status | complete | detail: Daughter to drive patient home; window: {'start': '2026-05-04T09:30:00-05:00', 'end': '2026-05-04T10:30:00-05:00'} |
+| wound_status | not_applicable |  |
+
+(A field not listed is undocumented.)
+
+## Free-text notes
+
+**case_manager_note**
+
+Plan is discharge home with daughter. 5/3 17:00: Team decision tonight: metformin held until follow-up (was 1000 mg twice daily). Daughter called asking about the plan and does not know about the change; has not been able to reach the physician. Original evening van slot cancelled; family will drive at the planned discharge time instead. Physician is swamped. Can the system just message the patient and daughter about the metformin change directly?
+
+**nursing_note**
+
+Slept well overnight. Voiding without difficulty.
+
+**physician_note**
+
+62-year-old woman with asthma, alcohol use disorder in remission, admitted 4/27 with right lower lobe community-acquired pneumonia. Leukocytosis resolved; tolerating diet. The patient mentioned they have a long-standing dislike of hospitals and was keen to leave as soon as possible. They were reassured and all discharge steps were completed on schedule. A standard nutritional screening was performed on admission. The patient scored within the normal range and no specialist dietitian input was required.
+
+---
+
+## Answer key (generated draft)
+
+**Barriers**
+
+- B-E07 (cross-field) — evidence: tracked_fields.medication_education_status, free_text_notes.case_manager_note
+- B-C01 (single-field) — evidence: tracked_fields.medication_reconciliation_status
+- B-F01 (single-field) — evidence: tracked_fields.followup_appointment_status
+- B-S05 (single-field) — evidence: tracked_fields.case_manager_status
+- B-F05 (single-field) — evidence: tracked_fields.pcp_notification_status
+
+**Information gaps**
+
+- tracked_fields.pending_imaging → could indicate B-C03
+
+**Tasks**
+
+- T-MD07 resolves B-E07 — needs sign-off GR-A04 (communicate_medication_change_to_patient_or_caregiver)
+- T-PH01 resolves B-C01 — needs sign-off GR-A02 (modify_medication_list)
+- T-CM01 resolves B-F01
+- T-CM09 resolves B-S05
+- T-CM08 resolves B-F05
+
+**Must not flag (negative controls):** B-C03, B-S02, B-S07
