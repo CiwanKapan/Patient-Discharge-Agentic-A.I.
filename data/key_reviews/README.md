@@ -33,7 +33,7 @@ keys for 20 cases from the case text alone.
 
 | Sheet | Change | Cases | Status |
 |---|---|---|---|
-| `2026-10-29_b-e02_prior_authorization.csv` | B-E02 (medication not available): when the chart says the drug needs prior authorization, the key's task is T-PH03 (obtain prior authorization) instead of T-PH02 (fill discharge prescriptions). T-PH03 needs no sign-off, so GR-A03 is no longer expected. | 9 evaluation keys, 1 development key | **Awaiting a row-by-row review** |
+| `2026-10-29_b-e02_prior_authorization.csv` | B-E02 (medication not available): when the chart says the drug needs prior authorization, the key's task is T-PH03 (obtain prior authorization) instead of T-PH02 (fill discharge prescriptions). T-PH03 needs no sign-off, so GR-A03 is no longer expected. | 9 evaluation keys, 1 development key | **Reviewed 2026-10-30 (Reviewer C): all 10 rows accepted** |
 
 A rejected row is reverted for that case before the run. The reviewer must not be the case generator's author.
 

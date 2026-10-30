@@ -33,7 +33,7 @@ run** on any case. It is not part of this study.
 - **Answer keys:** generated drafts. **All key review happens before the run** (`data/key_reviews/README.md`):
   first a 20-case independent key check with agreement measured (Amendment 10), then every change review sheet
   (row by row), then a review of all 160 keys. Key changes since generation: T-CM09 and T-MD02 coverage (17 keys);
-  B-E02 prior authorization keyed to T-PH03 (9 keys, row-by-row review sheet); B-F02 removed (30 keys,
+  B-E02 prior authorization keyed to T-PH03 (9 keys; review sheet: all 10 rows, including 1 development key, accepted by Reviewer C on 2026-10-30); B-F02 removed (30 keys,
   Amendment 3).
 - **Development set:** 15 separate cases (`data/dev/`) for pilots and checks only, never reported as results.
 - **Taxonomy:** version 2.4 (25 barriers), approved by the mentor and the Dataset Lead on 2026-10-29: 2.1 (task-to-sign-off list, T-CM09, T-MD02 for OR, AU-09); 2.2 (T-RN01 follows the T-MD07 sign-off;
