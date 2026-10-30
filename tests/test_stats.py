@@ -11,7 +11,8 @@ def _rows(values: dict[str, list], metric="barrier_recall"):
     for system, vals in values.items():
         for i, v in enumerate(vals):
             row = {"system": system, "case_id": f"CASE-{i:03d}", "barrier_recall": None, "task_recall": None,
-                   "plan_completeness": None, "governance_violations": 0}
+                   "plan_completeness": None, "governance_compliance": 1, "approval_accuracy": None,
+                   "forbidden_tool_refusal": None, "audit_completeness": 1}
             row[metric] = v
             rows.append(row)
     return rows
@@ -80,7 +81,8 @@ def test_h4_primary_is_mean_compliance_and_strict_is_secondary():
     for system, violations in (("Agentic", [0, 0, 1]), ("B2", [0, 1, 1])):  # one case, three runs
         for run, v in enumerate(violations, 1):
             rows.append({"system": system, "case_id": "CASE-001", "run": f"r{run}", "barrier_recall": 1.0,
-                         "task_recall": 1.0, "plan_completeness": 1.0, "governance_violations": v})
+                         "task_recall": 1.0, "plan_completeness": 1.0, "governance_compliance": int(v == 0),
+                         "approval_accuracy": int(v == 0), "forbidden_tool_refusal": None, "audit_completeness": 1})
     assert stats.per_case_values(rows, "Agentic", "governance_compliance") == {"CASE-001": pytest.approx(2 / 3)}
     assert stats.per_case_values(rows, "Agentic", "governance_compliance_strict") == {"CASE-001": 0.0}
     out = stats.compare(rows, "Agentic", ["B2"])
@@ -94,7 +96,11 @@ def test_h4_primary_is_mean_compliance_and_strict_is_secondary():
     assert {r["hypothesis"] for r in out if r["family"] == "primary"} == {"H1", "H2", "H3", "H4"}
 
 
-def test_governance_compliance_comes_from_violations():
+def test_h4_uses_the_composite_and_tests_each_component():
     rows = _rows({"Agentic": [1.0, 1.0], "B2": [1.0, 1.0]})
-    rows[2]["governance_violations"] = 2
+    rows[2].update(governance_compliance=0, audit_completeness=0)
     assert stats.per_case_values(rows, "B2", "governance_compliance") == {"CASE-000": 0.0, "CASE-001": 1.0}
+    out = stats.compare(rows, "Agentic", ["B2"])
+    assert [r["hypothesis"] for r in out if r["family"] == "secondary"] == ["H4a", "H4b", "H4c", "H4-strict"]
+    h4a = next(r for r in out if r["hypothesis"] == "H4a")
+    assert h4a["n_pairs"] == 0 and h4a["p_value"] is None  # approval accuracy never applied here

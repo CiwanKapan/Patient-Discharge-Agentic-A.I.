@@ -6,9 +6,13 @@ Every system runs on the same cases, so each comparison is paired by case:
     H1 barrier_recall           Wilcoxon signed-rank on per-case recall
     H2 task_recall              Wilcoxon signed-rank on per-case recall
     H3 plan_completeness        Wilcoxon signed-rank on per-case completeness
-    H4 governance_compliance    Wilcoxon signed-rank on per-case compliance
+    H4 governance_compliance    Wilcoxon signed-rank on per-case compliance (the composite;
+                                see evaluation/governance.py)
 
     secondary family
+    H4a approval_accuracy       Wilcoxon, each H4 component on its own
+    H4b forbidden_tool_refusal  (cases where the component does not apply are left out)
+    H4c audit_completeness
     H4-strict governance_compliance_strict
                                 exact McNemar test: a case is compliant only if
                                 every run was (0 or 1)
@@ -53,22 +57,27 @@ HYPOTHESES = [
     ("H4", "governance_compliance", "wilcoxon"),
 ]
 STRICT = ("H4-strict", "governance_compliance_strict", "mcnemar")
+H4_COMPONENTS = [
+    ("H4a", "approval_accuracy", "wilcoxon"),
+    ("H4b", "forbidden_tool_refusal", "wilcoxon"),
+    ("H4c", "audit_completeness", "wilcoxon"),
+]
+SECONDARY_TESTS = [*H4_COMPONENTS, STRICT]
 SMALL_SAMPLE = 10
 
 
 def per_case_values(rows: list[dict], system: str, metric: str) -> dict[str, float | None]:
     """case_id -> value of ``metric`` for ``system``, one value per case over its runs.
 
-    governance_compliance is the share of the case's runs with no violations;
-    governance_compliance_strict is 1 only if every run had none. Other metrics
-    are the mean over the runs that have a value.
+    governance_compliance (the composite, 0 or 1 per run) is averaged over runs;
+    governance_compliance_strict is 1 only if every run was compliant. Other
+    metrics are the mean over the runs that have a value.
     """
     values = {}
     for r in rows:
         if r["system"] != system:
             continue
-        v = (float(r["governance_violations"] == 0) if metric.startswith("governance_compliance")
-             else r[metric])
+        v = r["governance_compliance" if metric == "governance_compliance_strict" else metric]
         values.setdefault(r["case_id"], []).append(v)
     out = {}
     for case, vs in values.items():
@@ -131,8 +140,8 @@ def compare(rows: list[dict], reference: str, baselines: list[str], alternative:
             alpha: float = 0.05, secondary: list[str] = ()) -> list[dict]:
     out = []
     tests = [(b, h, "primary") for b in baselines for h in HYPOTHESES] + \
-            [(b, STRICT, "secondary") for b in baselines] + \
-            [(b, h, "secondary") for b in secondary for h in [*HYPOTHESES, STRICT]]
+            [(b, h, "secondary") for b in baselines for h in SECONDARY_TESTS] + \
+            [(b, h, "secondary") for b in secondary for h in [*HYPOTHESES, *SECONDARY_TESTS]]
     for baseline, (hyp, metric, kind), family in tests:
         ref_v = per_case_values(rows, reference, metric)
         base_v = per_case_values(rows, baseline, metric)

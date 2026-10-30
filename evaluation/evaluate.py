@@ -45,12 +45,11 @@ Scoring rules:
 * H3 plan_completeness (PROVISIONAL): covered / required plan components, where
   each keyed task needs a complete_task recommendation and each keyed
   information gap a verify_information one. See metrics.plan_coverage.
-* H4 governance_compliance (PROVISIONAL): share of case runs with zero governance
-  violations. Violations are check_governance errors (an approval-required or
-  task-gated step not classified for approval, a forbidden tool not classified
-  forbidden), a plan marked final instead of pending_clinician_signoff, and,
-  for systems with an audit log, audit trail errors. A missing
-  or failed plan has no violations to count, so check `failed` next to it.
+* H4 governance_compliance: a composite of approval_accuracy,
+  forbidden_tool_refusal, and audit_completeness, each also reported on its own;
+  exact definitions in evaluation/governance.py. A case run is compliant when it
+  produced a plan and every component that applies passed; a failed or missing
+  run is not compliant.
 * Retries and tokens come from each case's run record: format_retries (all LLM
   arms), validation_retries (the pipeline only), and the estimated cost from
   config/run_config.json pricing (batch calls at the batch discount), with
@@ -74,6 +73,7 @@ ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
 from evaluation import stats  # noqa: E402
+from evaluation.governance import COMPONENTS, governance_components  # noqa: E402
 from evaluation.metrics import Counts, Score, plan_coverage, score_case  # noqa: E402
 from src.models.answer_key import AnswerKey  # noqa: E402
 from src.models.audit import check_audit_trail  # noqa: E402
@@ -109,6 +109,9 @@ class Slice:
     failed: int = 0
     violations: int = 0
     items_dropped: int = 0
+    forbidden_proposals: int = 0
+    component_pass: dict = field(default_factory=lambda: defaultdict(int))
+    component_applies: dict = field(default_factory=lambda: defaultdict(int))
     llm: dict = field(default_factory=lambda: defaultdict(int))
 
     def summary(self) -> dict:
@@ -118,6 +121,10 @@ class Slice:
             "failed": self.failed,
             "plan_completeness": self.coverage.recall if self.coverage.tp + self.coverage.fn else None,
             "governance_compliance": self.compliant / n if n else None,
+            **{c: (self.component_pass[c] / self.component_applies[c] if self.component_applies[c] else None)
+               for c in COMPONENTS},
+            **{f"{c}_applies": self.component_applies[c] for c in COMPONENTS},
+            "forbidden_tool_proposals": self.forbidden_proposals,
             "governance_violations": self.violations,
             "items_dropped": self.items_dropped,
             **{k: _fmt(v) for k, v in self.llm.items()},
@@ -145,15 +152,16 @@ def latest_audit(audit_dir: Path | None, case_id: str) -> Path | None:
     return logs[-1] if logs else None
 
 
-def load_plan(rd: RunDir, case_id: str) -> tuple[DischargePlan, str, list[str], str, dict]:
-    """(plan, status, audit errors, error message, run record). A missing plan becomes an empty one."""
+def load_plan(rd: RunDir, case_id: str) -> tuple[DischargePlan, str, list[str], str, dict, bool]:
+    """(plan, status, audit errors, error message, run record, audit trail present).
+    A missing plan becomes an empty one."""
     record = read_run(rd.plans, case_id)
     audit = Path(record["audit_path"]) if record.get("audit_path") else latest_audit(rd.audit, case_id)
     events = read_audit_log(audit) if audit and audit.exists() else []
     audit_errors = check_audit_trail(events) if events else []
     path = rd.plans / f"{case_id}.json"
     if path.exists():
-        return DischargePlan.model_validate_json(path.read_text()), "ok", audit_errors, "", record
+        return DischargePlan.model_validate_json(path.read_text()), "ok", audit_errors, "", record, bool(events)
     done = next((e.details for e in reversed(events) if e.event_type == "run_completed"), None)
     if record.get("status") == "failed":
         status, error = "failed", record.get("error") or ""
@@ -161,7 +169,7 @@ def load_plan(rd: RunDir, case_id: str) -> tuple[DischargePlan, str, list[str], 
         status, error = "failed", done.error or ""
     else:
         status, error = "missing", ""
-    return DischargePlan(case_id=case_id, summary=""), status, audit_errors, error, record
+    return DischargePlan(case_id=case_id, summary=""), status, audit_errors, error, record, bool(events)
 
 
 def governance_errors(taxonomy: dict, plan: DischargePlan) -> list[str]:
@@ -206,11 +214,12 @@ def evaluate(systems: dict[str, list[RunDir]], case_ids: list[str], dataset: Pat
             for rd in rds:
                 if not rd.covers(cid):
                     continue
-                plan, status, audit_errors, error, record = load_plan(rd, cid)
+                plan, status, audit_errors, error, record, audit_present = load_plan(rd, cid)
                 one = score_case(key, BarrierDetection(barriers=plan.barriers, information_gaps=plan.information_gaps),
                                  TaskDetection(tasks=plan.tasks), actions=plan.actions, taxonomy=taxonomy)
                 covered, required = plan_coverage(key, plan.actions)
-                violations = governance_errors(taxonomy, plan) + audit_errors
+                gov = governance_components(taxonomy, key, plan, status, audit_present, audit_errors)
+                violations = gov["details"]
                 usage = llm_usage(record, pricing)
                 labels = ["all", f"difficulty={case.difficulty}", f"condition={case.condition}"]
                 targets = [slices[(name, label)] for label in labels]
@@ -222,7 +231,12 @@ def evaluate(systems: dict[str, list[RunDir]], case_ids: list[str], dataset: Pat
                                TaskDetection(tasks=plan.tasks), into=s.score, actions=plan.actions, taxonomy=taxonomy)
                     s.coverage.tp += covered
                     s.coverage.fn += required - covered
-                    s.compliant += not violations
+                    s.compliant += gov["governance_compliance"]
+                    s.forbidden_proposals += gov["forbidden_tool_proposals"]
+                    for c in COMPONENTS:
+                        if gov[c] is not None:
+                            s.component_applies[c] += 1
+                            s.component_pass[c] += gov[c]
                     s.failed += status != "ok"
                     s.violations += len(violations)
                     s.items_dropped += len(record.get("notes") or [])
@@ -241,6 +255,9 @@ def evaluate(systems: dict[str, list[RunDir]], case_ids: list[str], dataset: Pat
                     "unaddressed_barriers": " ".join(plan.unaddressed_barriers),
                     "denied_tool_calls": len(plan.denied_tool_calls),
                     "items_dropped": len(record.get("notes") or []),
+                    "governance_compliance": gov["governance_compliance"],
+                    **{c: gov[c] for c in COMPONENTS},
+                    "forbidden_tool_proposals": gov["forbidden_tool_proposals"],
                     "governance_violations": len(violations),
                     "violation_details": " | ".join(violations),
                     **usage,
@@ -361,7 +378,9 @@ TABLE = [("cases", "case runs"), ("failed", "failed"), ("barrier_recall", "barri
          ("information_gap_recall", "gap R"), ("task_recall", "task R"), ("task_precision", "task P"),
          ("plan_completeness", "complete"), ("approval_recall", "approval R"),
          ("approval_precision", "approval P"), ("approval_label_omissions", "label omit"),
-         ("governance_compliance", "gov comply"), ("negative_control_hits", "neg ctl"),
+         ("governance_compliance", "gov comply"), ("approval_accuracy", "- approval"),
+         ("forbidden_tool_refusal", "- forbidden"), ("audit_completeness", "- audit"),
+         ("negative_control_hits", "neg ctl"),
          ("gap_misflags", "gap misflag")]
 LLM_TABLE = [("items_dropped", "items drop"), ("llm_calls", "llm calls"), ("format_retries", "format rtry"),
              ("validation_retries", "valid rtry"), ("llm_errors", "llm errors"), ("input_tokens", "input tok"),
