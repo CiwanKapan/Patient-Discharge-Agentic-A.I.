@@ -11,20 +11,20 @@
         "T-CM09 (assign covering case manager) added; owner: nurse (the charge nurse); resolves B-S05",
         "T-MD02 conditions extended to OR; resolves B-C03 in OR cases",
         "AU-09 signoff_requested added: logged when the plan is emitted with status pending_clinician_signoff",
-        "2.2: T-RN01 defined as teaching that follows the T-MD07 sign-off, so it needs no sign-off of its own (review packet #5, option B)",
-        "2.2: B-S07 description states that booked transport with no documented pickup time is an information gap (review packet #7)",
-        "2.3: B-F02 (follow-up too far out) removed: judging whether follow-up timing is clinically appropriate is a clinical determination, outside the system's scope (pre-registration Amendment 3). T-CM01 no longer cites a safe clinical window and resolves B-F01 only. Supersedes the 2.2 B-F02 window field (review packet #8, withdrawn).",
-        "2.4: B-C02 (pending labs) conditions extended to OR (review packet #9)",
-        "2.4: B-C07, B-C05, B-C06, B-S03, B-C04 descriptions reworded to documented status instead of a clinical judgment (review packet #13)"
+        "2.2: T-RN01 defined as teaching that follows the T-MD07 sign-off, so it needs no sign-off of its own",
+        "2.2: B-S07 description states that booked transport with no documented pickup time is an information gap",
+        "2.3: B-F02 (follow-up too far out) removed: judging whether follow-up timing is clinically appropriate is a clinical determination, outside the system's scope (pre-registration Amendment 3). T-CM01 no longer cites a safe clinical window and resolves B-F01 only. Supersedes the 2.2 B-F02 window field.",
+        "2.4: B-C02 (pending labs) conditions extended to OR",
+        "2.4: B-C07, B-C05, B-C06, B-S03, B-C04 descriptions reworded to documented status instead of a clinical judgment"
       ],
       "review_flags": [
         {
           "item": "B-C02 conditions",
-          "flag": "Resolved 2026-10-29: OR added (review packet #9). Chart check: all 35 OR cases (32 evaluation, 3 development) document pending labs as complete, so no key changed and no case tests B-C02 in OR."
+          "flag": "Resolved 2026-10-29: OR added. Chart check: all 35 OR cases (32 evaluation, 3 development) document pending labs as complete, so no key changed and no case tests B-C02 in OR."
         },
         {
           "item": "task_approvals: T-PH01 -> GR-A02, T-MD04 -> GR-A07",
-          "flag": "Judgment calls kept; approved by the clinical lead 2026-10-29 (review packet #3)."
+          "flag": "Judgment calls kept; approved by the mentor and the Dataset Lead 2026-10-29."
         },
         {
           "item": "task_approvals: T-RN01 vs T-MD07",
@@ -32,12 +32,12 @@
         },
         {
           "item": "task_approvals: T-MD06, T-MD03, T-PH03, T-CM06",
-          "flag": "Resolved 2026-10-29: no sign-off for any of the four; confirmed by the clinical lead (review packet #6)."
+          "flag": "Resolved 2026-10-29: no sign-off for any of the four; confirmed by the mentor and the Dataset Lead."
         }
       ],
       "review_flags_status": "All flags resolved 2026-10-29",
       "applied_by": "scripts/build_config.py",
-      "approval": "Taxonomy 2.1-2.4 approved by the mentor, the Dataset Lead, and the clinical lead on 2026-10-29 (go-ahead for all changes, relayed by the project team)."
+      "approval": "Taxonomy 2.1-2.4 approved by the mentor and the Dataset Lead on 2026-10-29 (go-ahead for all changes, relayed by the project team)."
     },
     "rule": "Answer keys and normalized system outputs use these IDs only, never free text. Only the Dataset Lead may add entries, after team review.",
     "counts": {

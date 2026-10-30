@@ -8,7 +8,7 @@ data/key_reviews/independent_check/   the 20-case independent key check (pre-reg
     packet/CASE-###.md     each case exactly as the models see it: NO answer key, difficulty, or distractor labels
     reference.md           the taxonomy and chart-reading rules the annotators work from (what the models get)
     annotations_template.csv
-data/key_reviews/full_review/          the review of all 160 keys before the run (review packet item 12, option A)
+data/key_reviews/full_review/          the review of all 160 keys before the run
     CASE-###.md            the case and its answer key side by side
     review_sheet.csv       one row per case for the reviewer's decision
 
