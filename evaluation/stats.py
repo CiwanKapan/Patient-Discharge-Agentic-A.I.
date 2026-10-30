@@ -3,25 +3,24 @@
 Every system runs on the same cases, so each comparison is paired by case:
 
     primary family (pre-registered: the reference against B1 and B2)
-    H1 barrier_recall           Wilcoxon signed-rank on per-case recall
-    H2 task_recall              Wilcoxon signed-rank on per-case recall
-    H3 plan_completeness        Wilcoxon signed-rank on per-case completeness
-    H4 governance_compliance    Wilcoxon signed-rank on per-case compliance (the composite;
-                                see evaluation/governance.py)
+    H1  barrier_recall          Wilcoxon signed-rank on per-case recall
+    H2  task_recall             Wilcoxon signed-rank on per-case recall
+    H3  plan_completeness       Wilcoxon signed-rank on per-case completeness
+    H4a approval_accuracy       Wilcoxon signed-rank on per-case recall on requires-approval
+                                actions, over all keyed approval actions (Amendment 1)
 
-    secondary family
-    H4a approval_accuracy       Wilcoxon, each H4 component on its own
-    H4b forbidden_tool_refusal  (cases where the component does not apply are left out)
-    H4c audit_completeness
-    H4-strict governance_compliance_strict
-                                exact McNemar test: a case is compliant only if
-                                every run was (0 or 1)
+    secondary family (all Wilcoxon except H4a-strict)
+    H4a-rec   approval_accuracy_recommended   the same, over tasks the system recommended
+    H4a-label model_labeling_recall           the model's own labels, before any gate
+    H4a-strict approval_accuracy_strict       exact McNemar: 1 only if every run gated
+                                              every keyed approval action
+    H4b       forbidden_tool_refusal          every temptation case
+    H4c       audit_completeness              favors the pipeline by design
+    H4-composite governance_compliance
     and every comparison with a system passed as ``secondary`` (none at present)
 
-Each case contributes one value per system: the mean over the case's runs, the
-same rule for every hypothesis. For H4 that is the share of the case's runs with
-no governance violation (0, 1/3, 2/3, or 1 with three runs; 0 or 1 with one run,
-where Wilcoxon reduces to a sign test on the discordant cases). Cases where
+Definitions: evaluation/governance.py. Each case contributes one value per
+system: the mean over the case's runs, the same rule for every measure. Cases where
 either system has nothing to count for a metric (a blank value in per_case.csv)
 are left out of that comparison; n_pairs says how many remain.
 
@@ -29,12 +28,12 @@ Each row reports the means, the mean paired difference (reference - baseline)
 with a 95% paired bootstrap interval, the test's p-value, a Holm-adjusted
 p-value, and an effect size. Holm adjustment runs within each family: the
 primary family (the pre-registered comparisons, e.g. against B1 and B2) and,
-separately, the secondary family (H4-strict), so a secondary analysis never
-changes a primary result. Effect sizes:
+separately, the secondary family, so a secondary analysis never changes a
+primary result. Effect sizes:
 
     rank_biserial   (W+ - W-) / (W+ + W-) over non-zero differences, from -1 to 1;
                     positive means the reference system scored higher
-    risk_difference (H4-strict) strict compliance rate of the reference minus the baseline's
+    risk_difference (H4a-strict) strict rate of the reference minus the baseline's
 
 Wilcoxon drops zero differences (identical scores), which are common here, so a
 comparison can have many pairs but few informative ones; n_nonzero shows that.
@@ -54,37 +53,41 @@ HYPOTHESES = [
     ("H1", "barrier_recall", "wilcoxon"),
     ("H2", "task_recall", "wilcoxon"),
     ("H3", "plan_completeness", "wilcoxon"),
-    ("H4", "governance_compliance", "wilcoxon"),
-]
-STRICT = ("H4-strict", "governance_compliance_strict", "mcnemar")
-H4_COMPONENTS = [
     ("H4a", "approval_accuracy", "wilcoxon"),
+]
+SECONDARY_TESTS = [
+    ("H4a-rec", "approval_accuracy_recommended", "wilcoxon"),
+    ("H4a-label", "model_labeling_recall", "wilcoxon"),
+    ("H4a-strict", "approval_accuracy_strict", "mcnemar"),
     ("H4b", "forbidden_tool_refusal", "wilcoxon"),
     ("H4c", "audit_completeness", "wilcoxon"),
+    ("H4-composite", "governance_compliance", "wilcoxon"),
 ]
-SECONDARY_TESTS = [*H4_COMPONENTS, STRICT]
 SMALL_SAMPLE = 10
 
 
 def per_case_values(rows: list[dict], system: str, metric: str) -> dict[str, float | None]:
     """case_id -> value of ``metric`` for ``system``, one value per case over its runs.
 
-    governance_compliance (the composite, 0 or 1 per run) is averaged over runs;
-    governance_compliance_strict is 1 only if every run was compliant. Other
-    metrics are the mean over the runs that have a value.
+    A metric ending in _strict is 1 only if the base metric was 1 in every run
+    that has a value (0 otherwise). Other metrics are the mean over the runs that
+    have a value.
     """
     values = {}
     for r in rows:
         if r["system"] != system:
             continue
-        v = r["governance_compliance" if metric == "governance_compliance_strict" else metric]
+        strict = metric.endswith("_strict")
+        v = r[metric.removesuffix("_strict")]
+        if strict and v is not None:
+            v = float(v == 1)
         values.setdefault(r["case_id"], []).append(v)
     out = {}
     for case, vs in values.items():
         present = [v for v in vs if v is not None]
         if not present:
             out[case] = None
-        elif metric == "governance_compliance_strict":
+        elif metric.endswith("_strict"):
             out[case] = min(present)
         else:
             out[case] = sum(present) / len(present)

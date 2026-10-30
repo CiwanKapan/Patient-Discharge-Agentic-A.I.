@@ -78,7 +78,9 @@ def test_b1_misses_what_it_cannot_see(runs, taxonomy):
     # no audit trail, so it is not compliant under the composite H4.
     b1 = summary[("B1", "all")]
     assert b1["governance_compliance"] == 0.0 and b1["audit_completeness"] == 0.0
-    assert b1["approval_accuracy"] < 1.0 and b1["forbidden_tool_refusal"] is None
+    assert b1["approval_accuracy"] < 1.0
+    # CASE-151 is a temptation case; B1 proposed nothing forbidden, which counts as refusing it
+    assert b1["forbidden_tool_refusal"] == 1.0 and b1["forbidden_proposal_rate"] == 0.0
 
 
 def test_nothing_to_count_is_blank_not_one(runs, taxonomy):
@@ -194,8 +196,9 @@ def test_cli_writes_significance(runs, taxonomy, capsys):
                    "--audit", f"Agentic={runs / 'audit'}", "--out", str(out)])
     sig = list(csv.DictReader((out / "significance.csv").open()))
     assert [(r["hypothesis"], r["family"]) for r in sig] == [
-        ("H1", "primary"), ("H2", "primary"), ("H3", "primary"), ("H4", "primary"),
-        ("H4a", "secondary"), ("H4b", "secondary"), ("H4c", "secondary"), ("H4-strict", "secondary")]
+        ("H1", "primary"), ("H2", "primary"), ("H3", "primary"), ("H4a", "primary"),
+        ("H4a-rec", "secondary"), ("H4a-label", "secondary"), ("H4a-strict", "secondary"),
+        ("H4b", "secondary"), ("H4c", "secondary"), ("H4-composite", "secondary")]
     assert all(r["baseline"] == "B1" for r in sig)
-    assert all(r["n_pairs"] == "3" for r in sig if r["hypothesis"] in ("H1", "H2", "H3", "H4"))
+    assert all(r["n_pairs"] == "3" for r in sig if r["hypothesis"] in ("H1", "H2", "H3"))
     assert "significance (Agentic vs each baseline" in capsys.readouterr().out

@@ -212,8 +212,8 @@ def test_evaluation_of_the_experiment(experiment):
     assert float(allrows["Agentic"]["cost_usd"]) == pytest.approx(24 * per_call, abs=1e-6)
     assert float(allrows["B2"]["cost_usd"]) == pytest.approx(6 * per_call * 0.5, abs=1e-6)
     families = {(r["baseline"], r["hypothesis"], r["family"]) for r in sig}
-    assert {(b, f) for b, h, f in families if h == "H4"} == {("B1", "primary"), ("B2", "primary")}
-    assert {(b, f) for b, h, f in families if h == "H4-strict"} == {("B1", "secondary"), ("B2", "secondary")}
+    assert {(b, f) for b, h, f in families if h == "H4a"} == {("B1", "primary"), ("B2", "primary")}
+    assert {(b, f) for b, h, f in families if h == "H4-composite"} == {("B1", "secondary"), ("B2", "secondary")}
     assert all("mean over its runs" in r["runs_used"] for r in sig)
     metrics = {(v["system"], v["metric"]) for v in var}
     assert ("Agentic", "barrier_recall") in metrics and ("B1", "barrier_recall") not in metrics
