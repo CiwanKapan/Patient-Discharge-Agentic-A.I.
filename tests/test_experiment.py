@@ -259,3 +259,18 @@ def test_dev_case_set_runs_and_scores(tmp_path, taxonomy):
 def test_cases_file_must_match_the_case_set(tmp_path, taxonomy):
     with pytest.raises(SystemExit, match="outside --case-set dev"):
         _run(tmp_path, FakeLLM(taxonomy), "--case-set", "dev", runs="1")  # cases file lists CASE-### ids
+
+
+def test_evaluation_combines_experiments_later_arms_win(tmp_path, taxonomy, capsys):
+    llm = FakeLLM(taxonomy)
+    assert _run(tmp_path, llm, "--arms", "b1,b2,agentic", runs="1", name="first") == 0
+    assert _run(tmp_path, llm, "--arms", "b2", runs="1-2", name="rerun") == 0
+    out = tmp_path / "combined"
+    assert evaluate.main(["--experiment", str(tmp_path / "first"), "--experiment", str(tmp_path / "rerun"),
+                          "--out", str(out)]) == 0
+    rows = list(csv.DictReader((out / "per_case.csv").open()))
+    assert {r["run"] for r in rows if r["system"] == "B2"} == {"r1", "r2"}   # from the re-run
+    assert {r["system"] for r in rows} == {"B1", "B2", "Agentic"}
+    assert "B2 from" in capsys.readouterr().out
+    with pytest.raises(SystemExit):
+        evaluate.main(["--experiment", str(tmp_path / "first"), "--experiment", str(tmp_path / "rerun")])

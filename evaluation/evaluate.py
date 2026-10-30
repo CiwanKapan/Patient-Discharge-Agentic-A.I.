@@ -5,9 +5,12 @@ Reads plans already on disk; it never calls a model, so it costs no API credits.
     python -m evaluation.evaluate --experiment runs/pilot     # a scripts/run_experiment.py run
     python -m evaluation.evaluate --system B1=runs/b1 --system Agentic=runs/agentic
     python -m evaluation.evaluate --experiment runs/main --cases CASE-151 CASE-152
+    python -m evaluation.evaluate --experiment runs/pilot --experiment runs/pilot-b2v2 --out runs/pilot-b2v2/eval
 
 --experiment reads runs/<name>/<arm>/r<k>/ for every arm and run (arms b1, b2,
-agentic are reported as B1, B2, Agentic). --system NAME=DIR scores one
+agentic are reported as B1, B2, Agentic). --experiment can be repeated to combine
+experiments; an arm found in a later experiment replaces the same arm from an
+earlier one (e.g. a re-run of one arm), and --out is then required. --system NAME=DIR scores one
 directory per system as a single run; audit logs are read from --audit
 NAME=DIR, or from DIR/audit when it exists.
 
@@ -414,7 +417,8 @@ def print_significance(rows: list[dict], note: str) -> None:
 
 def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="python -m evaluation.evaluate", description=__doc__.split("\n")[0])
-    p.add_argument("--experiment", type=Path, help="a scripts/run_experiment.py directory, e.g. runs/pilot")
+    p.add_argument("--experiment", type=Path, action="append",
+                   help="a scripts/run_experiment.py directory, e.g. runs/pilot; repeat to combine (later arms win)")
     p.add_argument("--system", action="append", metavar="NAME=PLAN_DIR", help="one system's plan directory; repeatable")
     p.add_argument("--audit", action="append", metavar="NAME=AUDIT_DIR", help="a --system's audit directory")
     p.add_argument("--cases", nargs="+", help="case IDs to score (default: every case with a plan or run record)")
@@ -427,8 +431,15 @@ def main(argv: list[str] | None = None) -> int:
                    help="'greater' tests reference > baseline; choose before looking at results")
     a = p.parse_args(argv)
 
+    sources = {}
     if a.experiment:
-        systems = discover(a.experiment)
+        if len(a.experiment) > 1 and not a.out:
+            p.error("--out is required when combining experiments")
+        systems = {}
+        for exp in a.experiment:
+            found = discover(exp)
+            systems.update(found)
+            sources.update({name: exp for name in found})
     elif a.system:
         audits = dict(_pair(x) for x in a.audit or [])
         systems = {}
@@ -447,7 +458,7 @@ def main(argv: list[str] | None = None) -> int:
     case_ids = a.cases or sorted(set().union(*(cases_in(rd) for rds in systems.values() for rd in rds)))
     if not case_ids:
         p.error("no plans or run records found")
-    out = a.out or ((a.experiment / "eval") if a.experiment else Path("runs") / "eval")
+    out = a.out or ((a.experiment[0] / "eval") if a.experiment else Path("runs") / "eval")
 
     taxonomy = json.loads((ROOT / "config" / "taxonomy.json").read_text())
     pricing = load_run_config().pricing_usd_per_mtok
@@ -458,6 +469,8 @@ def main(argv: list[str] | None = None) -> int:
 
     for w in warnings:
         print(f"warning: {w}")
+    if len(set(sources.values())) > 1:
+        print("combined: " + ", ".join(f"{n} from {src}" for n, src in sources.items()))
     runs = ", ".join(f"{n} x{len(r)}" for n, r in systems.items())
     print(f"Scored {len(case_ids)} cases: {runs} runs.")
     for label in ("all", "difficulty=easy", "difficulty=medium", "difficulty=hard"):
