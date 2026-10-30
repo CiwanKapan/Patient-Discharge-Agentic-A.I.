@@ -64,7 +64,7 @@ from src.utils.run_config import check_environment, load_run_config
 rec_generator = importlib.import_module("src.pipeline.05_rec_generator")
 
 SYSTEM = "baseline_2_single_llm"
-PROMPT_VERSION = "v2"
+PROMPT_VERSION = "v3"  # v3: taxonomy 2.2 text (T-RN01, B-S07)
 
 
 # ------------------------------------------------------------------ LLM-facing output schema

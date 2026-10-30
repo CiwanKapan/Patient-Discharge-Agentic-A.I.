@@ -24,7 +24,7 @@ from src.utils.llm import LLMClient, LLMError, call_record, retry_prompt
 ROOT = Path(__file__).resolve().parents[2]
 TAXONOMY_PATH = ROOT / "config" / "taxonomy.json"
 
-PROMPT_VERSION = "v1"
+PROMPT_VERSION = "v2"  # v2: taxonomy 2.2 text (T-RN01, B-S07) in the references
 NOTE_FIELDS = tuple(FreeTextNotes.model_fields)
 
 S = TypeVar("S", bound=BaseModel)
@@ -274,13 +274,24 @@ def snapshot_lines(snapshots) -> str:
     return "\n".join(f"- {s.field}: {s.status.value} -> {s.reading.value}" for s in snapshots)
 
 
+def safe_followup_windows(barrier: dict) -> dict[str, int] | None:
+    """B-F02's per-condition windows, or None until every condition has a value and a source."""
+    windows = barrier.get("safe_followup_window_days")
+    if not windows or any(not w or w.get("days") is None or not w.get("source") for w in windows.values()):
+        return None
+    return {cond: w["days"] for cond, w in windows.items()}
+
+
 def barrier_reference(taxonomy: dict) -> str:
     lines = []
     for b in taxonomy["barriers"]:
+        windows = safe_followup_windows(b)
+        window_text = ("\n  Safe follow-up window, whole calendar days from the planned discharge date: "
+                       + ", ".join(f"{c} {d}" for c, d in windows.items())) if windows else ""
         lines.append(
             f"- {b['id']} {b['name']} | urgency {b['urgency']} | conditions {','.join(b['conditions'])} "
             f"| evidence {', '.join(b['evidence_fields'])} | cross_field {str(b['cross_field']).lower()}\n"
-            f"  {b['description']}"
+            f"  {b['description']}{window_text}"
         )
     return "\n".join(lines)
 

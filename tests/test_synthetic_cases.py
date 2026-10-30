@@ -180,3 +180,35 @@ def test_b_e02_task_follows_the_charted_reason():
             assert [t["task_id"] for t in key["tasks"] if "B-E02" in t["resolves"]] == [expected], p.stem
             checked += 1
     assert checked >= 17
+
+
+def test_b_f02_keys_follow_the_taxonomy_windows_where_set(taxonomy):
+    """Where taxonomy 2.2 sets a safe follow-up window, B-F02 is keyed exactly when the follow-up is
+    more whole calendar days after the planned discharge date than the window allows."""
+    from datetime import date
+    from src.utils.run_records import CASE_SETS, case_files
+    windows = next(b for b in taxonomy["barriers"] if b["id"] == "B-F02")["safe_followup_window_days"]
+    checked = 0
+    for case_dir, key_dir, _ in CASE_SETS.values():
+        for p in case_files(case_dir):
+            case = json.loads(p.read_text())
+            days = (windows.get(case["condition"]) or {}).get("days")
+            fu = case["tracked_fields"].get("followup_appointment_status") or {}
+            if days is None or not fu.get("scheduled_for") or not case.get("planned_discharge_window"):
+                continue
+            gap = (date.fromisoformat(fu["scheduled_for"][:10]) - date.fromisoformat(case["planned_discharge_window"]["start"][:10])).days
+            key = json.loads((key_dir / f"{p.stem}.key.json").read_text())
+            assert any(b["barrier_id"] == "B-F02" for b in key["barriers"]) == (gap > days), (p.stem, gap)
+            checked += 1
+    assert checked > 0
+
+
+def test_b_f02_windows_reach_the_prompt_only_when_complete(taxonomy):
+    import copy
+    from src.pipeline._common import barrier_reference
+    assert "Safe follow-up window" not in barrier_reference(taxonomy)  # values and sources still pending
+    full = copy.deepcopy(taxonomy)
+    b = next(x for x in full["barriers"] if x["id"] == "B-F02")
+    for cond, w in b["safe_followup_window_days"].items():
+        w.update(days=w["days"] or 14, source="test guideline")
+    assert "Safe follow-up window, whole calendar days from the planned discharge date: HF 7" in barrier_reference(full)

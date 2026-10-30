@@ -8,7 +8,7 @@ what the models are told (the prompts). **Any decision that changes the prompts 
 Counts are for the 160 evaluation keys unless noted ("dev" = the 15 development cases). Reviewer fields are at
 the end of each item.
 
-**Status of the taxonomy items:** items 1–4 are already applied in taxonomy 2.1 and were approved by the
+**Status (updated 2026-10-29 with the team's decisions):** decisions on items 5–11 are recorded under each item; items 5, 7, and the B-F02 field from item 8 are applied in **taxonomy 2.2**. Items 1–4 are already applied in taxonomy 2.1 and were approved by the
 Dataset Lead on 2026-10-29; they are listed again for the clinical lead's sign-off. Items 5–11 are open.
 
 ---
@@ -76,7 +76,7 @@ Decision: ☐ approve — Reviewer: ________ Date: ________
 | **Option B** | Define T-RN01 as teaching that happens only after the T-MD07 approval, so it needs no sign-off of its own. Keys: **0**. Prompts: **yes** (T-RN01's description changes). |
 | **Option C** | Leave as is. |
 
-Decision: ☐ A ☐ B ☐ C — Reviewer: ________ Date: ________
+**Decided 2026-10-29:** **option B.** Applied in taxonomy 2.2: T-RN01's description now says it follows the T-MD07 sign-off and needs none of its own. Keys changed: 0. Prompts changed (pilot re-run needed).
 
 ## 6. Do orders and insurance contacts need sign-off? — open
 
@@ -91,8 +91,8 @@ Decision: ☐ A ☐ B ☐ C — Reviewer: ________ Date: ________
 |---|---|
 | **Effect** | Mapping a task adds an expected sign-off to the keys listed. No task changes. Prompts: no. In the pilot, T-MD03 drew an escalation sign-off (GR-A07) in 4 of 45 pipeline case runs, 6 for B2 with its original prompt, and 1 for B2 with the aligned prompt (counted as over-labeling today). |
 
-Decision per task (sign-off action, or none): T-MD03 ______ T-MD06 ______ T-PH03 ______ T-CM06 ______
-Reviewer: ________ Date: ________
+**Decided 2026-10-29:** **no sign-off for any of the four**, pending the clinical lead's confirmation. No change to the list; keys changed: 0.
+Clinical lead confirms: ☐ yes ☐ no (which task: ________) — Reviewer: ________ Date: ________
 
 ## 7. B-S07 wording: booked transport with no documented pickup time — proposed
 
@@ -104,7 +104,7 @@ Reviewer: ________ Date: ________
 | **Answer keys affected** | **0** changed. The rule applies to **6** keys (+1 dev), all already keyed as B-S07 gaps. |
 | **Prompts** | **Yes** (the barrier reference includes this text). |
 
-Decision: ☐ approve wording ☐ approve with edits: ________ ☐ reject — Reviewer: ________ Date: ________
+**Decided 2026-10-29:** **approved.** Applied in taxonomy 2.2 (B-S07 description). Keys changed: 0. Prompts changed (pilot re-run needed).
 
 ## 8. B-F02 safe follow-up window — new field, for the clinical lead
 
@@ -127,7 +127,8 @@ Decision: ☐ approve wording ☐ approve with edits: ________ ☐ reject — Re
 (A follow-up at 14.1 days is 14 days plus a few hours; a window of 14 would make it "too far out" if counted to
 the hour. Counting in whole calendar days avoids that; the reviewer should confirm the convention.)
 
-Clinical lead: windows above, and ☐ whole calendar days ☐ exact hours — Reviewer: ________ Date: ________
+**Decided 2026-10-29:** **guideline-sourced windows, counted in whole calendar days.** Applied in taxonomy 2.2 as a field holding a value and a guideline source per condition (HF 7, source pending). The windows reach the models only once all five conditions have a value and a source, so the prompts are unchanged until then; filling them in is a prompt change (pilot re-run). A test checks every key against each window that is set: all keys agree with HF 7 in whole calendar days.
+Clinical lead: windows and guideline sources — HF 7 (source: ________) CO ____ (________) PN ____ (________) OR ____ (________) ST ____ (________)
 
 ## 9. Should B-C02 (pending labs) apply to orthopedic cases? — open
 
@@ -137,7 +138,9 @@ Clinical lead: windows above, and ☐ whole calendar days ☐ exact hours — Re
 | **Answer keys affected** | **0**: all 32 OR cases document pending labs as complete. Future OR cases could include it only if the dataset were regenerated, which would change case files. |
 | **Prompts** | **Yes** (B-C02's condition list). |
 
-Decision: ☐ add OR ☐ keep excluded — Reviewer: ________ Date: ________
+**Chart check (2026-10-29), done before deciding:** all 35 orthopedic cases (32 evaluation, 3 development) document pending labs as complete. Only one orthopedic chart mentions a lab: CASE-119, "Hemoglobin dropped from 10.1 to 7.6 overnight; transfusion being considered", a resulted lab showing instability, correctly keyed as B-C07 (not medically stable), not as a pending lab. So adding OR changes no key and no evaluation case would test it; it changes only the prompts. The decision can rest on clinical grounds alone.
+
+Decision: ☐ add OR (prompt change, pilot re-run) ☐ keep excluded — Reviewer: ________ Date: ________
 
 ## 10. Answer keys: may a key list an acceptable alternative task? — open
 
@@ -149,7 +152,7 @@ Decision: ☐ add OR ☐ keep excluded — Reviewer: ________ Date: ________
 | **Keys affected** | Option A: 0. Option B: only keys a reviewer marks; the 17 B-E02 keys are the obvious candidates. |
 | **Prompts** | No. |
 
-Decision: ☐ A ☐ B — Reviewer: ________ Date: ________
+**Decided 2026-10-29:** **option A: no alternatives.** A key lists exactly one task per barrier. No change.
 
 ## 11. Prior-authorization fix — 9 answer keys
 
@@ -161,7 +164,28 @@ Decision: ☐ A ☐ B — Reviewer: ________ Date: ________
 | **Prompts** | No. |
 | **Per-key review** | `data/key_reviews/2026-10-29_b-e02_prior_authorization.csv` quotes the chart evidence for each key, with reviewer and decision columns. |
 
-Decision: ☐ approve all 9 ☐ approve per the sheet — Reviewer: ________ Date: ________
+**Decided 2026-10-29:** **row by row.** The reviewer decides each of the 10 rows in `data/key_reviews/2026-10-29_b-e02_prior_authorization.csv`. A rejected row is reverted before the run. With option A in item 10, each key keeps exactly one task.
+
+---
+
+## 12. How much of the full key review happens before the run? — open
+
+None of the 160 keys has been reviewed yet; the 20-case independent check is planned
+(`docs/how_cases_and_keys_are_made.md`). The keys are not shown to the models, so a key fixed after the run only
+needs re-scoring, not re-running. The risk of reviewing after the run is bias: a reviewer who has seen model
+outputs may, even unintentionally, move keys toward them.
+
+| Option | Before the run | After the run | Effort before the run |
+|---|---|---|---|
+| **A. Everything before** | 20-case independent check; all review sheets; review of the remaining 140 keys | Nothing | Highest: roughly 5 minutes per key to review against its case, about 12 hours, plus the check |
+| **B. Check and sheets before, the rest blinded after** | 20-case independent check with its decision rule; all review sheets | The remaining keys, reviewed before anyone sees results, by reviewers given only case and key; every change is a dated amendment applied to all arms | The check (3–5 hours per annotator) and the sheets |
+| **C. Only the check before** | 20-case independent check | Everything else, unblinded | Lowest; **not recommended** (bias, and the sheets would be decided after results) |
+
+Recommendation: **A** if the team has the time; otherwise **B**, with the blinding written into the
+pre-registration. If the 20-case check finds systematic errors, review all affected keys before the run under
+either option.
+
+Decision: ☐ A ☐ B ☐ C — Reviewer: ________ Date: ________
 
 ---
 
@@ -173,10 +197,14 @@ Decision: ☐ approve all 9 ☐ approve per the sheet — Reviewer: ________ Dat
 | 2 | T-MD02 for OR | 1 (+2 dev) | yes (in effect) | approved by Dataset Lead |
 | 3 | Task-to-sign-off list | 0 tasks; sets sign-offs in 77 | no | approved by Dataset Lead; T-PH01, T-MD04 judgment calls |
 | 4 | AU-09 signoff_requested | 0 | no | approved by Dataset Lead |
-| 5 | T-RN01 vs T-MD07 | 0 or 16 | option B only | open |
-| 6 | Orders and insurance contacts | 0–40 | no | open |
-| 7 | B-S07 pickup-time wording | 0 | yes | open |
-| 8 | B-F02 safe windows | 0 within the ranges | yes | open (clinical lead) |
-| 9 | B-C02 for OR | 0 | yes | open |
-| 10 | Alternative tasks in keys | 0 under A | no | open |
-| 11 | Prior-authorization fix | 9 (+1 dev) | no | open (per-key sheet) |
+| 5 | T-RN01 vs T-MD07 | 0 | yes | **decided B**, applied (2.2) |
+| 6 | Orders and insurance contacts | 0 | no | **decided: no sign-off**; clinical lead to confirm |
+| 7 | B-S07 pickup-time wording | 0 | yes | **approved**, applied (2.2) |
+| 8 | B-F02 safe windows | 0 within the ranges | yes, once complete | **decided: guideline-sourced, whole days**; values and sources from the clinical lead |
+| 9 | B-C02 for OR | 0 | yes if added | chart check done; open |
+| 10 | Alternative tasks in keys | 0 | no | **decided A** |
+| 11 | Prior-authorization fix | 9 (+1 dev) | no | **row by row** on the sheet |
+| 12 | Key review before the run | — | no | open |
+
+**The prompts have changed (items 5 and 7), so the 15-case development pilot must be re-run for both LLM arms
+before the evaluation run.** Waiting for items 8 (windows) and 9 lets one pilot re-run cover every prompt change.

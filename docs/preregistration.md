@@ -32,7 +32,7 @@ run** on any case. It is not part of this study.
   Dataset Lead 2026-10-29); B-E02 prior authorization keyed to T-PH03 (review sheet
   `2026-10-29_b-e02_prior_authorization.csv`).
 - **Development set:** 15 separate cases (`data/dev/`) for pilots and checks only, never reported as results.
-- **Taxonomy:** version 2.1, approved by the Dataset Lead 2026-10-29. Prompts do not tell any arm which tasks
+- **Taxonomy:** version 2.2: 2.1 approved by the Dataset Lead 2026-10-29, plus the 2.2 review-packet decisions of the same day (T-RN01 follows the T-MD07 sign-off; B-S07 pickup-time wording; B-F02 guideline-sourced safe windows in whole calendar days, values pending). Pipeline prompt v2, B2 prompt v3. Prompts do not tell any arm which tasks
   need which sign-off action (`governance.task_approvals`).
 
 ## 3. Settings and design

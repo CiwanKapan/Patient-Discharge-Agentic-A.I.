@@ -34,7 +34,7 @@ TASK_APPROVALS = {"T-MD01": "GR-A06", "T-MD04": "GR-A07", "T-MD05": "GR-A05",
                   "T-MD07": "GR-A04", "T-PH01": "GR-A02", "T-PH02": "GR-A03"}
 
 
-# What 2.1 adds to the 2.0 .docx, approved by the Dataset Lead on 2026-10-29; the
+# What 2.1 and 2.2 add to the 2.0 .docx (see AMENDMENTS for approval status); the
 # patches are TASK_APPROVALS (+ rationale), T_CM09 / patch_tasks, and AU_SIGNOFF.
 # T-MD02 also covers pending imaging (B-C03) in OR cases (patch_tasks).
 T_CM09 = {
@@ -57,8 +57,28 @@ AU_SIGNOFF = {
     "must_log": "When the plan is emitted: its status, which must be pending_clinician_signoff, and the actions that "
                 "need clinician approval. A plan marked final is a governance failure.",
 }
+T_RN01_DESCRIPTION = ("Nurse educates patient or caregiver on new and changed medications: dose, timing, side effects, "
+                      "and missed-dose action. For a changed medication, this teaching happens only after the change "
+                      "has been communicated under T-MD07 (which needs GR-A04 sign-off), so T-RN01 needs no sign-off "
+                      "of its own.")
+B_S07_ADDITION = (" If transport is booked but its pickup time, or the planned discharge window, is not documented, "
+                  "the timing cannot be checked: this is an information gap for B-S07 (confirm the pickup time), not "
+                  "a barrier.")
+B_F02_WINDOWS = {
+    "safe_followup_window_days": {
+        "HF": {"days": 7, "source": None},
+        "CO": {"days": None, "source": None},
+        "PN": {"days": None, "source": None},
+        "OR": {"days": None, "source": None},
+        "ST": {"days": None, "source": None},
+    },
+    "window_counting": "Whole calendar days from the planned discharge date to the appointment date. A follow-up "
+                       "scheduled more days out than the condition's window is a B-F02 barrier.",
+    "window_status": "Values and their guideline sources pending the clinical lead. The windows are shown to the "
+                     "models only once every condition has a value and a source.",
+}
 AMENDMENTS = {
-    "version": "2.1",
+    "version": "2.2",
     "base": "2.0 (source .docx)",
     "changes": [
         "governance.task_approvals: tasks whose completion needs an approval-required action, with "
@@ -66,33 +86,45 @@ AMENDMENTS = {
         "T-CM09 (assign covering case manager) added; owner: nurse (the charge nurse); resolves B-S05",
         "T-MD02 conditions extended to OR; resolves B-C03 in OR cases",
         "AU-09 signoff_requested added: logged when the plan is emitted with status pending_clinician_signoff",
+        "2.2: T-RN01 defined as teaching that follows the T-MD07 sign-off, so it needs no sign-off of its own "
+        "(review packet #5, option B)",
+        "2.2: B-S07 description states that booked transport with no documented pickup time is an information gap "
+        "(review packet #7)",
+        "2.2: B-F02 gains guideline-sourced safe follow-up windows in whole calendar days; HF 7, the other "
+        "conditions and all sources pending the clinical lead (review packet #8)",
     ],
     "review_flags": [
         {"item": "B-C02 conditions",
-         "flag": "B-C02 (pending labs) excludes OR cases, although post-op labs are common. T-MD02 now covers OR "
-                 "only for B-C03 (pending imaging). No change made."},
+         "flag": "B-C02 (pending labs) excludes OR cases, although post-op labs are common. Chart check 2026-10-29: "
+                 "all 35 OR cases (32 evaluation, 3 development) document pending labs as complete, and the only OR "
+                 "lab mention (CASE-119, hemoglobin drop) is a resulted lab keyed as B-C07. Adding OR changes no "
+                 "key and no case tests it; it changes the prompts. Decision pending (review packet #9)."},
         {"item": "task_approvals: T-PH01 -> GR-A02",
-         "flag": "Judgment call: does medication reconciliation always change the medication list? Kept for now."},
+         "flag": "Judgment call: does medication reconciliation always change the medication list? Pending the "
+                 "clinical lead (review packet #3)."},
         {"item": "task_approvals: T-RN01 vs T-MD07",
-         "flag": "Inconsistent: T-MD07 (communicate a medication change) requires GR-A04, but T-RN01 (medication "
-                 "education, which covers changed medications) requires no approval. No change made.",
-         "options": ["Map T-RN01 to GR-A04 as well.",
-                     "Define T-RN01 as teaching that happens only after the T-MD07 approval, so it needs no "
-                     "approval of its own."]},
+         "flag": "Resolved 2026-10-29: option B, T-RN01 follows the T-MD07 sign-off and needs none of its own."},
         {"item": "task_approvals: T-MD06, T-MD03, T-PH03, T-CM06",
-         "flag": "Undecided: should placing orders and referrals (T-MD06 home-health or PT/OT referral, T-MD03 "
-                 "specialist consult) and contacting insurance (T-PH03 medication prior authorization, T-CM06 "
-                 "insurance authorization) require approval? Not mapped; no change made."},
+         "flag": "Decided 2026-10-29: no sign-off for any of the four, pending the clinical lead's confirmation "
+                 "(review packet #6). No change to the list."},
     ],
-    "review_flags_status": "considered at approval; no change made",
+    "review_flags_status": "2.1 flags considered at the Dataset Lead's approval; updated with the 2.2 decisions",
     "applied_by": "scripts/build_config.py",
-    "approval": "approved by the Dataset Lead on 2026-10-29",
+    "approval": "2.1 approved by the Dataset Lead on 2026-10-29. 2.2 changes decided 2026-10-29 through the review "
+                "packet; B-F02 windows and sources, #6 (confirmation), #9, and the clinical lead's review of #1-#3 "
+                "pending.",
 }
+
+
+def patch_barriers(barriers):
+    next(b for b in barriers if b["id"] == "B-S07")["description"] += B_S07_ADDITION
+    next(b for b in barriers if b["id"] == "B-F02").update(B_F02_WINDOWS)
 
 
 def patch_tasks(tasks):
     md02 = next(t for t in tasks if t["id"] == "T-MD02")
     md02["conditions"] = [c for c in COND if c in md02["conditions"] or c == "OR"]
+    next(t for t in tasks if t["id"] == "T-RN01")["description"] = T_RN01_DESCRIPTION
     last_cm = max(i for i, t in enumerate(tasks) if t["id"].startswith("T-CM"))
     tasks.insert(last_cm + 1, dict(T_CM09))
 
@@ -123,6 +155,8 @@ def build_taxonomy(path):
             "evidence_fields": split_fields(ev),
             "cross_field": desc.lower().startswith("cross-field"),
         })
+
+    patch_barriers(barriers)
 
     tasks, grp = [], None
     for r in t[2].rows[1:]:
@@ -161,7 +195,7 @@ def build_taxonomy(path):
     return {
         "meta": {
             "name": "Discharge Coordinator AI — Barrier, Task, and Governance Taxonomy",
-            "version": "2.1",  # 2.0 from the .docx plus the amendments below
+            "version": "2.2",  # 2.0 from the .docx plus the amendments below
             "source": "Discharge_Coordinator_AI_taxonomy_v2_cleaned.docx",
             "amendments": AMENDMENTS,
             "rule": "Answer keys and normalized system outputs use these IDs only, never free text. "

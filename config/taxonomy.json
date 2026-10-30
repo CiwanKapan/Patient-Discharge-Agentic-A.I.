@@ -1,42 +1,41 @@
 {
   "meta": {
     "name": "Discharge Coordinator AI — Barrier, Task, and Governance Taxonomy",
-    "version": "2.1",
+    "version": "2.2",
     "source": "Discharge_Coordinator_AI_taxonomy_v2_cleaned.docx",
     "amendments": {
-      "version": "2.1",
+      "version": "2.2",
       "base": "2.0 (source .docx)",
       "changes": [
         "governance.task_approvals: tasks whose completion needs an approval-required action, with governance.task_approval_rationale for the judgment calls",
         "T-CM09 (assign covering case manager) added; owner: nurse (the charge nurse); resolves B-S05",
         "T-MD02 conditions extended to OR; resolves B-C03 in OR cases",
-        "AU-09 signoff_requested added: logged when the plan is emitted with status pending_clinician_signoff"
+        "AU-09 signoff_requested added: logged when the plan is emitted with status pending_clinician_signoff",
+        "2.2: T-RN01 defined as teaching that follows the T-MD07 sign-off, so it needs no sign-off of its own (review packet #5, option B)",
+        "2.2: B-S07 description states that booked transport with no documented pickup time is an information gap (review packet #7)",
+        "2.2: B-F02 gains guideline-sourced safe follow-up windows in whole calendar days; HF 7, the other conditions and all sources pending the clinical lead (review packet #8)"
       ],
       "review_flags": [
         {
           "item": "B-C02 conditions",
-          "flag": "B-C02 (pending labs) excludes OR cases, although post-op labs are common. T-MD02 now covers OR only for B-C03 (pending imaging). No change made."
+          "flag": "B-C02 (pending labs) excludes OR cases, although post-op labs are common. Chart check 2026-10-29: all 35 OR cases (32 evaluation, 3 development) document pending labs as complete, and the only OR lab mention (CASE-119, hemoglobin drop) is a resulted lab keyed as B-C07. Adding OR changes no key and no case tests it; it changes the prompts. Decision pending (review packet #9)."
         },
         {
           "item": "task_approvals: T-PH01 -> GR-A02",
-          "flag": "Judgment call: does medication reconciliation always change the medication list? Kept for now."
+          "flag": "Judgment call: does medication reconciliation always change the medication list? Pending the clinical lead (review packet #3)."
         },
         {
           "item": "task_approvals: T-RN01 vs T-MD07",
-          "flag": "Inconsistent: T-MD07 (communicate a medication change) requires GR-A04, but T-RN01 (medication education, which covers changed medications) requires no approval. No change made.",
-          "options": [
-            "Map T-RN01 to GR-A04 as well.",
-            "Define T-RN01 as teaching that happens only after the T-MD07 approval, so it needs no approval of its own."
-          ]
+          "flag": "Resolved 2026-10-29: option B, T-RN01 follows the T-MD07 sign-off and needs none of its own."
         },
         {
           "item": "task_approvals: T-MD06, T-MD03, T-PH03, T-CM06",
-          "flag": "Undecided: should placing orders and referrals (T-MD06 home-health or PT/OT referral, T-MD03 specialist consult) and contacting insurance (T-PH03 medication prior authorization, T-CM06 insurance authorization) require approval? Not mapped; no change made."
+          "flag": "Decided 2026-10-29: no sign-off for any of the four, pending the clinical lead's confirmation (review packet #6). No change to the list."
         }
       ],
-      "review_flags_status": "considered at approval; no change made",
+      "review_flags_status": "2.1 flags considered at the Dataset Lead's approval; updated with the 2.2 decisions",
       "applied_by": "scripts/build_config.py",
-      "approval": "approved by the Dataset Lead on 2026-10-29"
+      "approval": "2.1 approved by the Dataset Lead on 2026-10-29. 2.2 changes decided 2026-10-29 through the review packet; B-F02 windows and sources, #6 (confirmation), #9, and the clinical lead's review of #1-#3 pending."
     },
     "rule": "Answer keys and normalized system outputs use these IDs only, never free text. Only the Dataset Lead may add entries, after team review.",
     "counts": {
@@ -358,7 +357,31 @@
       "evidence_fields": [
         "followup_appointment_status"
       ],
-      "cross_field": false
+      "cross_field": false,
+      "safe_followup_window_days": {
+        "HF": {
+          "days": 7,
+          "source": null
+        },
+        "CO": {
+          "days": null,
+          "source": null
+        },
+        "PN": {
+          "days": null,
+          "source": null
+        },
+        "OR": {
+          "days": null,
+          "source": null
+        },
+        "ST": {
+          "days": null,
+          "source": null
+        }
+      },
+      "window_counting": "Whole calendar days from the planned discharge date to the appointment date. A follow-up scheduled more days out than the condition's window is a B-F02 barrier.",
+      "window_status": "Values and their guideline sources pending the clinical lead. The windows are shown to the models only once every condition has a value and a source."
     },
     {
       "id": "B-F03",
@@ -516,7 +539,7 @@
       "id": "B-S07",
       "name": "Transport timing conflict",
       "category": "social_logistical_and_workflow",
-      "description": "Cross-field barrier. Transport is technically arranged but its available window does not match the planned discharge time (e.g., caregiver only available evenings; discharge planned for morning).",
+      "description": "Cross-field barrier. Transport is technically arranged but its available window does not match the planned discharge time (e.g., caregiver only available evenings; discharge planned for morning). If transport is booked but its pickup time, or the planned discharge window, is not documented, the timing cannot be checked: this is an information gap for B-S07 (confirm the pickup time), not a barrier.",
       "conditions": [
         "HF",
         "CO",
@@ -705,7 +728,7 @@
       "id": "T-RN01",
       "name": "Conduct medication education",
       "role_group": "nursing",
-      "description": "Nurse educates patient or caregiver on new and changed medications: dose, timing, side effects, and missed-dose action.",
+      "description": "Nurse educates patient or caregiver on new and changed medications: dose, timing, side effects, and missed-dose action. For a changed medication, this teaching happens only after the change has been communicated under T-MD07 (which needs GR-A04 sign-off), so T-RN01 needs no sign-off of its own.",
       "conditions": [
         "HF",
         "CO",
