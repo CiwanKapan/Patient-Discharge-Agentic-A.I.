@@ -22,8 +22,9 @@ keys for 20 cases from the case text alone.
 - **Measure:** `python -m evaluation.key_agreement <annotations.csv>` — Cohen's kappa and positive agreement for
   barriers, information gaps, and tasks: each annotator against the generated keys, and annotator against
   annotator. `disagreements.csv` lists every item to adjudicate.
-- **Decision rule (proposed; confirm before annotation starts, never after):** barrier kappa against the keys of
-  at least 0.80 for each annotator. Every disagreement is adjudicated by the two annotators and the Dataset Lead.
+- **Decision rule (confirmed 2026-10-29, before any annotation; pre-registration Amendment 10):** barrier kappa
+  against the generated keys of at least 0.80 for each annotator separately. Information-gap and task kappa, and
+  annotator-vs-annotator agreement, are reported but do not gate. Every disagreement is adjudicated by the two annotators and the Dataset Lead.
   A disagreement that reveals a systematic generator error (as the prior-authorization one did) is fixed in the
   generator, the keys are regenerated (case files unchanged), and the change gets a review sheet below. If kappa
   is below 0.80, the full review of all 160 keys looks specifically for the error patterns found here.

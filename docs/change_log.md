@@ -48,6 +48,6 @@ agreement measured. Items the mentor knows to differ from the methodology in oth
 | 23 | — | A failed or missing run is scored as an empty plan (infrastructure failures re-run first); over-labeling lowers approval precision only | Decide edge cases in advance | **9** (recorded) |
 | 24 | — | Also reported: run-to-run variability, retries, items dropped, cost per case | Transparency | **9** (recorded) |
 
-**Still to do before the run:** the 20-case independent key check (confirm the kappa threshold before annotation
-starts), the row-by-row prior-authorization review, the review of all 160 keys, and one development pilot re-run with
+**Still to do before the run:** the 20-case independent key check (threshold confirmed: barrier kappa ≥ 0.80 per
+annotator against the keys), the row-by-row prior-authorization review, the review of all 160 keys, and one development pilot re-run with
 the final prompts.
