@@ -1,6 +1,6 @@
 # Answer-key reviews
 
-All answer-key review happens **before the 160-case evaluation run** (review packet item 12, option A). There are
+All answer-key review happens **before the 160-case evaluation run** (team decision, 2026-10-29). There are
 three parts. Do them in this order.
 
 ## 1. Independent key check — 20 cases (`independent_check/`, pre-registration Amendment 10)

@@ -8,9 +8,8 @@ of the results. Items marked **[OPEN]** or **[CONFIRM]** must be settled, and th
 evaluation-set run starts. Changes after that are recorded as dated amendments below, never edited in place.
 
 Related documents: `docs/change_log.md` (every difference from the original proposal and methodology, with
-amendment numbers, for mentor approval), `docs/review_packet_2026-10-29.md` (taxonomy and answer-key items for
-the Dataset Lead and clinical lead), `docs/how_cases_and_keys_are_made.md` (how cases and keys are produced,
-and the proposed independent 20-case key check).
+amendment numbers, for mentor approval) and `data/key_reviews/README.md` (the answer-key review process,
+including the 20-case independent key check).
 
 ## 1. Scope and arms
 
@@ -21,7 +20,7 @@ and the proposed independent 20-case key check).
 | Arm | What it is |
 |---|---|
 | B1 | Rule-based checklist over tracked fields. Deterministic; run once. |
-| B2 | Single-prompt LLM, prompt `v2`: the pipeline's output instructions and output schema word for word (`docs/arm_output_contract.md`), no scaffolding. |
+| B2 | Single-prompt LLM: the pipeline's output instructions and output schema word for word (checked by `tests/test_baselines.py::test_b2_gets_the_pipelines_output_rules_word_for_word`), no scaffolding. |
 | Agentic | The 9-stage pipeline: four LLM stages with validation and retries, deterministic readings, approval gate, policy layer, audit trail, sign-off request. |
 
 B3 (B2 plus the pipeline's deterministic code) was considered and **dropped on 2026-10-29, before it was ever
@@ -221,7 +220,7 @@ mentor, the Dataset Lead, and the clinical lead (go-ahead for all changes, relay
 | 4 | **Dataset:** 160 evaluation cases (10 added to the original 150, which are unchanged); a separate 15-case development set for pilots and checks. |
 | 5 | **Taxonomy and keys:** taxonomy 2.1–2.4 (see §2), the key changes they caused, and the B-E02 prior-authorization key fix (decided row by row). Every taxonomy change since generation leaves the case files byte-identical. |
 | 6 | **Architecture:** 9 stages with a sign-off request after the output composer; plans emitted `pending_clinician_signoff`; the approval gate requires sign-off for tasks on the sign-off list even when the model omits the label, and records the omission; unaddressed barriers listed; duplicate recommendations re-asked. |
-| 7 | **Baselines:** B2 retries format failures as the pipeline does; B2's output instructions and schema are the pipeline's word for word (`docs/arm_output_contract.md`); B2 runs through the Batch API; B3 dropped before it ever ran. |
+| 7 | **Baselines:** B2 retries format failures as the pipeline does; B2's output instructions and schema are the pipeline's word for word (checked by `tests/test_baselines.py::test_b2_gets_the_pipelines_output_rules_word_for_word`); B2 runs through the Batch API; B3 dropped before it ever ran. |
 | 8 | **Settings and design:** one settings file for every LLM arm (§3); 3 runs per case for the LLM arms, B1 once; prompts do not say which tasks need which sign-off. |
 | 9 | **Analysis:** H3 defined (§4); two-sided tests, Holm families, per-case mean over runs, precision and F1 secondary (§4–5); failed runs and over-labeling handled as in §6; variability, retries, items dropped, and cost reported. |
 | 10 | **Independent answer keys:** before the run, two annotators who did not write the generator key 20 stratified cases from the case text alone (`data/key_reviews/independent_check/`); agreement with the generated keys and between annotators is measured (Cohen's kappa, `evaluation/key_agreement.py`); every disagreement is adjudicated; systematic generator errors are fixed before the run. **Decision threshold (confirmed 2026-10-29, before any annotation):** barrier kappa against the generated keys of at least 0.80 for each annotator separately; information-gap and task kappa, and annotator-vs-annotator agreement, are reported but do not gate. If either annotator falls below 0.80, the keys are not accepted as they stand: every disagreement is adjudicated, systematic generator errors are fixed (keys regenerated, case files unchanged), and the full review of all 160 keys looks specifically for those error patterns. All 160 keys are then reviewed before the run. |
