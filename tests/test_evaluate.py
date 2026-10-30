@@ -197,8 +197,13 @@ def test_cli_writes_significance(runs, taxonomy, capsys):
     sig = list(csv.DictReader((out / "significance.csv").open()))
     assert [(r["hypothesis"], r["family"]) for r in sig] == [
         ("H1", "primary"), ("H2", "primary"), ("H3", "primary"), ("H4a", "primary"),
+        ("H1-P", "secondary"), ("H1-F1", "secondary"), ("H2-P", "secondary"), ("H2-F1", "secondary"),
         ("H4a-rec", "secondary"), ("H4a-label", "secondary"), ("H4a-strict", "secondary"),
         ("H4b", "secondary"), ("H4c", "secondary"), ("H4-composite", "secondary")]
     assert all(r["baseline"] == "B1" for r in sig)
     assert all(r["n_pairs"] == "3" for r in sig if r["hypothesis"] in ("H1", "H2", "H3"))
-    assert "significance (Agentic vs each baseline" in capsys.readouterr().out
+    printed = capsys.readouterr().out
+    assert "significance (Agentic vs each baseline; two-sided" in printed and "outcome (pre-registration §8)" in printed
+    result = json.loads((out / "outcome.json").read_text())
+    assert result["outcome"] in ("strong", "mixed", "null", "unclassified")
+    assert result["effect_threshold"] == 0.05 and result["h4a_margin_required"] == 0.2

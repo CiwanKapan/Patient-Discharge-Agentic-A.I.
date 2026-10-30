@@ -11,6 +11,7 @@ def _rows(values: dict[str, list], metric="barrier_recall"):
     for system, vals in values.items():
         for i, v in enumerate(vals):
             row = {"system": system, "case_id": f"CASE-{i:03d}", "barrier_recall": None, "task_recall": None,
+                   "barrier_precision": None, "barrier_f1": None, "task_precision": None, "task_f1": None,
                    "plan_completeness": None, "approval_accuracy": None, "approval_accuracy_recommended": None,
                    "model_labeling_recall": None, "forbidden_tool_refusal": None, "audit_completeness": 1,
                    "governance_compliance": 1}
@@ -81,6 +82,7 @@ def test_h4a_is_primary_and_the_rest_of_h4_is_secondary():
     for system, acc in (("Agentic", [1.0, 1.0, 0.5]), ("B2", [1.0, 0.5, 0.5])):  # one case, three runs
         for run, a in enumerate(acc, 1):
             rows.append({"system": system, "case_id": "CASE-001", "run": f"r{run}", "barrier_recall": 1.0,
+                         "barrier_precision": 1.0, "barrier_f1": 1.0, "task_precision": 1.0, "task_f1": 1.0,
                          "task_recall": 1.0, "plan_completeness": 1.0, "approval_accuracy": a,
                          "approval_accuracy_recommended": 1.0, "model_labeling_recall": a,
                          "forbidden_tool_refusal": None, "audit_completeness": int(system == "Agentic"),
@@ -91,7 +93,54 @@ def test_h4a_is_primary_and_the_rest_of_h4_is_secondary():
     h4a = next(r for r in out if r["hypothesis"] == "H4a")
     assert h4a["family"] == "primary" and h4a["mean_difference"] == pytest.approx(1 / 6)
     assert [r["hypothesis"] for r in out if r["family"] == "secondary"] == [
-        "H4a-rec", "H4a-label", "H4a-strict", "H4b", "H4c", "H4-composite"]
+        "H1-P", "H1-F1", "H2-P", "H2-F1", "H4a-rec", "H4a-label", "H4a-strict", "H4b", "H4c", "H4-composite"]
     assert next(r for r in out if r["hypothesis"] == "H4b")["n_pairs"] == 0  # never scored here
     primary = [r for r in out if r["family"] == "primary" and r["p_value"] is not None]
     assert [r["p_holm"] for r in primary] == pytest.approx(stats.holm([r["p_value"] for r in primary]))
+
+
+# ---------------------------------------------------------------- success criteria (pre-registration §8)
+def test_beats_needs_significance_direction_and_a_non_negligible_effect():
+    rows = _rows({"Agentic": [1.0] * 15, "B1": [0.5] * 15})
+    h1 = next(r for r in stats.compare(rows, "Agentic", ["B1"]) if r["hypothesis"] == "H1")
+    assert h1["significant"] and h1["non_negligible"] and h1["beats"]
+    tiny = _rows({"Agentic": [1.0] * 15, "B1": [0.98] * 15})  # significant and CI excludes 0, but diff < 0.05
+    h1 = next(r for r in stats.compare(tiny, "Agentic", ["B1"]) if r["hypothesis"] == "H1")
+    assert h1["significant"] and not h1["non_negligible"] and not h1["beats"]
+    worse = _rows({"Agentic": [0.5] * 15, "B1": [1.0] * 15})  # significant, non-negligible, wrong direction
+    h1 = next(r for r in stats.compare(worse, "Agentic", ["B1"]) if r["hypothesis"] == "H1")
+    assert h1["significant"] and h1["non_negligible"] and not h1["beats"]
+
+
+def _primary(beats: dict, h4a_margin=0.3, significant=None):
+    """Synthetic primary-family rows: beats[(hypothesis, baseline)] -> bool."""
+    rows = []
+    for (h, b), win in beats.items():
+        rows.append({"hypothesis": h, "baseline": b, "family": "primary", "p_value": 0.01,
+                     "significant": win if significant is None else significant, "beats": win,
+                     "mean_difference": h4a_margin if h == "H4a" else 0.1,
+                     "baseline_mean": {"B1": 0.3, "B2": 0.7}[b]})
+    return rows
+
+
+@pytest.mark.parametrize("wins, margin, significant, expected", [
+    ({"H1", "H2", "H3", "H4a"}, 0.3, None, "strong"),
+    ({"H1", "H2", "H4a"}, 0.25, None, "strong"),
+    ({"H1", "H2", "H3"}, 0.1, None, "unclassified"),      # 3 beaten, but H4a margin not > 0.2
+    ({"H1", "H4a"}, 0.3, None, "mixed"),
+    (set(), 0.0, False, "null"),
+    (set(), 0.0, True, "unclassified"),                    # significant somewhere, nothing beaten against both
+])
+def test_outcome_classification(wins, margin, significant, expected):
+    beats = {(h, b): h in wins for h in ("H1", "H2", "H3", "H4a") for b in ("B1", "B2")}
+    result = stats.outcome(_primary(beats, margin, significant), ["B1", "B2"])
+    assert result["outcome"] == expected
+    assert result["h4a_strongest_baseline"] == "B2"  # the baseline with the higher H4a
+    assert bool(result["reason"]) == (expected == "unclassified")
+
+
+def test_a_hypothesis_counts_only_when_beaten_against_both_baselines():
+    beats = {(h, b): True for h in ("H1", "H2", "H3", "H4a") for b in ("B1", "B2")}
+    beats[("H2", "B2")] = beats[("H3", "B2")] = False
+    result = stats.outcome(_primary(beats, 0.3), ["B1", "B2"])
+    assert result["hypotheses_beaten_against_both"] == ["H1", "H4a"] and result["outcome"] == "mixed"

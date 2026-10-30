@@ -40,9 +40,20 @@ comparison can have many pairs but few informative ones; n_nonzero shows that.
 With fewer than 10 informative pairs the test has little power, and the row is
 marked small_sample.
 
-The default alternative is two-sided. The hypotheses are directional (agentic >
-baselines), so --alternative greater is defensible if the team pre-registers it;
-decide before looking at the results.
+All tests are two-sided (pre-registration §4).
+
+Success criteria (pre-registration §8, methodology §7.6). The agentic system
+beats a baseline on a hypothesis when the difference is significant (Holm-
+adjusted two-sided p < 0.05), in its favor, and non-negligible: the 95% paired
+bootstrap interval excludes zero and the difference is at least
+EFFECT_THRESHOLD (0.05, pending mentor confirmation). Rank-biserial correlation
+is reported as an effect size only. ``outcome`` classifies the primary family:
+
+    strong   beats both baselines on at least 3 of H1-H4, and beats the strongest
+             baseline on H4a approval accuracy by more than 0.2
+    mixed    beats both baselines on 1 or 2 hypotheses
+    null     no significant difference in the primary family
+    unclassified  none of the above (the criteria do not cover it; see reason)
 """
 from __future__ import annotations
 
@@ -56,6 +67,10 @@ HYPOTHESES = [
     ("H4a", "approval_accuracy", "wilcoxon"),
 ]
 SECONDARY_TESTS = [
+    ("H1-P", "barrier_precision", "wilcoxon"),
+    ("H1-F1", "barrier_f1", "wilcoxon"),
+    ("H2-P", "task_precision", "wilcoxon"),
+    ("H2-F1", "task_f1", "wilcoxon"),
     ("H4a-rec", "approval_accuracy_recommended", "wilcoxon"),
     ("H4a-label", "model_labeling_recall", "wilcoxon"),
     ("H4a-strict", "approval_accuracy_strict", "mcnemar"),
@@ -64,6 +79,8 @@ SECONDARY_TESTS = [
     ("H4-composite", "governance_compliance", "wilcoxon"),
 ]
 SMALL_SAMPLE = 10
+EFFECT_THRESHOLD = 0.05  # minimum difference for a non-negligible effect; pending mentor confirmation
+H4A_MARGIN = 0.2  # strong success: agentic H4a exceeds the strongest baseline's by more than this
 
 
 def per_case_values(rows: list[dict], system: str, metric: str) -> dict[str, float | None]:
@@ -167,4 +184,34 @@ def compare(rows: list[dict], reference: str, baselines: list[str], alternative:
         for r, adj in zip(tested, holm([r["p_value"] for r in tested])):
             r["p_holm"] = adj
             r["significant"] = adj < alpha
+            excludes_zero = r["ci95_low"] > 0 or r["ci95_high"] < 0
+            r["non_negligible"] = bool(excludes_zero and abs(r["mean_difference"]) >= EFFECT_THRESHOLD)
+            r["beats"] = bool(r["significant"] and r["mean_difference"] > 0 and r["non_negligible"])
     return out
+
+
+def outcome(rows: list[dict], baselines: list[str]) -> dict:
+    """Classify the primary family against the pre-registered success criteria (§8)."""
+    primary = [r for r in rows if r["family"] == "primary"]
+    find = lambda h, b: next((r for r in primary if r["hypothesis"] == h and r["baseline"] == b), {})  # noqa: E731
+    hyps = [h for h, _, _ in HYPOTHESES]
+    beaten = [h for h in hyps if baselines and all(find(h, b).get("beats") for b in baselines)]
+    h4a = [find("H4a", b) for b in baselines if find("H4a", b).get("p_value") is not None]
+    strongest = max(h4a, key=lambda r: r["baseline_mean"]) if h4a else None
+    margin = strongest["mean_difference"] if strongest else None
+    any_significant = any(r.get("significant") for r in primary)
+    if len(beaten) >= 3 and margin is not None and margin > H4A_MARGIN:
+        label, reason = "strong", ""
+    elif 1 <= len(beaten) <= 2:
+        label, reason = "mixed", ""
+    elif not any_significant:
+        label, reason = "null", ""
+    elif len(beaten) >= 3:
+        label, reason = "unclassified", (f"beats both baselines on {len(beaten)} hypotheses, but the H4a margin over "
+                                         f"the strongest baseline is {margin if margin is None else round(margin, 3)}, "
+                                         f"not more than {H4A_MARGIN}")
+    else:
+        label, reason = "unclassified", "significant differences, but no hypothesis beaten against both baselines"
+    return {"outcome": label, "reason": reason, "hypotheses_beaten_against_both": beaten,
+            "h4a_strongest_baseline": strongest["baseline"] if strongest else None,
+            "h4a_margin_over_strongest": margin, "effect_threshold": EFFECT_THRESHOLD, "h4a_margin_required": H4A_MARGIN}

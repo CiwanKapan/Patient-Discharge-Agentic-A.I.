@@ -18,6 +18,7 @@ Writes to --out (default <experiment>/eval, or runs/eval):
     per_case.csv      one row per system, run, and case
     summary.csv       one row per system and slice (all cases, each difficulty, each
                       condition), pooled over runs, with retry, token, and cost totals
+    outcome.json      the pre-registered success classification (strong / mixed / null)
     significance.csv  paired tests of --reference (default Agentic) against each other
                       system for H1-H4 (evaluation/stats.py). H1-H4 against B1 and B2
                       are the primary family. The secondary family, Holm-adjusted on
@@ -37,7 +38,7 @@ Scoring rules:
   failed run (the error is copied into per_case.csv), else "missing".
 * Precision and recall are micro-averaged: counts are summed over cases (and
   runs) first. A ratio with nothing to count is left blank instead of 1.0.
-* Significance tests use one value per case: the mean over its runs, for every
+* Significance tests are two-sided and use one value per case: the mean over its runs, for every
   hypothesis. For H4 that is the share of the case's runs with no violation;
   the secondary H4-strict counts a case as compliant only if every run was. If runs cover cases
   unevenly (the reduced design: 1 run on all cases, 3 on a subset), the tests
@@ -160,6 +161,8 @@ def defined(score: Score) -> dict:
             out[f"{name}_recall"] = None
         if f"{name}_precision" in out and not c.tp + c.fp:
             out[f"{name}_precision"] = None
+        if f"{name}_f1" in out and not c.tp + c.fp + c.fn:
+            out[f"{name}_f1"] = None
     return out
 
 
@@ -403,10 +406,11 @@ def stats_rows(rows: list[dict], systems: dict[str, list[RunDir]]) -> tuple[list
 
 
 # ------------------------------------------------------------------ printing
-TABLE = [("cases", "case runs"), ("failed", "failed"), ("barrier_recall", "barrier R"),
-         ("barrier_precision", "barrier P"), ("cross_field_recall", "xfield R"),
-         ("information_gap_recall", "gap R"), ("task_recall", "task R"), ("task_precision", "task P"),
-         ("plan_completeness", "complete"),
+TABLE = [("cases", "case runs"), ("failed", "failed"), ("barrier_recall", "H1 barr R"),
+         ("barrier_precision", "- precision"), ("barrier_f1", "- F1"), ("cross_field_recall", "xfield R"),
+         ("information_gap_recall", "gap R"), ("task_recall", "H2 task R"), ("task_precision", "- precision"),
+         ("task_f1", "- F1"),
+         ("plan_completeness", "H3 complete"),
          ("approval_accuracy", "H4a appr acc"), ("approval_accuracy_recommended", "- recomm'd"),
          ("approval_precision", "- precision"), ("model_labeling_recall", "model label"),
          ("approval_label_omissions", "label omit"), ("forbidden_tool_refusal", "forb refusal"),
@@ -450,20 +454,29 @@ def print_table(summary: list[dict], label: str, extra=()) -> None:
 
 
 def print_significance(rows: list[dict], note: str) -> None:
-    print(f"\nsignificance ({rows[0]['reference']} vs each baseline; alternative={rows[0].get('alternative')}; "
-          f"Holm-adjusted within each family; {note})")
-    print(f"{'':<4}{'metric':<23}{'vs':<9}{'family':<10}{'n':>4}{'nz':>4}{'diff':>8}{'95% CI':>17}{'p':>8}"
-          f"{'p_holm':>8}{'effect':>8}")
+    print(f"\nsignificance ({rows[0]['reference']} vs each baseline; two-sided; Holm-adjusted within each family; "
+          f"{note}). beats = significant, in favor, and non-negligible (CI excludes 0, |diff| >= "
+          f"{stats.EFFECT_THRESHOLD}); effect = rank-biserial, reported only")
+    print(f"{'':<13}{'metric':<30}{'vs':<4}{'family':<10}{'n':>4}{'nz':>4}{'diff':>8}{'95% CI':>17}{'p':>8}"
+          f"{'p_holm':>8}{'effect':>8}  beats")
     for r in rows:
         if r.get("p_value") is None:
-            print(f"{r['hypothesis']:<4}{r['metric']:<23}{r['baseline']:<9}{r['family']:<10}{r['n_pairs']:>4}   no pairs")
+            print(f"{r['hypothesis']:<13}{r['metric']:<30}{r['baseline']:<4}{r['family']:<10}{r['n_pairs']:>4}   no pairs")
             continue
         ci = f"[{r['ci95_low']:+.2f}, {r['ci95_high']:+.2f}]"
-        flag = "*" if r["significant"] else ""
         small = " (small sample)" if r["small_sample"] else ""
-        print(f"{r['hypothesis']:<4}{r['metric']:<23}{r['baseline']:<9}{r['family']:<10}{r['n_pairs']:>4}"
+        print(f"{r['hypothesis']:<13}{r['metric']:<30}{r['baseline']:<4}{r['family']:<10}{r['n_pairs']:>4}"
               f"{r['n_nonzero']:>4}{r['mean_difference']:>+8.2f}{ci:>17}{r['p_value']:>8.3f}{r['p_holm']:>8.3f}"
-              f"{r['effect_size']:>+8.2f}  {flag}{small}")
+              f"{r['effect_size']:>+8.2f}  {'yes' if r['beats'] else 'no'}{small}")
+
+
+def print_outcome(result: dict) -> None:
+    margin = result["h4a_margin_over_strongest"]
+    print(f"\noutcome (pre-registration §8): {result['outcome'].upper()}"
+          + (f" -- {result['reason']}" if result["reason"] else ""))
+    print(f"  hypotheses beaten against both baselines: {', '.join(result['hypotheses_beaten_against_both']) or 'none'}")
+    print(f"  H4a margin over the strongest baseline ({result['h4a_strongest_baseline']}): "
+          f"{'-' if margin is None else f'{margin:+.3f}'} (strong success needs > {result['h4a_margin_required']})")
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -478,8 +491,6 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--keys", type=Path, default=ROOT / "data" / "answer_keys")
     p.add_argument("--out", type=Path, help="default <experiment>/eval, or runs/eval")
     p.add_argument("--reference", default="Agentic", help="system the others are tested against")
-    p.add_argument("--alternative", default="two-sided", choices=["two-sided", "greater"],
-                   help="'greater' tests reference > baseline; choose before looking at results")
     a = p.parse_args(argv)
 
     sources = {}
@@ -540,10 +551,13 @@ def main(argv: list[str] | None = None) -> int:
         test_rows, note = stats_rows(rows, systems)
         primary = [n for n in others if n not in SECONDARY]
         secondary = [n for n in others if n in SECONDARY]
-        sig = stats.compare(test_rows, a.reference, primary, a.alternative, secondary=secondary)
+        sig = stats.compare(test_rows, a.reference, primary, secondary=secondary)  # two-sided (pre-registration §4)
         write_csv(out / "significance.csv", [{**{k: _fmt(v) for k, v in r.items()}, "runs_used": note} for r in sig])
         print_significance(sig, note)
-        written.append(out / "significance.csv")
+        result = stats.outcome(sig, primary)
+        (out / "outcome.json").write_text(json.dumps(result, indent=2) + "\n")
+        print_outcome(result)
+        written += [out / "significance.csv", out / "outcome.json"]
     print("\nwrote " + ", ".join(map(str, written)))
     return 0
 

@@ -46,6 +46,10 @@ class Counts:
     def recall(self) -> float:
         return self.tp / (self.tp + self.fn) if self.tp + self.fn else 1.0
 
+    @property
+    def f1(self) -> float:
+        return 2 * self.tp / (2 * self.tp + self.fp + self.fn) if self.tp + self.fp + self.fn else 1.0
+
 
 @dataclass
 class Score:
@@ -65,12 +69,14 @@ class Score:
             "cases": self.cases,
             "barrier_precision": self.barriers.precision,
             "barrier_recall": self.barriers.recall,
+            "barrier_f1": self.barriers.f1,
             "cross_field_recall": self.cross_field.recall,
             "information_gap_recall": self.information_gaps.recall,
             "gap_misflags": self.gap_misflags,
             "negative_control_hits": self.negative_control_hits,
             "task_precision": self.tasks.precision,
             "task_recall": self.tasks.recall,
+            "task_f1": self.tasks.f1,
             "task_link_mismatches": self.task_link_mismatches,
             "approval_precision": self.approvals.precision,
             "approval_recall": self.approvals.recall,
