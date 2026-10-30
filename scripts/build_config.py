@@ -34,7 +34,7 @@ TASK_APPROVALS = {"T-MD01": "GR-A06", "T-MD04": "GR-A07", "T-MD05": "GR-A05",
                   "T-MD07": "GR-A04", "T-PH01": "GR-A02", "T-PH02": "GR-A03"}
 
 
-# What 2.1-2.3 change in the 2.0 .docx (see AMENDMENTS for approval status); the
+# What 2.1-2.4 change in the 2.0 .docx (see AMENDMENTS for approval status); the
 # patches are TASK_APPROVALS (+ rationale), T_CM09 / patch_tasks, and AU_SIGNOFF.
 # T-MD02 also covers pending imaging (B-C03) in OR cases (patch_tasks).
 T_CM09 = {
@@ -66,8 +66,18 @@ B_S07_ADDITION = (" If transport is booked but its pickup time, or the planned d
                   "a barrier.")
 RETIRED_BARRIERS = ["B-F02"]
 T_CM01_DESCRIPTION = "Case manager books a post-discharge outpatient appointment."
+B_C02_ADD_CONDITIONS = ["OR"]
+DOCUMENTED_STATUS_DESCRIPTIONS = {
+    "B-C07": "A clinician has documented that the patient does not yet meet discharge criteria (stability field or "
+             "physician note).",
+    "B-C05": "A clinician or therapist has documented a functional limitation (for example, not safe to ambulate "
+             "alone) that is not yet addressed.",
+    "B-C06": "The wound or pain assessment is documented as unresolved.",
+    "B-S03": "A home safety assessment documents an unresolved hazard, or the assessment is documented as not done.",
+    "B-C04": "A consult was requested and is documented as not yet completed.",
+}
 AMENDMENTS = {
-    "version": "2.3",
+    "version": "2.4",
     "base": "2.0 (source .docx)",
     "changes": [
         "governance.task_approvals: tasks whose completion needs an approval-required action, with "
@@ -83,33 +93,37 @@ AMENDMENTS = {
         "clinical determination, outside the system's scope (pre-registration Amendment 3). T-CM01 no longer cites a "
         "safe clinical window and resolves B-F01 only. Supersedes the 2.2 B-F02 window field (review packet #8, "
         "withdrawn).",
+        "2.4: B-C02 (pending labs) conditions extended to OR (review packet #9)",
+        "2.4: B-C07, B-C05, B-C06, B-S03, B-C04 descriptions reworded to documented status instead of a clinical "
+        "judgment (review packet #13)",
     ],
     "review_flags": [
         {"item": "B-C02 conditions",
-         "flag": "B-C02 (pending labs) excludes OR cases, although post-op labs are common. Chart check 2026-10-29: "
-                 "all 35 OR cases (32 evaluation, 3 development) document pending labs as complete, and the only OR "
-                 "lab mention (CASE-119, hemoglobin drop) is a resulted lab keyed as B-C07. Adding OR changes no "
-                 "key and no case tests it; it changes the prompts. Decision pending (review packet #9)."},
-        {"item": "task_approvals: T-PH01 -> GR-A02",
-         "flag": "Judgment call: does medication reconciliation always change the medication list? Pending the "
-                 "clinical lead (review packet #3)."},
+         "flag": "Resolved 2026-10-29: OR added (review packet #9). Chart check: all 35 OR cases (32 evaluation, 3 "
+                 "development) document pending labs as complete, so no key changed and no case tests B-C02 in OR."},
+        {"item": "task_approvals: T-PH01 -> GR-A02, T-MD04 -> GR-A07",
+         "flag": "Judgment calls kept; approved by the clinical lead 2026-10-29 (review packet #3)."},
         {"item": "task_approvals: T-RN01 vs T-MD07",
          "flag": "Resolved 2026-10-29: option B, T-RN01 follows the T-MD07 sign-off and needs none of its own."},
         {"item": "task_approvals: T-MD06, T-MD03, T-PH03, T-CM06",
-         "flag": "Decided 2026-10-29: no sign-off for any of the four, pending the clinical lead's confirmation "
-                 "(review packet #6). No change to the list."},
+         "flag": "Resolved 2026-10-29: no sign-off for any of the four; confirmed by the clinical lead (review "
+                 "packet #6)."},
     ],
-    "review_flags_status": "2.1 flags considered at the Dataset Lead's approval; updated with the 2.2 and 2.3 decisions",
+    "review_flags_status": "All flags resolved 2026-10-29",
     "applied_by": "scripts/build_config.py",
-    "approval": "2.1 approved by the Dataset Lead on 2026-10-29. 2.2 and 2.3 changes decided 2026-10-29 by the team "
-                "(review packet; scope decision); #6 (confirmation), #9, and the clinical lead's review of #1-#3 "
-                "pending.",
+    "approval": "Taxonomy 2.1-2.4 approved by the mentor, the Dataset Lead, and the clinical lead on 2026-10-29 "
+                "(go-ahead for all changes, relayed by the project team).",
 }
 
 
 def patch_barriers(barriers):
     next(b for b in barriers if b["id"] == "B-S07")["description"] += B_S07_ADDITION
     barriers[:] = [b for b in barriers if b["id"] not in RETIRED_BARRIERS]
+    c02 = next(b for b in barriers if b["id"] == "B-C02")
+    c02["conditions"] = [c for c in COND if c in c02["conditions"] or c in B_C02_ADD_CONDITIONS]
+    for b in barriers:
+        if b["id"] in DOCUMENTED_STATUS_DESCRIPTIONS:
+            b["description"] = DOCUMENTED_STATUS_DESCRIPTIONS[b["id"]]
 
 
 def patch_tasks(tasks):
@@ -189,7 +203,7 @@ def build_taxonomy(path):
     return {
         "meta": {
             "name": "Discharge Coordinator AI — Barrier, Task, and Governance Taxonomy",
-            "version": "2.3",  # 2.0 from the .docx plus the amendments below
+            "version": "2.4",  # 2.0 from the .docx plus the amendments below
             "source": "Discharge_Coordinator_AI_taxonomy_v2_cleaned.docx",
             "amendments": AMENDMENTS,
             "rule": "Answer keys and normalized system outputs use these IDs only, never free text. "

@@ -213,11 +213,16 @@ RETIRED_BARRIERS = {
               "evidence_fields": ["followup_appointment_status"], "cross_field": False},
 }
 RETIRED_AFTER = {"B-F02": "B-F01"}  # where each retired barrier sat in the taxonomy's order
+# Barrier conditions as they were when the cases were generated. Widening a barrier's conditions later
+# (B-C02 gained OR in taxonomy 2.4) must not change which barriers the builder considers for a case.
+GENERATION_CONDITIONS = {"B-C02": ["HF", "CO", "PN", "ST"]}
 
 
 def with_retired(tax: dict) -> dict:
-    """The taxonomy as the case builder saw it when the cases were generated (retired barriers back in place)."""
-    barriers = list(tax["barriers"])
+    """The taxonomy as the case builder saw it when the cases were generated: retired barriers back in
+    place and barrier conditions as they were then."""
+    barriers = [{**b, "conditions": GENERATION_CONDITIONS[b["id"]]} if b["id"] in GENERATION_CONDITIONS else b
+                for b in tax["barriers"]]
     for bid, entry in RETIRED_BARRIERS.items():
         if bid not in {b["id"] for b in barriers}:
             barriers.insert(next(i for i, b in enumerate(barriers) if b["id"] == RETIRED_AFTER[bid]) + 1, entry)
