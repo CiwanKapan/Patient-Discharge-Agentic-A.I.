@@ -7,6 +7,11 @@ from the 15-case development set (pilot) and one development scenario (live chec
 of the results. Items marked **[OPEN]** or **[CONFIRM]** must be settled, and this file committed, before the
 evaluation-set run starts. Changes after that are recorded as dated amendments below, never edited in place.
 
+Related documents: `docs/change_log.md` (every difference from the original proposal and methodology, with
+amendment numbers, for mentor approval), `docs/review_packet_2026-10-29.md` (taxonomy and answer-key items for
+the Dataset Lead and clinical lead), `docs/how_cases_and_keys_are_made.md` (how cases and keys are produced,
+and the proposed independent 20-case key check).
+
 ## 1. Arms
 
 | Arm | What it is |
