@@ -1,10 +1,10 @@
 {
   "meta": {
     "name": "Discharge Coordinator AI — Barrier, Task, and Governance Taxonomy",
-    "version": "2.2",
+    "version": "2.3",
     "source": "Discharge_Coordinator_AI_taxonomy_v2_cleaned.docx",
     "amendments": {
-      "version": "2.2",
+      "version": "2.3",
       "base": "2.0 (source .docx)",
       "changes": [
         "governance.task_approvals: tasks whose completion needs an approval-required action, with governance.task_approval_rationale for the judgment calls",
@@ -13,7 +13,7 @@
         "AU-09 signoff_requested added: logged when the plan is emitted with status pending_clinician_signoff",
         "2.2: T-RN01 defined as teaching that follows the T-MD07 sign-off, so it needs no sign-off of its own (review packet #5, option B)",
         "2.2: B-S07 description states that booked transport with no documented pickup time is an information gap (review packet #7)",
-        "2.2: B-F02 gains guideline-sourced safe follow-up windows in whole calendar days; HF 7, the other conditions and all sources pending the clinical lead (review packet #8)"
+        "2.3: B-F02 (follow-up too far out) removed: judging whether follow-up timing is clinically appropriate is a clinical determination, outside the system's scope (pre-registration Amendment 3). T-CM01 no longer cites a safe clinical window and resolves B-F01 only. Supersedes the 2.2 B-F02 window field (review packet #8, withdrawn)."
       ],
       "review_flags": [
         {
@@ -33,13 +33,13 @@
           "flag": "Decided 2026-10-29: no sign-off for any of the four, pending the clinical lead's confirmation (review packet #6). No change to the list."
         }
       ],
-      "review_flags_status": "2.1 flags considered at the Dataset Lead's approval; updated with the 2.2 decisions",
+      "review_flags_status": "2.1 flags considered at the Dataset Lead's approval; updated with the 2.2 and 2.3 decisions",
       "applied_by": "scripts/build_config.py",
-      "approval": "2.1 approved by the Dataset Lead on 2026-10-29. 2.2 changes decided 2026-10-29 through the review packet; B-F02 windows and sources, #6 (confirmation), #9, and the clinical lead's review of #1-#3 pending."
+      "approval": "2.1 approved by the Dataset Lead on 2026-10-29. 2.2 and 2.3 changes decided 2026-10-29 by the team (review packet; scope decision); #6 (confirmation), #9, and the clinical lead's review of #1-#3 pending."
     },
     "rule": "Answer keys and normalized system outputs use these IDs only, never free text. Only the Dataset Lead may add entries, after team review.",
     "counts": {
-      "barriers": 26,
+      "barriers": 25,
       "tasks": 27,
       "allowed_tools": 11,
       "forbidden_tools": 6,
@@ -340,48 +340,6 @@
         "followup_appointment_status"
       ],
       "cross_field": false
-    },
-    {
-      "id": "B-F02",
-      "name": "Follow-up too far out",
-      "category": "follow_up_and_care_coordination",
-      "description": "An appointment exists but is scheduled later than the safe clinical window for the condition.",
-      "conditions": [
-        "HF",
-        "CO",
-        "PN",
-        "OR",
-        "ST"
-      ],
-      "urgency": "medium",
-      "evidence_fields": [
-        "followup_appointment_status"
-      ],
-      "cross_field": false,
-      "safe_followup_window_days": {
-        "HF": {
-          "days": 7,
-          "source": null
-        },
-        "CO": {
-          "days": null,
-          "source": null
-        },
-        "PN": {
-          "days": null,
-          "source": null
-        },
-        "OR": {
-          "days": null,
-          "source": null
-        },
-        "ST": {
-          "days": null,
-          "source": null
-        }
-      },
-      "window_counting": "Whole calendar days from the planned discharge date to the appointment date. A follow-up scheduled more days out than the condition's window is a B-F02 barrier.",
-      "window_status": "Values and their guideline sources pending the clinical lead. The windows are shown to the models only once every condition has a value and a source."
     },
     {
       "id": "B-F03",
@@ -984,7 +942,7 @@
       "id": "T-CM01",
       "name": "Schedule follow-up appointment",
       "role_group": "case_manager_social_worker",
-      "description": "Case manager books a post-discharge outpatient appointment within the safe clinical window (for example, within 7 days for HF).",
+      "description": "Case manager books a post-discharge outpatient appointment.",
       "conditions": [
         "HF",
         "CO",
@@ -997,8 +955,7 @@
         "followup_appointment_status"
       ],
       "resolves": [
-        "B-F01",
-        "B-F02"
+        "B-F01"
       ],
       "owner_role": "Case Manager",
       "owner_roles": [

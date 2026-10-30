@@ -36,9 +36,7 @@ URGENCY_RANK = {"high": 1, "medium": 2, "low": 3}
 def _field_rules(taxonomy: dict, condition: str) -> dict[str, dict]:
     """Field name -> the single-field barrier it signals for this condition.
 
-    A field shared by several barriers maps to the first one listed (e.g.
-    followup_appointment_status -> B-F01; B-F02 "too far out" needs a judgment
-    the checklist does not make).
+    A field shared by several barriers maps to the first one listed.
     """
     rules = {}
     for b in taxonomy["barriers"]:

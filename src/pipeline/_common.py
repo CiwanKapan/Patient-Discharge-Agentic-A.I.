@@ -24,7 +24,7 @@ from src.utils.llm import LLMClient, LLMError, call_record, retry_prompt
 ROOT = Path(__file__).resolve().parents[2]
 TAXONOMY_PATH = ROOT / "config" / "taxonomy.json"
 
-PROMPT_VERSION = "v2"  # v2: taxonomy 2.2 text (T-RN01, B-S07) in the references
+PROMPT_VERSION = "v3"  # v3: taxonomy 2.3 (B-F02 removed, T-CM01, T-RN01, B-S07 text); no follow-up timing rule
 NOTE_FIELDS = tuple(FreeTextNotes.model_fields)
 
 S = TypeVar("S", bound=BaseModel)
@@ -212,7 +212,7 @@ for B-S07, not a barrier.
 education was recorded, with no record that the patient or caregiver was told.
 
 Free-text notes can also contradict a field that reads complete, for example a physician note \
-saying the patient is not yet stable, or a follow-up booked too far out. Flag those barriers and cite \
+saying the patient is not yet stable. Flag those barriers and cite \
 both the field and the note. Notes may also contain distracting details that are documented as \
 resolved or irrelevant; do not flag those."""
 
@@ -274,24 +274,13 @@ def snapshot_lines(snapshots) -> str:
     return "\n".join(f"- {s.field}: {s.status.value} -> {s.reading.value}" for s in snapshots)
 
 
-def safe_followup_windows(barrier: dict) -> dict[str, int] | None:
-    """B-F02's per-condition windows, or None until every condition has a value and a source."""
-    windows = barrier.get("safe_followup_window_days")
-    if not windows or any(not w or w.get("days") is None or not w.get("source") for w in windows.values()):
-        return None
-    return {cond: w["days"] for cond, w in windows.items()}
-
-
 def barrier_reference(taxonomy: dict) -> str:
     lines = []
     for b in taxonomy["barriers"]:
-        windows = safe_followup_windows(b)
-        window_text = ("\n  Safe follow-up window, whole calendar days from the planned discharge date: "
-                       + ", ".join(f"{c} {d}" for c, d in windows.items())) if windows else ""
         lines.append(
             f"- {b['id']} {b['name']} | urgency {b['urgency']} | conditions {','.join(b['conditions'])} "
             f"| evidence {', '.join(b['evidence_fields'])} | cross_field {str(b['cross_field']).lower()}\n"
-            f"  {b['description']}{window_text}"
+            f"  {b['description']}"
         )
     return "\n".join(lines)
 

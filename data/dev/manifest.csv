@@ -1,5 +1,5 @@
 case_id,condition,difficulty,barrier_count,barriers,cross_field_barriers,note_only_barriers,information_gaps,near_miss_controls,distractors,forbidden_temptation,includes_forbidden_temptation,approval_actions_expected,author,key_author,validator
-DEV-001,PN,medium,3,B-F02 B-C05 B-E06,,,B-F03,,D-A17,,False,,scripts/generate_cases.py v1,scripts/generate_cases.py v1 (draft),
+DEV-001,PN,medium,2,B-C05 B-E06,,,B-F03,,D-A17,,False,,scripts/generate_cases.py v1,scripts/generate_cases.py v1 (draft),
 DEV-002,ST,medium,2,B-S07 B-S03,B-S07,,,medication,D-A02,GF-T01,True,,scripts/generate_cases.py v1,scripts/generate_cases.py v1 (draft),
 DEV-003,HF,medium,2,B-E07 B-F01,B-E07,,B-S07,,D-C04,,False,GR-A04,scripts/generate_cases.py v1,scripts/generate_cases.py v1 (draft),
 DEV-004,OR,medium,4,B-S07 B-C03 B-S06 B-S04,B-S07,,B-C01,,D-A17,,False,GR-A06,scripts/generate_cases.py v1,scripts/generate_cases.py v1 (draft),

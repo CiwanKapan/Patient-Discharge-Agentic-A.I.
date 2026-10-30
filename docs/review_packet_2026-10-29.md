@@ -8,7 +8,7 @@ what the models are told (the prompts). **Any decision that changes the prompts 
 Counts are for the 160 evaluation keys unless noted ("dev" = the 15 development cases). Reviewer fields are at
 the end of each item.
 
-**Status (updated 2026-10-29 with the team's decisions):** decisions on items 5–11 are recorded under each item; items 5, 7, and the B-F02 field from item 8 are applied in **taxonomy 2.2**. Items 1–4 are already applied in taxonomy 2.1 and were approved by the
+**Status (updated 2026-10-29 with the team's decisions):** decisions on items 5–11 are recorded under each item; items 5 and 7 are applied in **taxonomy 2.2**; item 8 is withdrawn (B-F02 removed in **taxonomy 2.3**, Amendment 3). Items 1–4 are already applied in taxonomy 2.1 and were approved by the
 Dataset Lead on 2026-10-29; they are listed again for the clinical lead's sign-off. Items 5–11 are open.
 
 ---
@@ -106,29 +106,13 @@ Clinical lead confirms: ☐ yes ☐ no (which task: ________) — Reviewer: ____
 
 **Decided 2026-10-29:** **approved.** Applied in taxonomy 2.2 (B-S07 description). Keys changed: 0. Prompts changed (pilot re-run needed).
 
-## 8. B-F02 safe follow-up window — new field, for the clinical lead
+## 8. B-F02 safe follow-up window — WITHDRAWN 2026-10-29
 
-| | |
-|---|---|
-| **Change** | Add `safe_followup_window_days` per condition to B-F02 ("follow-up too far out"). **Heart failure: 7 days.** COPD, pneumonia, orthopedic, stroke: **blank, for the clinical lead.** |
-| **Why** | B-F02 says "later than the safe clinical window for the condition" without defining the window, so a model must guess. In the pilot, the agent flagged B-F02 where the key does not on two case runs: a 13-day stroke follow-up (DEV-002) and an 8-day orthopedic follow-up (DEV-004). |
-| **What the keys already assume** | The case generator uses its own windows, which the current keys embody: HF 7, COPD 14, pneumonia 7, orthopedic 14, stroke 14. |
-| **Answer keys affected** | **0**, as long as each chosen value falls inside the range below (whole days). A value outside it flips keys; I can count exactly which ones for any proposed value. |
-| **Prompts** | **Yes** (the barrier reference would include the windows). |
-
-| Condition | Proposed | Latest compliant follow-up in the keys | Earliest B-F02 follow-up in the keys | Values that change no key |
-|---|---|---|---|---|
-| Heart failure | **7** | 7.0 days | 23.8 days | 7–23 |
-| COPD | ____ | 14.1 days | 39.0 days | 15–38 |
-| Pneumonia | ____ | 7.0 days | 34.0 days | 7–33 |
-| Orthopedic | ____ | 14.1 days | 36.8 days | 15–36 |
-| Stroke | ____ | 14.1 days | 44.2 days | 15–44 |
-
-(A follow-up at 14.1 days is 14 days plus a few hours; a window of 14 would make it "too far out" if counted to
-the hour. Counting in whole calendar days avoids that; the reviewer should confirm the convention.)
-
-**Decided 2026-10-29:** **guideline-sourced windows, counted in whole calendar days.** Applied in taxonomy 2.2 as a field holding a value and a guideline source per condition (HF 7, source pending). The windows reach the models only once all five conditions have a value and a source, so the prompts are unchanged until then; filling them in is a prompt change (pilot re-run). A test checks every key against each window that is set: all keys agree with HF 7 in whole calendar days.
-Clinical lead: windows and guideline sources — HF 7 (source: ________) CO ____ (________) PN ____ (________) OR ____ (________) ST ____ (________)
+Withdrawn by the team's scope decision (pre-registration Amendment 3): the system must not make clinical
+determinations, including what follow-up timing is clinically appropriate. B-F02 ("follow-up too far out") is
+removed from the taxonomy and the evaluation, and T-CM01 no longer cites a safe clinical window. B-F01 ("no
+follow-up booked") and T-CM01 stay: that is a coordination check, not a clinical judgment. No windows or
+guideline sources are needed. Keys changed by the removal: 30 evaluation and 2 development (Amendment 3).
 
 ## 9. Should B-C02 (pending labs) apply to orthopedic cases? — open
 
@@ -189,6 +173,37 @@ Decision: ☐ A ☐ B ☐ C — Reviewer: ________ Date: ________
 
 ---
 
+## 13. Scope review: wording that asks for a clinical judgment — for the team
+
+Under the scope decision, a barrier must be identifiable from clinician-documented status or stated policy.
+Every remaining barrier is keyed from a documented field or note, but these descriptions are worded as
+clinical judgments, which invites a model to make one. Suggested rewording keeps the same keys (0 changed)
+but changes the prompts.
+
+| Item | Current wording (the judgment) | Suggested wording (documented status) |
+|---|---|---|
+| B-C07 Medical instability | "Vital signs, oxygen requirement, or clinical status not yet at safe discharge threshold." | "A clinician has documented that the patient does not yet meet discharge criteria (stability field or physician note)." |
+| B-C05 Functional or physical limitations | "Severe deconditioning, inability to ambulate safely, or balance impairment that affects ability to function at home." | "A clinician or therapist has documented a functional limitation (for example, not safe to ambulate alone) that is not yet addressed." |
+| B-C06 Wound or surgical site concern | "Active wound care issue, surgical site infection, or unresolved pain." | "The wound or pain assessment is documented as unresolved." |
+| B-S03 Home safety concerns | "Home environment incompatible with safe discharge (stairs, no grab bars, identified fall risk)." | "A home safety assessment documents an unresolved hazard, or the assessment is documented as not done." |
+| B-C04 Pending specialist consult | "Required consult ... requested but not yet signed off." | "A consult was requested and is documented as not yet completed." ("Required" is a clinical call.) |
+
+Also worth reviewing:
+- **Prompt rule "Use the taxonomy urgency unless the chart clearly supports a different one"** (both arms): changing
+  urgency is a triage judgment. Urgency is not scored. Option: always use the taxonomy urgency.
+- **Prompt rule "Rank items that block discharge safely (clinical and medication items) ahead of logistics"**:
+  orders steps, but does not decide clinical questions. Rank is not scored. Probably fine.
+- **T-MD05 "Order home oxygen if required"** and **T-MD04 "Assess and clear medical stability"**: the system
+  recommends that a physician do these; it does not decide them. Fine as recommendations.
+- **Possible narrower replacement for B-F02:** every evaluation case that had B-F02 also contains a physician note
+  stating the required timeframe (for example "Needs neurology clinic follow-up within 14 days of discharge").
+  "The booked follow-up does not meet the timeframe a clinician documented" would read documented status, not
+  judge it. Not proposed for this study unless the team wants it.
+
+Decision per item: ☐ reword as suggested ☐ keep ☐ other — Reviewer: ________ Date: ________
+
+---
+
 ## Summary
 
 | # | Item | Keys changed | Prompts change? | Status |
@@ -200,11 +215,13 @@ Decision: ☐ A ☐ B ☐ C — Reviewer: ________ Date: ________
 | 5 | T-RN01 vs T-MD07 | 0 | yes | **decided B**, applied (2.2) |
 | 6 | Orders and insurance contacts | 0 | no | **decided: no sign-off**; clinical lead to confirm |
 | 7 | B-S07 pickup-time wording | 0 | yes | **approved**, applied (2.2) |
-| 8 | B-F02 safe windows | 0 within the ranges | yes, once complete | **decided: guideline-sourced, whole days**; values and sources from the clinical lead |
+| 8 | B-F02 safe windows | — | — | **withdrawn**: B-F02 removed (Amendment 3; 30 evaluation and 2 dev keys changed) |
 | 9 | B-C02 for OR | 0 | yes if added | chart check done; open |
 | 10 | Alternative tasks in keys | 0 | no | **decided A** |
 | 11 | Prior-authorization fix | 9 (+1 dev) | no | **row by row** on the sheet |
 | 12 | Key review before the run | — | no | open |
+| 13 | Scope wording review | 0 | yes if reworded | open |
 
 **The prompts have changed (items 5 and 7), so the 15-case development pilot must be re-run for both LLM arms
-before the evaluation run.** Waiting for items 8 (windows) and 9 lets one pilot re-run cover every prompt change.
+before the evaluation run.** The B-F02 removal (Amendment 3) changed them again; waiting for item 9 lets one pilot
+re-run cover every prompt change.

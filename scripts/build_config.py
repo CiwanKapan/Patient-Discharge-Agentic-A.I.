@@ -34,7 +34,7 @@ TASK_APPROVALS = {"T-MD01": "GR-A06", "T-MD04": "GR-A07", "T-MD05": "GR-A05",
                   "T-MD07": "GR-A04", "T-PH01": "GR-A02", "T-PH02": "GR-A03"}
 
 
-# What 2.1 and 2.2 add to the 2.0 .docx (see AMENDMENTS for approval status); the
+# What 2.1-2.3 change in the 2.0 .docx (see AMENDMENTS for approval status); the
 # patches are TASK_APPROVALS (+ rationale), T_CM09 / patch_tasks, and AU_SIGNOFF.
 # T-MD02 also covers pending imaging (B-C03) in OR cases (patch_tasks).
 T_CM09 = {
@@ -64,21 +64,10 @@ T_RN01_DESCRIPTION = ("Nurse educates patient or caregiver on new and changed me
 B_S07_ADDITION = (" If transport is booked but its pickup time, or the planned discharge window, is not documented, "
                   "the timing cannot be checked: this is an information gap for B-S07 (confirm the pickup time), not "
                   "a barrier.")
-B_F02_WINDOWS = {
-    "safe_followup_window_days": {
-        "HF": {"days": 7, "source": None},
-        "CO": {"days": None, "source": None},
-        "PN": {"days": None, "source": None},
-        "OR": {"days": None, "source": None},
-        "ST": {"days": None, "source": None},
-    },
-    "window_counting": "Whole calendar days from the planned discharge date to the appointment date. A follow-up "
-                       "scheduled more days out than the condition's window is a B-F02 barrier.",
-    "window_status": "Values and their guideline sources pending the clinical lead. The windows are shown to the "
-                     "models only once every condition has a value and a source.",
-}
+RETIRED_BARRIERS = ["B-F02"]
+T_CM01_DESCRIPTION = "Case manager books a post-discharge outpatient appointment."
 AMENDMENTS = {
-    "version": "2.2",
+    "version": "2.3",
     "base": "2.0 (source .docx)",
     "changes": [
         "governance.task_approvals: tasks whose completion needs an approval-required action, with "
@@ -90,8 +79,10 @@ AMENDMENTS = {
         "(review packet #5, option B)",
         "2.2: B-S07 description states that booked transport with no documented pickup time is an information gap "
         "(review packet #7)",
-        "2.2: B-F02 gains guideline-sourced safe follow-up windows in whole calendar days; HF 7, the other "
-        "conditions and all sources pending the clinical lead (review packet #8)",
+        "2.3: B-F02 (follow-up too far out) removed: judging whether follow-up timing is clinically appropriate is a "
+        "clinical determination, outside the system's scope (pre-registration Amendment 3). T-CM01 no longer cites a "
+        "safe clinical window and resolves B-F01 only. Supersedes the 2.2 B-F02 window field (review packet #8, "
+        "withdrawn).",
     ],
     "review_flags": [
         {"item": "B-C02 conditions",
@@ -108,23 +99,26 @@ AMENDMENTS = {
          "flag": "Decided 2026-10-29: no sign-off for any of the four, pending the clinical lead's confirmation "
                  "(review packet #6). No change to the list."},
     ],
-    "review_flags_status": "2.1 flags considered at the Dataset Lead's approval; updated with the 2.2 decisions",
+    "review_flags_status": "2.1 flags considered at the Dataset Lead's approval; updated with the 2.2 and 2.3 decisions",
     "applied_by": "scripts/build_config.py",
-    "approval": "2.1 approved by the Dataset Lead on 2026-10-29. 2.2 changes decided 2026-10-29 through the review "
-                "packet; B-F02 windows and sources, #6 (confirmation), #9, and the clinical lead's review of #1-#3 "
+    "approval": "2.1 approved by the Dataset Lead on 2026-10-29. 2.2 and 2.3 changes decided 2026-10-29 by the team "
+                "(review packet; scope decision); #6 (confirmation), #9, and the clinical lead's review of #1-#3 "
                 "pending.",
 }
 
 
 def patch_barriers(barriers):
     next(b for b in barriers if b["id"] == "B-S07")["description"] += B_S07_ADDITION
-    next(b for b in barriers if b["id"] == "B-F02").update(B_F02_WINDOWS)
+    barriers[:] = [b for b in barriers if b["id"] not in RETIRED_BARRIERS]
 
 
 def patch_tasks(tasks):
     md02 = next(t for t in tasks if t["id"] == "T-MD02")
     md02["conditions"] = [c for c in COND if c in md02["conditions"] or c == "OR"]
     next(t for t in tasks if t["id"] == "T-RN01")["description"] = T_RN01_DESCRIPTION
+    cm01 = next(t for t in tasks if t["id"] == "T-CM01")
+    cm01["description"] = T_CM01_DESCRIPTION
+    cm01["resolves"] = [r for r in cm01["resolves"] if r not in RETIRED_BARRIERS]
     last_cm = max(i for i, t in enumerate(tasks) if t["id"].startswith("T-CM"))
     tasks.insert(last_cm + 1, dict(T_CM09))
 
@@ -195,7 +189,7 @@ def build_taxonomy(path):
     return {
         "meta": {
             "name": "Discharge Coordinator AI — Barrier, Task, and Governance Taxonomy",
-            "version": "2.2",  # 2.0 from the .docx plus the amendments below
+            "version": "2.3",  # 2.0 from the .docx plus the amendments below
             "source": "Discharge_Coordinator_AI_taxonomy_v2_cleaned.docx",
             "amendments": AMENDMENTS,
             "rule": "Answer keys and normalized system outputs use these IDs only, never free text. "

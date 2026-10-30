@@ -12,7 +12,11 @@ amendment numbers, for mentor approval), `docs/review_packet_2026-10-29.md` (tax
 the Dataset Lead and clinical lead), `docs/how_cases_and_keys_are_made.md` (how cases and keys are produced,
 and the proposed independent 20-case key check).
 
-## 1. Arms
+## 1. Scope and arms
+
+**Scope.** The system does not make clinical determinations; it identifies documentation and workflow gaps based on clinician-documented status and stated policy, and all outputs are recommendations pending clinician sign-off.
+
+
 
 | Arm | What it is |
 |---|---|
@@ -32,7 +36,7 @@ run** on any case. It is not part of this study.
   Dataset Lead 2026-10-29); B-E02 prior authorization keyed to T-PH03 (review sheet
   `2026-10-29_b-e02_prior_authorization.csv`).
 - **Development set:** 15 separate cases (`data/dev/`) for pilots and checks only, never reported as results.
-- **Taxonomy:** version 2.2: 2.1 approved by the Dataset Lead 2026-10-29, plus the 2.2 review-packet decisions of the same day (T-RN01 follows the T-MD07 sign-off; B-S07 pickup-time wording; B-F02 guideline-sourced safe windows in whole calendar days, values pending). Pipeline prompt v2, B2 prompt v3. Prompts do not tell any arm which tasks
+- **Taxonomy:** version 2.3 (25 barriers): 2.1 approved by the Dataset Lead 2026-10-29; 2.2 review-packet decisions of the same day (T-RN01 follows the T-MD07 sign-off; B-S07 pickup-time wording); 2.3 removes B-F02 (Amendment 3). Pipeline prompt v3, B2 prompt v4. Prompts do not tell any arm which tasks
   need which sign-off action (`governance.task_approvals`).
 
 ## 3. Settings and design
@@ -170,5 +174,34 @@ hypothesis on which a baseline beats the agentic system.
 with an H4a margin of 0.2 or less, and significant differences that never amount to beating both baselines.
 The development pilot itself fell into the second. A pre-registered rule must label every possible result, and a
 baseline outperforming the agentic system must be reported even when it does not change the label.
+
+**State when recorded.** Only development-set (pilot) outputs had been seen; no evaluation-set run had started.
+
+### Amendment 3 — 2026-10-29 (recorded before the evaluation-set run)
+
+**Change.** B-F02 ("follow-up too far out") is removed from the taxonomy (version 2.3) and the evaluation. T-CM01
+no longer cites a safe clinical window ("for example, within 7 days for HF") and resolves B-F01 only. B-F01 and
+T-CM01 stay. The chart-reading rule both arms receive no longer mentions "a follow-up booked too far out". The
+scope statement in §1 is added.
+
+**Reason.** Team scope decision: the system must not make clinical determinations, including what follow-up
+timing is clinically appropriate. It may flag documentation and workflow gaps based on what clinicians documented.
+Flagging that no follow-up is booked (B-F01) is a coordination check; judging whether a booked date is too late
+(B-F02) is a clinical judgment.
+
+**Answer keys.** B-F02 was a keyed barrier in **8 evaluation keys** (CASE-005, -007, -011, -015, -032, -039, -084,
+-087) and **1 development key** (DEV-001), and a must-not-flag control in 22 further evaluation keys and 1
+development key. Regenerating the keys without it changed those **30 evaluation and 2 development keys**; the
+hand-built scenario SCN-MI-02 lost B-F02 from its must-not-flag list. **No case file changed**: the generator
+still writes the retired barrier's content (a late follow-up and the physician's note on the required
+timeframe) so the cases stay byte-identical, and strips it from the keys.
+
+**Consequence for difficulty strata.** In all 8 evaluation cases, B-F02 was the barrier that made the case
+"medium". Their difficulty label is part of the unchanged case file and stays "medium", but their keys no longer
+meet the medium rule (3 now have a single barrier). Difficulty-stratified results are reported with and without
+these 8 cases. Overall results are unaffected.
+
+**Prompts.** Changed (taxonomy text and the chart-reading rule): pipeline prompt v3, B2 prompt v4. The development
+pilot is re-run once, together with the pending item 9 decision, before the evaluation run.
 
 **State when recorded.** Only development-set (pilot) outputs had been seen; no evaluation-set run had started.

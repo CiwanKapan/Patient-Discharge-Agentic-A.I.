@@ -202,6 +202,27 @@ NOTE_ONLY = {"B-F03", "B-S02", "B-E02", "B-C07"}   # can be hidden in a supersed
 CROSS_FIELD = {"B-S07", "B-E07"}
 REASONING = CROSS_FIELD | {"B-F02"}
 
+# Barriers removed from the taxonomy after the cases were generated. The generator still writes their
+# content into the cases, so every case file stays byte-identical, but they are stripped from the
+# answer keys and the manifest (see CaseBuilder.build). B-F02 was retired in taxonomy 2.3 (pre-registration
+# Amendment 3): judging follow-up timing is a clinical determination, out of the system's scope.
+RETIRED_BARRIERS = {
+    "B-F02": {"id": "B-F02", "name": "Follow-up too far out", "category": "follow_up_and_care_coordination",
+              "description": "An appointment exists but is scheduled later than the safe clinical window for the condition.",
+              "conditions": ["HF", "CO", "PN", "OR", "ST"], "urgency": "medium",
+              "evidence_fields": ["followup_appointment_status"], "cross_field": False},
+}
+RETIRED_AFTER = {"B-F02": "B-F01"}  # where each retired barrier sat in the taxonomy's order
+
+
+def with_retired(tax: dict) -> dict:
+    """The taxonomy as the case builder saw it when the cases were generated (retired barriers back in place)."""
+    barriers = list(tax["barriers"])
+    for bid, entry in RETIRED_BARRIERS.items():
+        if bid not in {b["id"] for b in barriers}:
+            barriers.insert(next(i for i, b in enumerate(barriers) if b["id"] == RETIRED_AFTER[bid]) + 1, entry)
+    return {**tax, "barriers": barriers}
+
 # what an information gap in a field could indicate
 GAP_CANDIDATE = {
     "followup_appointment_status": "B-F01", "pending_labs": "B-C02", "pending_imaging": "B-C03",
@@ -593,6 +614,11 @@ class CaseBuilder:
             "tracked_fields": tracked,
             "free_text_notes": {k: " ".join(v) for k, v in self.notes.items() if v},
         }
+        # Retired barriers stay in the case text but leave the key, the controls, and the manifest.
+        self.key_barriers = [b for b in self.key_barriers if b["barrier_id"] not in RETIRED_BARRIERS]
+        self.gaps = [g for g in self.gaps if g["candidate_barrier_id"] not in RETIRED_BARRIERS]
+        self.must_not -= set(RETIRED_BARRIERS)
+        self.note_only = [b for b in self.note_only if b not in RETIRED_BARRIERS]
         gold = {b["barrier_id"] for b in self.key_barriers}
         tasks = []
         t_tax = {t["id"]: t for t in self.tax["tasks"]}
@@ -781,6 +807,7 @@ def generate(n_total, seed, tax, dis, *, start=0, usage=None, extra=False, cells
     come from plan_extra, so a small add-on batch keeps the dataset's proportions;
     pass the main batch's `usage` so it favours barriers the main batch used least.
     With cells=True there is one case per condition x difficulty (n_total is ignored)."""
+    tax = with_retired(tax)
     rng = random.Random(seed)
     slots = plan_cells(rng) if cells else plan_extra(n_total, rng) if extra else plan(n_total, rng)
     usage = Counter() if usage is None else usage

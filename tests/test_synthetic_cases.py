@@ -106,8 +106,29 @@ def test_cross_field_and_note_evidence(cid):
         assert transport_timing(case) != "conflict"
 
 
+# Medium cases whose only reasoning barrier was B-F02, retired in taxonomy 2.3 (pre-registration
+# Amendment 3). Their case files and difficulty labels are unchanged, but their keys no longer meet the
+# medium rule (a cross-field or note-surfaced barrier, 2-4 barriers).
+RETIRED_B_F02_MEDIUM = {"CASE-005", "CASE-007", "CASE-011", "CASE-015", "CASE-032", "CASE-039", "CASE-084",
+                        "CASE-087"}
+
+
+def test_retired_b_f02_cases_are_exactly_the_documented_ones():
+    """The exception list matches the data: medium keys that fail the medium rule."""
+    failing = set()
+    for cid in IDS:
+        case, key = CASES[cid], KEYS[cid]
+        cross = any(b.cross_field for b in key.barriers)
+        note = any(any(p.startswith("free_text_notes.") for p in b.evidence_fields) for b in key.barriers)
+        if case.difficulty == "medium" and not (2 <= len(key.barriers) <= 4 and (cross or note)):
+            failing.add(cid)
+    assert failing == RETIRED_B_F02_MEDIUM
+
+
 @pytest.mark.parametrize("cid", IDS)
 def test_difficulty_rules(cid):
+    if cid in RETIRED_B_F02_MEDIUM:
+        pytest.skip("medium label kept after B-F02 was retired (Amendment 3)")
     case, key, row = CASES[cid], KEYS[cid], ROWS[cid]
     n = len(key.barriers)
     cross = any(b.cross_field for b in key.barriers)
@@ -139,7 +160,7 @@ def test_distractor_rules(cid, distractors):
     assert not case.distractors, "distractor phrases belong in the notes, not a labelled list"
 
 
-def test_dataset_targets():
+def test_dataset_targets(taxonomy):
     n = len(CASES)
     by_diff = Counter(c.difficulty for c in CASES.values())
     assert abs(by_diff["easy"] / n - 0.30) <= 0.02
@@ -152,7 +173,7 @@ def test_dataset_targets():
     cross = sum(1 for k in KEYS.values() if any(b.cross_field for b in k.barriers))
     assert cross / n >= 0.30
     used = Counter(b.barrier_id for k in KEYS.values() for b in k.barriers)
-    assert len(used) == 26, "every barrier in the taxonomy appears at least once"
+    assert set(used) == {b["id"] for b in taxonomy["barriers"]}, "every barrier in the taxonomy appears at least once"
     assert sum("B-S07" in k.must_not_flag for k in KEYS.values()) >= 10, "need B-S07 negative controls"
 
 
@@ -180,35 +201,3 @@ def test_b_e02_task_follows_the_charted_reason():
             assert [t["task_id"] for t in key["tasks"] if "B-E02" in t["resolves"]] == [expected], p.stem
             checked += 1
     assert checked >= 17
-
-
-def test_b_f02_keys_follow_the_taxonomy_windows_where_set(taxonomy):
-    """Where taxonomy 2.2 sets a safe follow-up window, B-F02 is keyed exactly when the follow-up is
-    more whole calendar days after the planned discharge date than the window allows."""
-    from datetime import date
-    from src.utils.run_records import CASE_SETS, case_files
-    windows = next(b for b in taxonomy["barriers"] if b["id"] == "B-F02")["safe_followup_window_days"]
-    checked = 0
-    for case_dir, key_dir, _ in CASE_SETS.values():
-        for p in case_files(case_dir):
-            case = json.loads(p.read_text())
-            days = (windows.get(case["condition"]) or {}).get("days")
-            fu = case["tracked_fields"].get("followup_appointment_status") or {}
-            if days is None or not fu.get("scheduled_for") or not case.get("planned_discharge_window"):
-                continue
-            gap = (date.fromisoformat(fu["scheduled_for"][:10]) - date.fromisoformat(case["planned_discharge_window"]["start"][:10])).days
-            key = json.loads((key_dir / f"{p.stem}.key.json").read_text())
-            assert any(b["barrier_id"] == "B-F02" for b in key["barriers"]) == (gap > days), (p.stem, gap)
-            checked += 1
-    assert checked > 0
-
-
-def test_b_f02_windows_reach_the_prompt_only_when_complete(taxonomy):
-    import copy
-    from src.pipeline._common import barrier_reference
-    assert "Safe follow-up window" not in barrier_reference(taxonomy)  # values and sources still pending
-    full = copy.deepcopy(taxonomy)
-    b = next(x for x in full["barriers"] if x["id"] == "B-F02")
-    for cond, w in b["safe_followup_window_days"].items():
-        w.update(days=w["days"] or 14, source="test guideline")
-    assert "Safe follow-up window, whole calendar days from the planned discharge date: HF 7" in barrier_reference(full)
