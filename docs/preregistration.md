@@ -121,11 +121,13 @@ How the evaluator applies it (`evaluation/stats.py`, `outcome.json`):
 - "Beats both baselines" on a hypothesis means beats B1 and beats B2 on it; H4 is judged on H4a.
 - The **strongest baseline** on H4a is the one with the higher approval accuracy; the margin is the mean
   paired difference (agentic minus that baseline) over the cases where H4a applies.
-- **Null** means no Holm-significant difference in the primary family, in either direction.
-- **[CONFIRM]** Two outcomes are not covered by the wording, and the evaluator reports them as "unclassified"
-  with the reason rather than choosing a label: (a) beating both baselines on 3 or 4 hypotheses with an H4a
-  margin of 0.2 or less, and (b) significant differences that do not amount to beating both baselines on any
-  hypothesis (for example, beating only one baseline, or a baseline beating the agentic system).
+- **The three labels are exhaustive (Amendment 2):** strong as above; **mixed** = beats both baselines on at
+  least one hypothesis without meeting strong (this includes beating both on 3 or 4 hypotheses with an H4a
+  margin of 0.2 or less); **null** = beats both baselines on no hypothesis (this includes significant
+  differences that never amount to beating both baselines, for example beating only B1).
+- **Reversal flag (Amendment 2):** reported alongside the label, and raised when a baseline beats the agentic
+  system on any primary hypothesis: Holm-adjusted two-sided p < 0.05, a non-negligible effect, in the
+  baseline's favor. It does not change the label.
 
 ## Amendments
 
@@ -150,5 +152,18 @@ non-negligible effect, and beating the strongest baseline on H4a approval accura
 On 2026-10-29, after checking against methodology §7.6, it was replaced with the wording above: the
 "approval accuracy is 1.00" requirement and the rank-biserial threshold were removed, rank-biserial is reported
 only, all tests are two-sided, and "non-negligible effect" is defined in §8.
+
+**State when recorded.** Only development-set (pilot) outputs had been seen; no evaluation-set run had started.
+
+### Amendment 2 — 2026-10-29 (recorded before the evaluation-set run)
+
+**Change.** The outcome labels are made exhaustive: mixed covers beating both baselines on 1–4 hypotheses
+without meeting strong success; null covers beating both baselines on none. A reversal flag reports any primary
+hypothesis on which a baseline beats the agentic system.
+
+**Reason.** The §7.6 wording left two outcomes without a label: beating both baselines on 3 or 4 hypotheses
+with an H4a margin of 0.2 or less, and significant differences that never amount to beating both baselines.
+The development pilot itself fell into the second. A pre-registered rule must label every possible result, and a
+baseline outperforming the agentic system must be reported even when it does not change the label.
 
 **State when recorded.** Only development-set (pilot) outputs had been seen; no evaluation-set run had started.

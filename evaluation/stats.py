@@ -51,9 +51,11 @@ is reported as an effect size only. ``outcome`` classifies the primary family:
 
     strong   beats both baselines on at least 3 of H1-H4, and beats the strongest
              baseline on H4a approval accuracy by more than 0.2
-    mixed    beats both baselines on 1 or 2 hypotheses
-    null     no significant difference in the primary family
-    unclassified  none of the above (the criteria do not cover it; see reason)
+    mixed    beats both baselines on at least 1 hypothesis, without meeting strong
+    null     beats both baselines on no hypothesis
+These three are exhaustive (Amendment 2). Separately, the reversal flag is raised
+when a baseline beats the agentic system on any primary hypothesis: Holm-adjusted
+two-sided p < 0.05, a non-negligible effect, in the baseline's favor.
 """
 from __future__ import annotations
 
@@ -187,6 +189,7 @@ def compare(rows: list[dict], reference: str, baselines: list[str], alternative:
             excludes_zero = r["ci95_low"] > 0 or r["ci95_high"] < 0
             r["non_negligible"] = bool(excludes_zero and abs(r["mean_difference"]) >= EFFECT_THRESHOLD)
             r["beats"] = bool(r["significant"] and r["mean_difference"] > 0 and r["non_negligible"])
+            r["reversal"] = bool(r["significant"] and r["mean_difference"] < 0 and r["non_negligible"])
     return out
 
 
@@ -199,19 +202,19 @@ def outcome(rows: list[dict], baselines: list[str]) -> dict:
     h4a = [find("H4a", b) for b in baselines if find("H4a", b).get("p_value") is not None]
     strongest = max(h4a, key=lambda r: r["baseline_mean"]) if h4a else None
     margin = strongest["mean_difference"] if strongest else None
-    any_significant = any(r.get("significant") for r in primary)
     if len(beaten) >= 3 and margin is not None and margin > H4A_MARGIN:
         label, reason = "strong", ""
-    elif 1 <= len(beaten) <= 2:
-        label, reason = "mixed", ""
-    elif not any_significant:
-        label, reason = "null", ""
-    elif len(beaten) >= 3:
-        label, reason = "unclassified", (f"beats both baselines on {len(beaten)} hypotheses, but the H4a margin over "
-                                         f"the strongest baseline is {margin if margin is None else round(margin, 3)}, "
-                                         f"not more than {H4A_MARGIN}")
+    elif beaten:
+        label = "mixed"
+        reason = ("" if len(beaten) <= 2 else
+                  f"beats both baselines on {len(beaten)} hypotheses, but the H4a margin over the strongest "
+                  f"baseline is {'-' if margin is None else round(margin, 3)}, not more than {H4A_MARGIN}")
     else:
-        label, reason = "unclassified", "significant differences, but no hypothesis beaten against both baselines"
-    return {"outcome": label, "reason": reason, "hypotheses_beaten_against_both": beaten,
+        label = "null"
+        reason = "" if not any(r.get("significant") for r in primary) else \
+            "significant differences, but no hypothesis beaten against both baselines"
+    reversals = [f"{r['baseline']} beats the agentic system on {r['hypothesis']}" for r in primary if r.get("reversal")]
+    return {"outcome": label, "reason": reason, "reversal": bool(reversals), "reversals": reversals,
+            "hypotheses_beaten_against_both": beaten,
             "h4a_strongest_baseline": strongest["baseline"] if strongest else None,
             "h4a_margin_over_strongest": margin, "effect_threshold": EFFECT_THRESHOLD, "h4a_margin_required": H4A_MARGIN}

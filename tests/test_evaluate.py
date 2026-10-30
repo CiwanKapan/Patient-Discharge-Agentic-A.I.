@@ -205,5 +205,5 @@ def test_cli_writes_significance(runs, taxonomy, capsys):
     printed = capsys.readouterr().out
     assert "significance (Agentic vs each baseline; two-sided" in printed and "outcome (pre-registration §8)" in printed
     result = json.loads((out / "outcome.json").read_text())
-    assert result["outcome"] in ("strong", "mixed", "null", "unclassified")
+    assert result["outcome"] in ("strong", "mixed", "null") and "reversal" in result
     assert result["effect_threshold"] == 0.05 and result["h4a_margin_required"] == 0.2

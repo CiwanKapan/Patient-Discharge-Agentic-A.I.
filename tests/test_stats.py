@@ -112,12 +112,13 @@ def test_beats_needs_significance_direction_and_a_non_negligible_effect():
     assert h1["significant"] and h1["non_negligible"] and not h1["beats"]
 
 
-def _primary(beats: dict, h4a_margin=0.3, significant=None):
+def _primary(beats: dict, h4a_margin=0.3, significant=None, reversals=()):
     """Synthetic primary-family rows: beats[(hypothesis, baseline)] -> bool."""
     rows = []
     for (h, b), win in beats.items():
         rows.append({"hypothesis": h, "baseline": b, "family": "primary", "p_value": 0.01,
                      "significant": win if significant is None else significant, "beats": win,
+                     "reversal": (h, b) in reversals,
                      "mean_difference": h4a_margin if h == "H4a" else 0.1,
                      "baseline_mean": {"B1": 0.3, "B2": 0.7}[b]})
     return rows
@@ -126,17 +127,44 @@ def _primary(beats: dict, h4a_margin=0.3, significant=None):
 @pytest.mark.parametrize("wins, margin, significant, expected", [
     ({"H1", "H2", "H3", "H4a"}, 0.3, None, "strong"),
     ({"H1", "H2", "H4a"}, 0.25, None, "strong"),
-    ({"H1", "H2", "H3"}, 0.1, None, "unclassified"),      # 3 beaten, but H4a margin not > 0.2
+    ({"H1", "H2", "H3"}, 0.1, None, "mixed"),       # 3 beaten, H4a margin not > 0.2
+    ({"H1", "H2", "H3", "H4a"}, 0.2, None, "mixed"),  # margin must be MORE than 0.2
     ({"H1", "H4a"}, 0.3, None, "mixed"),
+    ({"H2"}, 0.0, None, "mixed"),
     (set(), 0.0, False, "null"),
-    (set(), 0.0, True, "unclassified"),                    # significant somewhere, nothing beaten against both
+    (set(), 0.0, True, "null"),                       # significant somewhere, nothing beaten against both
 ])
-def test_outcome_classification(wins, margin, significant, expected):
+def test_outcome_labels_are_exhaustive(wins, margin, significant, expected):
     beats = {(h, b): h in wins for h in ("H1", "H2", "H3", "H4a") for b in ("B1", "B2")}
     result = stats.outcome(_primary(beats, margin, significant), ["B1", "B2"])
     assert result["outcome"] == expected
     assert result["h4a_strongest_baseline"] == "B2"  # the baseline with the higher H4a
-    assert bool(result["reason"]) == (expected == "unclassified")
+    assert result["reversal"] is False
+
+
+def test_every_combination_gets_one_of_the_three_labels():
+    import itertools
+    hyps = ("H1", "H2", "H3", "H4a")
+    for pattern in itertools.product([False, True], repeat=8):
+        beats = dict(zip(((h, b) for h in hyps for b in ("B1", "B2")), pattern))
+        for margin in (0.1, 0.3):
+            assert stats.outcome(_primary(beats, margin), ["B1", "B2"])["outcome"] in ("strong", "mixed", "null")
+
+
+def test_reversal_flag_is_raised_whatever_the_label():
+    beats = {(h, b): b == "B1" or h == "H1" for h in ("H1", "H2", "H3", "H4a") for b in ("B1", "B2")}
+    result = stats.outcome(_primary(beats, 0.3, reversals={("H3", "B2")}), ["B1", "B2"])
+    assert result["outcome"] == "mixed" and result["reversal"] is True
+    assert result["reversals"] == ["B2 beats the agentic system on H3"]
+
+
+def test_reversal_needs_significance_and_a_non_negligible_effect():
+    worse = _rows({"Agentic": [0.5] * 15, "B1": [1.0] * 15})
+    h1 = next(r for r in stats.compare(worse, "Agentic", ["B1"]) if r["hypothesis"] == "H1")
+    assert h1["reversal"] and not h1["beats"]
+    slightly = _rows({"Agentic": [0.98] * 15, "B1": [1.0] * 15})  # significant, but diff < 0.05
+    h1 = next(r for r in stats.compare(slightly, "Agentic", ["B1"]) if r["hypothesis"] == "H1")
+    assert not h1["reversal"]
 
 
 def test_a_hypothesis_counts_only_when_beaten_against_both_baselines():

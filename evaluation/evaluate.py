@@ -474,6 +474,7 @@ def print_outcome(result: dict) -> None:
     margin = result["h4a_margin_over_strongest"]
     print(f"\noutcome (pre-registration §8): {result['outcome'].upper()}"
           + (f" -- {result['reason']}" if result["reason"] else ""))
+    print(f"  reversal flag: {'RAISED -- ' + '; '.join(result['reversals']) if result['reversal'] else 'not raised'}")
     print(f"  hypotheses beaten against both baselines: {', '.join(result['hypotheses_beaten_against_both']) or 'none'}")
     print(f"  H4a margin over the strongest baseline ({result['h4a_strongest_baseline']}): "
           f"{'-' if margin is None else f'{margin:+.3f}'} (strong success needs > {result['h4a_margin_required']})")
