@@ -190,7 +190,7 @@ FIELD_OF = {
 TASKS_FOR = {
     "B-C01": ["T-PH01"], "B-C02": ["T-MD02"], "B-C03": ["T-MD02"], "B-C04": ["T-MD03"],
     "B-C05": ["T-RN06"], "B-C06": ["T-RN05"], "B-C07": ["T-MD04"], "B-E01": ["T-RN01"],
-    "B-E02": ["T-PH02", "T-PH03"], "B-E03": ["T-RN02"], "B-E04": ["T-RN03"], "B-E05": ["T-RN07"],
+    "B-E02": ["T-PH02"], "B-E03": ["T-RN02"], "B-E04": ["T-RN03"], "B-E05": ["T-RN07"],
     "B-E06": ["T-RN08"], "B-E07": ["T-MD07"], "B-F01": ["T-CM01"], "B-F02": ["T-CM01"],
     "B-F03": ["T-CM02"], "B-F04": ["T-CM03"], "B-F05": ["T-CM08"], "B-S01": ["T-CM07"],
     "B-S02": ["T-CM04"], "B-S03": ["T-CM05"], "B-S04": ["T-CM06"], "B-S05": ["T-CM09"],
@@ -557,6 +557,19 @@ class CaseBuilder:
         self.temptation = tool
 
     # ------------------------------------------------------------------ assemble
+    def task_choices(self, barrier: dict, case: dict) -> list[str]:
+        """The key's task for a barrier, in order of preference. B-E02 (medication not available) depends
+        on why: when the barrier's own evidence says the drug needs prior authorization, the task is
+        T-PH03 (obtain prior authorization); otherwise (out of stock, prescriptions not sent) T-PH02
+        (fill discharge prescriptions). Reads the finished case only, so it never changes the case."""
+        bid = barrier["barrier_id"]
+        if bid != "B-E02":
+            return TASKS_FOR[bid]
+        text = " ".join(json.dumps(case["tracked_fields"].get(f.split(".", 1)[1], "")) if f.startswith("tracked_fields.")
+                        else case["free_text_notes"].get(f.split(".", 1)[1], "")
+                        for f in barrier["evidence_fields"])
+        return ["T-PH03"] if "prior authorization" in text.lower() else ["T-PH02"]
+
     def build(self):
         c, p = self.ctx, self.p
         s, e = c["dwin"]
@@ -584,7 +597,7 @@ class CaseBuilder:
         tasks = []
         t_tax = {t["id"]: t for t in self.tax["tasks"]}
         for b in self.key_barriers:
-            for tid in TASKS_FOR[b["barrier_id"]]:
+            for tid in self.task_choices(b, case):
                 if self.cond in t_tax[tid]["conditions"]:
                     existing = next((t for t in tasks if t["task_id"] == tid), None)
                     if existing:

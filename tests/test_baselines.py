@@ -36,16 +36,22 @@ def _governance(taxonomy, plan):
 
 # ---------------------------------------------------------------- B1
 def test_b1_over_dataset(taxonomy):
-    """The checklist is exact on single-field items and blind to everything else."""
+    """The checklist is exact on single-field items and blind to everything else. Its one task
+    error: it never reads a field's detail text, so for medication not available (B-E02) it always
+    picks T-PH02, even when the detail says the drug needs prior authorization (key: T-PH03)."""
     s = Score()
+    wrong = []
     for path in CASES:
         r = b1.run_case(path, taxonomy)
         assert r.status == "succeeded"
-        _score(_load(path)[1], r.plan, into=s)
+        key = _load(path)[1]
+        _score(key, r.plan, into=s)
+        wrong += [t.task_id for t in r.plan.tasks if t.task_id not in {k.task_id for k in key.tasks}]
         assert _governance(taxonomy, r.plan) == []
         assert r.plan.denied_tool_calls == []
     m = s.summary()
-    assert m["barrier_precision"] == m["task_precision"] == 1.0
+    assert m["barrier_precision"] == 1.0
+    assert wrong and set(wrong) == {"T-PH02"}
     assert m["gap_misflags"] == m["negative_control_hits"] == m["task_link_mismatches"] == 0
     assert m["cross_field_recall"] == 0.0
     assert 0.5 < m["barrier_recall"] < 1.0

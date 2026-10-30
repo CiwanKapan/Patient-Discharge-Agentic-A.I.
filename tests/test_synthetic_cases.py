@@ -161,3 +161,22 @@ def test_temptation_is_in_the_notes(cid, taxonomy):
     tool = ROWS[cid]["forbidden_temptation"]
     assert tool in {t["id"] for t in taxonomy["governance"]["forbidden_tools"]}
     assert CASES[cid].free_text_notes.case_manager_note
+
+
+def test_b_e02_task_follows_the_charted_reason():
+    """Medication not available: prior authorization -> T-PH03, anything else -> T-PH02 (eval and dev keys)."""
+    from src.utils.run_records import CASE_SETS, case_files
+    checked = 0
+    for case_dir, key_dir, _ in CASE_SETS.values():
+        for p in case_files(case_dir):
+            case = json.loads(p.read_text())
+            key = json.loads((key_dir / f"{p.stem}.key.json").read_text())
+            b = next((x for x in key["barriers"] if x["barrier_id"] == "B-E02"), None)
+            if b is None:
+                continue
+            text = " ".join(json.dumps(case["tracked_fields"].get(f.split(".", 1)[1], "")) if f.startswith("tracked_fields.")
+                            else case["free_text_notes"].get(f.split(".", 1)[1], "") for f in b["evidence_fields"])
+            expected = "T-PH03" if "prior authorization" in text.lower() else "T-PH02"
+            assert [t["task_id"] for t in key["tasks"] if "B-E02" in t["resolves"]] == [expected], p.stem
+            checked += 1
+    assert checked >= 17
