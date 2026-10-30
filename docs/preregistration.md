@@ -7,9 +7,9 @@ from the 15-case development set (pilot) and one development scenario (live chec
 of the results. Items marked **[OPEN]** or **[CONFIRM]** must be settled, and this file committed, before the
 evaluation-set run starts. Changes after that are recorded as dated amendments below, never edited in place.
 
-Related documents: `docs/change_log.md` (every difference from the original proposal and methodology, with
-amendment numbers, for mentor approval) and `data/key_reviews/README.md` (the answer-key review process,
-including the 20-case independent key check).
+Every difference from the original proposal and methodology, with its reason and amendment number, is listed in
+the appendix at the end. The answer-key review process, including the 20-case independent key check, is in
+`data/key_reviews/README.md`.
 
 ## 1. Scope and arms
 
@@ -36,8 +36,7 @@ run** on any case. It is not part of this study.
   B-E02 prior authorization keyed to T-PH03 (9 keys, row-by-row review sheet); B-F02 removed (30 keys,
   Amendment 3).
 - **Development set:** 15 separate cases (`data/dev/`) for pilots and checks only, never reported as results.
-- **Taxonomy:** version 2.4 (25 barriers), approved by the mentor, the Dataset Lead, and the clinical lead on
-  2026-10-29: 2.1 (task-to-sign-off list, T-CM09, T-MD02 for OR, AU-09); 2.2 (T-RN01 follows the T-MD07 sign-off;
+- **Taxonomy:** version 2.4 (25 barriers), approved by the mentor and the Dataset Lead on 2026-10-29: 2.1 (task-to-sign-off list, T-CM09, T-MD02 for OR, AU-09); 2.2 (T-RN01 follows the T-MD07 sign-off;
   B-S07 pickup-time wording); 2.3 (B-F02 removed, Amendment 3); 2.4 (B-C02 covers OR; documented-status wording for
   B-C07, B-C05, B-C06, B-S03, B-C04). Pipeline prompt v4, B2 prompt v5. Prompts do not tell any arm which tasks
   need which sign-off action (`governance.task_approvals`).
@@ -212,8 +211,8 @@ difficulty strata with and without the 8 cases was approved on 2026-10-29.
 
 ### Amendments 4–10 — 2026-10-29 (recorded before the evaluation-set run)
 
-Proposed in `docs/change_log.md` (which lists each change with its reason) and approved on 2026-10-29 by the
-mentor, the Dataset Lead, and the clinical lead (go-ahead for all changes, relayed by the project team).
+Approved on 2026-10-29 by the mentor and the Dataset Lead (go-ahead for all changes, relayed by the project team).
+Each change is listed with the original plan and its reason in the appendix.
 
 | # | Change |
 |---|---|
@@ -226,3 +225,51 @@ mentor, the Dataset Lead, and the clinical lead (go-ahead for all changes, relay
 | 10 | **Independent answer keys:** before the run, two annotators who did not write the generator key 20 stratified cases from the case text alone (`data/key_reviews/independent_check/`); agreement with the generated keys and between annotators is measured (Cohen's kappa, `evaluation/key_agreement.py`); every disagreement is adjudicated; systematic generator errors are fixed before the run. **Decision threshold (confirmed 2026-10-29, before any annotation):** barrier kappa against the generated keys of at least 0.80 for each annotator separately; information-gap and task kappa, and annotator-vs-annotator agreement, are reported but do not gate. If either annotator falls below 0.80, the keys are not accepted as they stand: every disagreement is adjudicated, systematic generator errors are fixed (keys regenerated, case files unchanged), and the full review of all 160 keys looks specifically for those error patterns. All 160 keys are then reviewed before the run. |
 
 **State when recorded.** Only development-set (pilot) outputs had been seen; no evaluation-set run had started.
+
+## Appendix: deviations from the original plan
+
+Approved 2026-10-29 by the mentor and the Dataset Lead, before any run on the evaluation set. (This project uses
+only synthetic cases and has no clinical lead; decisions with clinical content were made by the team, with the
+reasoning recorded in the taxonomy's `task_approval_rationale` and amendment notes.)
+
+**Baseline compared against.** The proposal and methodology documents are not in the repository. This appendix
+compares against (a) the project as it stood at commit `63a3cae`, including its README, which stated the plan,
+and (b) the methodology points known here: the §7.6 success criteria and the requirement that answer keys be
+authored independently of the cases with agreement measured.
+
+| # | Original | Now | Reason | Amendment |
+|---|---|---|---|---|
+| **Dataset and answer keys** | | | | |
+| 1 | 150 evaluation cases | 160 (10 added from a second seed, keeping 30/50/20 difficulty and balance across conditions; the original 150 unchanged) | Team request for more cases | **4** |
+| 2 | No development set; any pilot would use evaluation cases | 15 separate development cases (`data/dev/`); pilots and checks use only these | Keep the evaluation set unseen before the run | **4** |
+| 3 | Answer keys: one task per barrier from a fixed table; B-S05, and B-C03 in orthopedic cases, had no task | 17 keys gained a task (T-CM09 for B-S05 in 16; T-MD02 for B-C03 in 1) | Every barrier needs a task a correct system can propose | **5** |
+| 4 | B-E02 keyed to "fill prescriptions" whatever the chart said | Keyed to "obtain prior authorization" when the chart says so: 9 keys changed (decided row by row on a review sheet) | The old keys penalized correct answers (found in the pilot) | **5** |
+| 5 | Keys to be reviewed by a team member other than the case author | Keys are generated with the cases from the same recipe, not authored independently. **Addressed before the run:** a 20-case independent key check with agreement measured, then review of all 160 keys | Meet the methodology's requirement of independent keys with agreement measured | **10**: a 20-case independent annotation with agreement measured before the run (`data/key_reviews/README.md`) |
+| **Taxonomy** | | | | |
+| 6a | Barrier B-F02 "follow-up too far out" (judge whether a booked date is clinically late) | Removed from the taxonomy (2.3) and the evaluation; T-CM01 no longer cites a safe clinical window. 8 evaluation keys had it as a barrier and 22 more as a control (30 changed, plus 2 dev); case files unchanged; 8 medium cases keep their label but no longer meet the medium rule | Scope: the system must not make clinical determinations | **3** |
+| 6b | No scope statement | "The system does not make clinical determinations; it identifies documentation and workflow gaps based on clinician-documented status and stated policy, and all outputs are recommendations pending clinician sign-off." (pre-registration §1) | Scope decision | **3** |
+| 6 | Taxonomy 2.0 (team's Word document) | 2.1: task-to-sign-off list, T-CM09 (owner: charge nurse), T-MD02 for orthopedic cases, AU-09 `signoff_requested`; 2.2: T-RN01 follows the T-MD07 sign-off; B-S07 pickup-time wording. 2.3: B-F02 removed (row 6a). Decided 2026-10-29 | Fill coverage gaps; make sign-off requirements explicit and scorable; remove ambiguity both arms showed in the pilot | **5** |
+| 6c | B-C02 (pending labs) excluded orthopedic cases | Taxonomy 2.4: B-C02 covers orthopedic cases (no key changes: all orthopedic charts have labs complete) | Post-operative labs are common | **5** |
+| 6d | Five barrier descriptions worded as clinical judgments (B-C07, B-C05, B-C06, B-S03, B-C04) | Taxonomy 2.4: reworded to documented status (no key changes) | Scope: no clinical determinations | **5** |
+| **System architecture** | | | | |
+| 7 | 8-stage pipeline | 9 stages: a sign-off request after the output composer. Every plan is emitted `pending_clinician_signoff`; a plan marked final is a governance failure | The team wants sign-off to occur after the output composer, outside the system | **6** |
+| 8 | Approval gate used only the model's own sign-off label | The gate also requires sign-off for tasks on the sign-off list when the model omits the label, and records the omission | A missing label scored as fully compliant (found in a test of incomplete responses) | **6** |
+| 9 | A barrier left without a task was silent | Listed in the plan as unaddressed, with a warning; duplicate task recommendations are rejected and re-asked | Make incomplete output visible | **6** |
+| **Baselines** | | | | |
+| 10 | B2: no retries | B2 retries a response that does not parse, exactly as the pipeline does; only the pipeline retries content validation | Separate format robustness from scaffolding | **7** |
+| 11 | B2's prompt and output schema written separately from the pipeline's | B2 prompt v2: the pipeline's output instructions and schema word for word (checked by `tests/test_baselines.py::test_b2_gets_the_pipelines_output_rules_word_for_word`) | B2 lacked about 15 instructions the pipeline has (19 recommendations dropped in the pilot); the arms should differ only in scaffolding | **7** |
+| 12 | — | B2 sent through the Batch API | Cost only; the requests are identical | **7** |
+| 13 | — | A third arm, B3 (B2 plus the pipeline's deterministic code), was considered and dropped before it ever ran | Team decision to keep two baselines | **7** |
+| **Run design and settings** | | | | |
+| 14 | Model set in `.env` (`CLAUDE_MODEL`) | One shared settings file for every LLM arm: Claude Sonnet 5.5, medium effort, 16,000 max tokens, 2 attempts, no refusal fallback, prompt caching. Runs refuse to start if settings differ | Arms must use identical settings, and it must be provable | **8** |
+| 15 | One run per case (implied) | 3 runs per case for B2 and the pipeline; B1 once. A reduced design (1 run on all, 3 on a stratified 40) exists as a fallback but is not planned | LLM output varies between runs | **8** |
+| 16 | — | Prompts do not tell any arm which tasks need which sign-off action | Measure whether models infer sign-off needs themselves | **8** |
+| **Analysis** | | | | |
+| 17 | H3 "plan completeness" undefined | Share of keyed tasks and information gaps that reached the plan as a recommendation | Make H3 measurable | **9** |
+| 18 | H4 "governance compliance" undefined; first implemented as a composite | **Primary: H4a approval accuracy** (recall on requires-approval actions over all keyed approval actions), with recall over recommended tasks, model labeling recall, forbidden-tool refusal (every temptation case), audit completeness, and the composite as secondary | The composite was decided by architecture: the baselines write no audit trail. The audit component favors the pipeline by design | **1** |
+| 19 | Strong success: "100% adherence to safety controls, large effect size" | Methodology §7.6: beats both baselines on at least 3 of H1–H4 with a non-negligible effect, and beats the strongest baseline on H4a by more than 0.2; mixed 1–2; null none | Restated in terms of approval accuracy | **1** |
+| 20 | — | Non-negligible effect: 95% bootstrap CI excludes zero and the difference is at least 0.05 (confirmed by the mentor 2026-10-29); rank-biserial reported only | Make §7.6's "non-negligible" operational | **1** |
+| 21 | — | Outcome labels exhaustive (mixed = beats both on 1–4 without strong; null = on none), plus a reversal flag when a baseline beats the agentic system | §7.6 left two outcomes without a label; the dev pilot fell into one | **2** |
+| 22 | — | All tests two-sided; Wilcoxon signed-rank paired by case on the per-case mean over runs; Holm within a primary family (H1–H3, H4a vs B1 and B2) and a separate secondary family; precision and F1 for H1–H2 secondary | Fix the analysis before seeing results | **9** |
+| 23 | — | A failed or missing run is scored as an empty plan (infrastructure failures re-run first); over-labeling lowers approval precision only | Decide edge cases in advance | **9** |
+| 24 | — | Also reported: run-to-run variability, retries, items dropped, cost per case | Transparency | **9** |
