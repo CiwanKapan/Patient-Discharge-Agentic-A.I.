@@ -50,7 +50,10 @@ Scoring rules:
   or failed plan has no violations to count, so check `failed` next to it.
 * Retries and tokens come from each case's run record: format_retries (all LLM
   arms), validation_retries (the pipeline only), and the estimated cost from
-  config/run_config.json pricing (batch calls at the batch discount).
+  config/run_config.json pricing (batch calls at the batch discount), with
+  cost_per_case_run and a projection to the 160 evaluation cases at 1 and 3 runs.
+* items_dropped counts output items an arm produced that its plan could not hold
+  (B2's normalization drops them; the pipeline re-asks instead, so it has none).
 """
 from __future__ import annotations
 
@@ -102,6 +105,7 @@ class Slice:
     compliant: int = 0
     failed: int = 0
     violations: int = 0
+    items_dropped: int = 0
     llm: dict = field(default_factory=lambda: defaultdict(int))
 
     def summary(self) -> dict:
@@ -112,7 +116,9 @@ class Slice:
             "plan_completeness": self.coverage.recall if self.coverage.tp + self.coverage.fn else None,
             "governance_compliance": self.compliant / n if n else None,
             "governance_violations": self.violations,
+            "items_dropped": self.items_dropped,
             **{k: _fmt(v) for k, v in self.llm.items()},
+            "cost_per_case_run": _fmt(self.llm["cost_usd"] / n) if n and "cost_usd" in self.llm else None,
         }
 
 
@@ -216,6 +222,7 @@ def evaluate(systems: dict[str, list[RunDir]], case_ids: list[str], dataset: Pat
                     s.compliant += not violations
                     s.failed += status != "ok"
                     s.violations += len(violations)
+                    s.items_dropped += len(record.get("notes") or [])
                     for k, v in usage.items():
                         s.llm[k] += v or 0
                 rows.append({
@@ -353,9 +360,25 @@ TABLE = [("cases", "case runs"), ("failed", "failed"), ("barrier_recall", "barri
          ("approval_precision", "approval P"), ("approval_label_omissions", "label omit"),
          ("governance_compliance", "gov comply"), ("negative_control_hits", "neg ctl"),
          ("gap_misflags", "gap misflag")]
-LLM_TABLE = [("llm_calls", "llm calls"), ("format_retries", "format rtry"), ("validation_retries", "valid rtry"),
-             ("llm_errors", "llm errors"), ("input_tokens", "input tok"), ("output_tokens", "output tok"),
-             ("cache_read_input_tokens", "cache read"), ("cost_usd", "cost $")]
+LLM_TABLE = [("items_dropped", "items drop"), ("llm_calls", "llm calls"), ("format_retries", "format rtry"),
+             ("validation_retries", "valid rtry"), ("llm_errors", "llm errors"), ("input_tokens", "input tok"),
+             ("output_tokens", "output tok"), ("cache_read_input_tokens", "cache read"), ("cost_usd", "cost $"),
+             ("cost_per_case_run", "$/case run")]
+EVAL_CASES = 160
+
+
+def print_cost_projection(summary: list[dict]) -> None:
+    rows = [r for r in summary if r["slice"] == "all" and r.get("cost_per_case_run")]
+    if not rows:
+        return
+    print(f"\nprojected cost for the {EVAL_CASES} evaluation cases, from cost per case run here:")
+    total = {1: 0.0, 3: 0.0}
+    for r in rows:
+        per = r["cost_per_case_run"]
+        print(f"  {r['system']:<8} ${per:.4f}/case run -> 1 run ${per * EVAL_CASES:7.2f}   3 runs ${per * EVAL_CASES * 3:7.2f}")
+        total[1] += per * EVAL_CASES
+        total[3] += per * EVAL_CASES * 3
+    print(f"  {'total':<8} {'':>16}    1 run ${total[1]:7.2f}   3 runs ${total[3]:7.2f}")
 
 
 def print_table(summary: list[dict], label: str, extra=()) -> None:
@@ -439,6 +462,7 @@ def main(argv: list[str] | None = None) -> int:
     print(f"Scored {len(case_ids)} cases: {runs} runs.")
     for label in ("all", "difficulty=easy", "difficulty=medium", "difficulty=hard"):
         print_table(summary, label, LLM_TABLE if label == "all" else ())
+    print_cost_projection(summary)
     if var:
         write_csv(out / "variability.csv", var)
         written.append(out / "variability.csv")

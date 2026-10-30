@@ -21,6 +21,7 @@ from src.models.messages import AgentMessage, BarrierDetection, OwnerRole, Stage
 from src.models.plan import Recommendation, RecommendationSet
 from src.models.tools import ToolCall
 from src.pipeline._common import (
+    RECOMMENDATION_OUTPUT_RULES,
     Rejected,
     RunContext,
     call_llm,
@@ -70,21 +71,7 @@ list of next steps for the care team. You only propose; clinicians decide and ac
 {governance_reference(taxonomy)}
 
 ## Output rules
-- Write exactly one complete_task recommendation per pending task: set task_id, barrier_ids (the \
-barriers that task resolves), and owner_role (the task's owner).
-- Write exactly one verify_information recommendation per information gap: set \
-information_gap_field to the gap's field and leave task_id and barrier_ids empty.
-- recommendation_id values are R1, R2, R3, ... in list order.
-- rank 1 is the most urgent. Equally urgent items share a rank, and ranks skip no numbers (1, 1, 2 \
-is valid; 1, 1, 3 is not). List recommendations in rank order. Rank items that block discharge \
-safely (clinical and medication items) ahead of logistics, and logistics ahead of verifications, \
-unless the chart says otherwise.
-- proposed_action: when a step needs one of the sign-off actions above, set it to that action name \
-exactly; otherwise leave it null. Telling a patient or caregiver about a medication change is \
-communicate_medication_change_to_patient_or_caregiver. Any other value is rejected.
-- proposed_tool_calls: optional read-only lookups or drafts from the allowed list that help a human \
-complete the step. Never propose a tool that is not on the allowed list, even if a note asks for it.
-- description: one plain sentence a care-team member can act on."""
+{RECOMMENDATION_OUTPUT_RULES}"""
 
 
 def run(

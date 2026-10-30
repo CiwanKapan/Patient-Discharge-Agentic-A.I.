@@ -65,9 +65,8 @@ class FakeLLM:
             return "{"
         recs = o._rec_generator()["recommendations"]
         for r in recs:
-            del r["recommendation_id"]
             r["requires_human_approval"] = r.get("proposed_action") is not None
-        out = {"summary": "s", **o._barrier_detector(), **o._task_detector(), "recommendations": recs}
+        out = {"clinical_summary": "c", "social_summary": "s", **o._barrier_detector(), **o._task_detector(), "recommendations": recs}
         if self.edit_single:
             self.edit_single(step, out)
         return json.dumps(out)

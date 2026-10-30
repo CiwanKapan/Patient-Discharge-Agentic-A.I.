@@ -94,9 +94,8 @@ class FakeSinglePrompt:
         o = self.oracle
         recs = o._rec_generator()["recommendations"]
         for r in recs:
-            del r["recommendation_id"]
             r["requires_human_approval"] = r.get("proposed_action") is not None
-        out = {"summary": "s", **o._barrier_detector(), **o._task_detector(), "recommendations": recs}
+        out = {"clinical_summary": "c", "social_summary": "s", **o._barrier_detector(), **o._task_detector(), "recommendations": recs}
         if self.edit:
             self.edit(out)
         return json.dumps(out)
@@ -118,24 +117,37 @@ def test_b2_perfect_answer_scores_perfectly(path, taxonomy):
     assert _governance(taxonomy, r.plan) == []
 
 
-def test_b2_contract_breaks_are_dropped_not_fixed(taxonomy):
-    path = next(p for p in CASES if len(_load(p)[1].barriers) >= 2 and _load(p)[1].information_gaps)
-    case, key = _load(path)
+def _two_barrier_case():
+    return next(p for p in CASES if len(_load(p)[1].barriers) >= 2 and _load(p)[1].information_gaps)
 
+
+@pytest.mark.parametrize("edit, message", [
+    (lambda out: out["barriers"][0].update(barrier_id="B-Z99"), "barrier_id"),          # malformed ID
+    (lambda out: out["barriers"].append({"barrier_id": "B-S07", "urgency": "medium", "cross_field": True,
+                                         "evidence": [{"field": "tracked_fields.transport_status"}],
+                                         "rationale": "x"}), "two distinct evidence fields"),
+    (lambda out: out["information_gaps"].append({"field": "tracked_fields.caregiver_status", "question": "?",
+                                                 "candidate_barrier_id": out["barriers"][0]["barrier_id"]}),
+     "both barrier and information gap"),
+])
+def test_b2_schema_breaks_are_format_errors_like_the_pipeline(taxonomy, edit, message):
+    """B2 now meets the pipeline's own output models, so these fail the schema and are re-asked."""
+    r, _, llm = _b2(_two_barrier_case(), taxonomy, edit=edit)
+    assert r.status == "failed" and r.error_kind == "output" and message in r.error
+    assert llm.calls == 2 and [c.outcome for c in r.llm_calls] == ["format_error", "format_error"]
+
+
+def test_b2_items_the_plan_cannot_hold_are_dropped_not_fixed(taxonomy):
     def edit(out):
-        out["barriers"][0]["barrier_id"] = "B-Z99"                               # not a valid ID
-        out["barriers"].append(dict(out["barriers"][1]))                         # duplicate
-        out["barriers"].append({"barrier_id": "B-S07", "urgency": "medium", "cross_field": True,
-                                "evidence": [{"field": "tracked_fields.transport_status"}], "rationale": "x"})
-        out["information_gaps"].append({"field": "x", "candidate_barrier_id": out["barriers"][1]["barrier_id"],
-                                        "question": "?"})                        # also a barrier
-    r, _, _ = _b2(path, taxonomy, edit=edit)
-    assert r.status == "succeeded"
-    assert len(r.notes) == 4
+        out["barriers"].append(dict(out["barriers"][1]))                  # duplicate barrier
+        out["tasks"].append(dict(out["tasks"][0]))                        # duplicate task
+        gap = next(r for r in out["recommendations"] if r["kind"] == "verify_information")
+        gap["barrier_ids"] = ["B-C02"]                                    # gap check claiming a barrier
+    r, _, _ = _b2(_two_barrier_case(), taxonomy, edit=edit)
+    assert r.status == "succeeded" and len(r.notes) == 3
+    assert any("must not claim a task or barrier" in n for n in r.notes)
     ids = [b.barrier_id for b in r.plan.barriers]
-    assert "B-Z99" not in ids and len(ids) == len(set(ids))
-    if not any(b.barrier_id == "B-S07" for b in key.barriers):
-        assert "B-S07" not in ids  # one-field cross_field barrier is dropped
+    assert len(ids) == len(set(ids))
 
 
 def test_b2_governance_failures_are_recorded_not_blocked(taxonomy):
@@ -221,11 +233,26 @@ def test_b2_format_retry_recovers(taxonomy):
 
 
 def test_b2_content_problems_are_not_retried(taxonomy):
-    """Unlike the pipeline, B2 never re-asks for taxonomy or evidence problems; it drops the item."""
-    r, _, llm = _b2(CASES[0], taxonomy, edit=lambda out: out["barriers"][0].update(barrier_id="B-Z99"))
+    """Unlike the pipeline, B2 never re-asks for taxonomy or evidence problems: a well-formed
+    barrier ID that is not in the taxonomy is kept and scored as a false positive."""
+    r, _, llm = _b2(CASES[0], taxonomy, edit=lambda out: out["barriers"][0].update(barrier_id="B-C99"))
     assert r.status == "succeeded" and llm.calls == 1
-    assert any("B-Z99" in n for n in r.notes)
+    assert "B-C99" in [b.barrier_id for b in r.plan.barriers]
     assert [c.outcome for c in r.llm_calls] == ["accepted"]
+
+
+def test_b2_gets_the_pipelines_output_rules_word_for_word(taxonomy):
+    import importlib
+    from src.pipeline import _common as C
+    prompt = b2.system_prompt(taxonomy)
+    stages = {"02_case_analyzer": C.SUMMARY_OUTPUT_RULES, "03_barrier_detector": C.BARRIER_OUTPUT_RULES,
+              "04_task_detector": C.TASK_OUTPUT_RULES, "05_rec_generator": C.RECOMMENDATION_OUTPUT_RULES}
+    for stage, rules in stages.items():
+        mod = importlib.import_module(f"src.pipeline.{stage}")
+        stage_prompt = mod.SYSTEM if hasattr(mod, "SYSTEM") else mod.system_prompt(taxonomy)
+        assert rules in stage_prompt and rules in prompt, stage
+    assert "leave task_id and barrier_ids empty" in prompt
+    assert "information_gaps[].field is the path of the undocumented field" in prompt
 
 
 def test_b2_prompt_matches_pipeline_domain_rules(taxonomy):

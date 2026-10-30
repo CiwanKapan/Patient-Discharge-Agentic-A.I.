@@ -2,22 +2,31 @@
 
 One model call reads the case and returns barriers, information gaps, tasks,
 and ranked recommendations, each flagged by the model itself as needing human
-approval or not. It gets the same model, taxonomy, and chart-reading rules as
-the pipeline, but none of its architecture:
+approval or not. It is told exactly what the pipeline's stages are told about
+the output, and nothing about the scaffolding:
+
+- the same model, settings, taxonomy, chart-reading rules, and governance list
+- the same output rules, word for word (SUMMARY_, BARRIER_, TASK_, and
+  RECOMMENDATION_OUTPUT_RULES in src/pipeline/_common.py), and the same output
+  schema: the pipeline's own item models (BarrierFinding, InformationGap,
+  TaskFinding, the recommendation draft) with the same schema-level checks
+- the same format retry: a response that does not parse against that schema is
+  re-asked exactly as the pipeline re-asks (see baselines/_single_prompt.py)
+
+What B2 lacks is the scaffolding:
 
 - no staged decomposition and no deterministic field readings
-- no grounding or taxonomy validation; a response that does not parse against
-  the output schema is retried exactly as the pipeline retries format failures
-  (see baselines/_single_prompt.py), but nothing is re-asked for content
+- no taxonomy or evidence validation, so nothing is re-asked for content
 - no approval gate: the model's own requires_human_approval flag is used as is
+  (the one output field the pipeline does not have)
 - no policy layer: proposed tool calls are recorded but nothing reviews them,
   so a forbidden one counts as a governance failure
-- no audit trail
+- no audit trail and no sign-off request
 
 To score it with the same tools as the pipeline, the output is normalized into
-a ``DischargePlan``. Items that break the contract (unknown IDs, malformed
-evidence, duplicates) cannot be represented and are dropped, each with a note
-in ``BaselineResult.notes``. Nothing is corrected.
+a ``DischargePlan``. Items the schema allows but the plan cannot represent
+(duplicate IDs, a recommendation that breaks its kind's rules) are dropped,
+each with a note in ``BaselineResult.notes``. Nothing is corrected.
 
 Model, effort, max_tokens, and attempts come from config/run_config.json.
 
@@ -25,20 +34,24 @@ Model, effort, max_tokens, and attempts come from config/run_config.json.
 """
 from __future__ import annotations
 
+import importlib
 import sys
 from pathlib import Path
-from typing import Literal, Optional
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from baselines._common import BaselineResult, load_case, main
 from baselines._single_prompt import Answer, ask, ask_batch
 from src.models.case import PatientCase
-from src.models.messages import BarrierFinding, EvidenceRef, InformationGap, OwnerRole, Stage, TaskFinding, Urgency
+from src.models.messages import BarrierDetection, BarrierFinding, InformationGap, Stage, TaskFinding
 from src.models.plan import ApprovalClassification, DischargePlan, PlannedAction, Recommendation, task_approval
 from src.models.tools import ToolCall
 from src.pipeline._common import (
+    BARRIER_OUTPUT_RULES,
     CHART_READING_RULES,
+    RECOMMENDATION_OUTPUT_RULES,
+    SUMMARY_OUTPUT_RULES,
+    TASK_OUTPUT_RULES,
     barrier_reference,
     case_view,
     governance_reference,
@@ -48,71 +61,36 @@ from src.pipeline._common import (
 from src.utils.llm import LLMClient
 from src.utils.run_config import check_environment, load_run_config
 
+rec_generator = importlib.import_module("src.pipeline.05_rec_generator")
+
 SYSTEM = "baseline_2_single_llm"
-PROMPT_VERSION = "v1"
+PROMPT_VERSION = "v2"
 
 
 # ------------------------------------------------------------------ LLM-facing output schema
-# Deliberately loose (plain strings, no cross-field rules) so the model's answer
-# is always captured; contract checks happen during normalization.
-class _Loose(BaseModel):
+# The pipeline's own output models, so both arms meet the same schema.
+class SingleRecommendation(rec_generator.DraftRecommendation):
+    requires_human_approval: bool = Field(
+        description="B2 only (it has no approval gate): true for any step that needs clinician sign-off.")
+
+
+class SinglePromptOutput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
+    clinical_summary: str
+    social_summary: str
+    barriers: list[BarrierFinding]
+    information_gaps: list[InformationGap]
+    tasks: list[TaskFinding]
+    recommendations: list[SingleRecommendation]
 
-class Evidence(_Loose):
-    field: str
-    status: Optional[str] = None
-    quote: Optional[str] = None
-
-
-class Barrier(_Loose):
-    barrier_id: str
-    urgency: Urgency
-    cross_field: bool
-    evidence: list[Evidence]
-    rationale: str
-
-
-class Gap(_Loose):
-    field: str
-    candidate_barrier_id: str
-    question: str
-
-
-class Task(_Loose):
-    task_id: str
-    resolves: list[str]
-    owner_role: OwnerRole
-    urgency: Urgency
-    evidence: list[Evidence]
-    rationale: str
-
-
-class ProposedToolCall(_Loose):
-    tool_name: str
-    reason: str
-
-
-class Rec(_Loose):
-    rank: int
-    kind: Literal["complete_task", "verify_information"]
-    description: str
-    urgency: Urgency
-    owner_role: OwnerRole
-    task_id: Optional[str] = None
-    barrier_ids: list[str] = Field(default_factory=list)
-    information_gap_field: Optional[str] = None
-    proposed_action: Optional[str] = None
-    requires_human_approval: bool
-    proposed_tool_calls: list[ProposedToolCall] = Field(default_factory=list)
-
-
-class SinglePromptOutput(_Loose):
-    summary: str
-    barriers: list[Barrier]
-    information_gaps: list[Gap]
-    tasks: list[Task]
-    recommendations: list[Rec]
+    @model_validator(mode="after")
+    def _same_checks_as_the_pipeline_schema(self) -> "SinglePromptOutput":
+        try:
+            BarrierDetection(barriers=self.barriers, information_gaps=self.information_gaps)
+        except ValidationError as e:
+            raise ValueError(e.errors()[0]["msg"].removeprefix("Value error, ")) from None
+        return self
 
 
 def system_prompt(taxonomy: dict) -> str:
@@ -132,33 +110,22 @@ barriers, and a ranked list of recommended next steps. You only propose; clinici
 {governance_reference(taxonomy)}
 
 ## Output rules
-- summary: a short clinical and social summary of the case.
-- barriers: IDs from the barrier taxonomy whose conditions include the case's condition. Set \
-cross_field as the taxonomy says. Cite evidence by field path (tracked_fields.<name>, \
-planned_discharge_window, or free_text_notes.<note>), with the field's status or a verbatim quote.
-- information_gaps: undocumented fields, the barrier each could indicate, and the question to confirm. \
-Never report the same barrier ID as both a barrier and a gap.
-- tasks: IDs from the task taxonomy that resolve the flagged barriers, with an owner_role from the \
-task's owner_roles.
-- recommendations: one complete_task per task (task_id, barrier_ids) and one verify_information per \
-information gap (information_gap_field). rank 1 is most urgent; equal urgency shares a rank and ranks \
-skip no numbers.
-- proposed_action: a sign-off action name from the governance list when a step needs one, else null. \
-Set requires_human_approval to true for any step that needs clinician sign-off.
-- proposed_tool_calls: optional, from the allowed tool list only."""
+
+### Summary
+{SUMMARY_OUTPUT_RULES}
+
+### Barriers and information gaps
+{BARRIER_OUTPUT_RULES}
+
+### Tasks
+{TASK_OUTPUT_RULES}
+
+### Recommendations
+{RECOMMENDATION_OUTPUT_RULES}
+- requires_human_approval: set to true for any step that needs clinician sign-off."""
 
 
 # ------------------------------------------------------------------ normalization
-def _evidence(items: list[Evidence]) -> list[EvidenceRef]:
-    out = []
-    for e in items:
-        try:
-            out.append(EvidenceRef(field=e.field, status=e.status, quote=e.quote))
-        except ValidationError:
-            pass
-    return out
-
-
 def _approval(taxonomy: dict, rec: Recommendation, flagged: bool) -> ApprovalClassification:
     """Record the model's own approval flag, mapped onto the approval-classification contract.
 
@@ -195,37 +162,19 @@ def normalize(taxonomy: dict, case: PatientCase, out: SinglePromptOutput) -> tup
         if b.barrier_id in seen:
             notes.append(f"dropped duplicate barrier {b.barrier_id}")
             continue
-        try:
-            barriers.append(BarrierFinding(barrier_id=b.barrier_id, urgency=b.urgency, cross_field=b.cross_field,
-                                           evidence=_evidence(b.evidence), rationale=b.rationale))
-            seen.add(b.barrier_id)
-        except ValidationError as e:
-            notes.append(f"dropped barrier {b.barrier_id}: {e.errors()[0]['msg']}")
-
-    gaps = []
-    for g in out.information_gaps:
-        if g.candidate_barrier_id in seen:
-            notes.append(f"dropped gap {g.candidate_barrier_id}: also reported as a barrier")
-            continue
-        try:
-            gaps.append(InformationGap(field=g.field, candidate_barrier_id=g.candidate_barrier_id, question=g.question))
-        except ValidationError as e:
-            notes.append(f"dropped gap {g.candidate_barrier_id}: {e.errors()[0]['msg']}")
+        barriers.append(b)
+        seen.add(b.barrier_id)
 
     tasks, seen_t = [], set()
     for t in out.tasks:
         if t.task_id in seen_t:
             notes.append(f"dropped duplicate task {t.task_id}")
             continue
-        try:
-            tasks.append(TaskFinding(task_id=t.task_id, resolves=t.resolves, owner_role=t.owner_role,
-                                     urgency=t.urgency, evidence=_evidence(t.evidence), rationale=t.rationale))
-            seen_t.add(t.task_id)
-        except ValidationError as e:
-            notes.append(f"dropped task {t.task_id}: {e.errors()[0]['msg']}")
+        tasks.append(t)
+        seen_t.add(t.task_id)
 
-    # Ranks are compressed to 1..n with ties kept, so the plan's rank-order rule
-    # holds without changing which steps the model put first.
+    # Ranks are compressed to 1..n with ties kept, and IDs renumbered in that order,
+    # so the plan's rules hold without changing which steps the model put first.
     ordered = sorted(out.recommendations, key=lambda r: r.rank)
     dense = {r: i for i, r in enumerate(sorted({r.rank for r in ordered}), 1)}
     actions = []
@@ -234,12 +183,9 @@ def normalize(taxonomy: dict, case: PatientCase, out: SinglePromptOutput) -> tup
         try:
             calls = [ToolCall(tool_name=c.tool_name, arguments={"reason": c.reason}, requested_by=Stage.REC_GENERATOR)
                      for c in r.proposed_tool_calls]
-            rec = Recommendation(
-                recommendation_id=rid, rank=dense[r.rank], kind=r.kind, description=r.description,
-                urgency=r.urgency, owner_role=r.owner_role, task_id=r.task_id, barrier_ids=r.barrier_ids,
-                information_gap_field=r.information_gap_field, proposed_action=r.proposed_action,
-                proposed_tool_calls=calls,
-            )
+            rec = Recommendation(**r.model_dump(exclude={"recommendation_id", "rank", "proposed_tool_calls",
+                                                         "requires_human_approval"}),
+                                 recommendation_id=rid, rank=dense[r.rank], proposed_tool_calls=calls)
         except ValidationError as e:
             notes.append(f"dropped recommendation ranked {r.rank} ({r.description[:40]}): {e.errors()[0]['msg']}")
             continue
@@ -248,8 +194,9 @@ def normalize(taxonomy: dict, case: PatientCase, out: SinglePromptOutput) -> tup
     for a in actions:
         a.recommendation.rank = ranks.index(a.recommendation.rank) + 1
 
-    plan = DischargePlan(case_id=case.case_id, summary=out.summary, barriers=barriers,
-                         information_gaps=gaps, tasks=tasks, actions=actions)
+    plan = DischargePlan(case_id=case.case_id, summary=f"{out.clinical_summary}\n\n{out.social_summary}",
+                         barriers=barriers, information_gaps=list(out.information_gaps), tasks=tasks,
+                         actions=actions)
     return plan, notes
 
 

@@ -20,6 +20,7 @@ from src.models.messages import (
     check_against_taxonomy,
 )
 from src.pipeline._common import (
+    TASK_OUTPUT_RULES,
     Rejected,
     RunContext,
     call_llm,
@@ -41,17 +42,7 @@ pending tasks from the closed taxonomy below would resolve them.
 {task_reference(taxonomy)}
 
 ## Output rules
-- Recommend tasks only for barriers in the flagged list. Information gaps are not barriers; do not \
-create tasks for them.
-- Each task's resolves list names only flagged barriers that the taxonomy says the task can resolve.
-- Use only tasks whose conditions include the case's condition.
-- Pick the single most direct task for each barrier. Add a second task for the same barrier only when \
-the chart shows that both are pending.
-- owner_role must be one of the task's owner_roles.
-- Every task cites evidence from the chart: the field path (tracked_fields.<name>, \
-planned_discharge_window, or free_text_notes.<note>), the field's status when citing a tracked field, \
-and a verbatim quote when citing a note.
-- Use the taxonomy urgency unless the barrier's urgency is clearly higher."""
+{TASK_OUTPUT_RULES}"""
 
 
 def run(

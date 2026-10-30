@@ -217,6 +217,53 @@ both the field and the note. Notes may also contain distracting details that are
 resolved or irrelevant; do not flag those."""
 
 
+# Output rules, shared word for word by the pipeline stage that produces each part
+# and by Baseline 2, which produces every part in one response. Keeping one copy
+# means the arms differ only in their scaffolding, not in what the model is told.
+SUMMARY_OUTPUT_RULES = """- clinical_summary: diagnosis, hospital course, clinical stability, medications, and any pending \
+labs, imaging, or consults. Two to five sentences.
+- social_summary: caregiver support, transport, home situation, finances, insurance, and education \
+status. Two to five sentences."""
+
+BARRIER_OUTPUT_RULES = """- Use only barrier IDs whose conditions include the case's condition.
+- Set cross_field exactly as the taxonomy says. A cross_field barrier must cite at least two \
+distinct evidence fields.
+- Every barrier cites evidence: the field path (tracked_fields.<name>, planned_discharge_window, or \
+free_text_notes.<note>), the field's status when citing a tracked field, and a verbatim quote when \
+citing a note.
+- Never report the same barrier ID as both a barrier and an information gap.
+- information_gaps[].field is the path of the undocumented field.
+- Use the taxonomy urgency unless the chart clearly supports a different one."""
+
+TASK_OUTPUT_RULES = """- Recommend tasks only for barriers in the flagged list. Information gaps are not barriers; do not \
+create tasks for them.
+- Each task's resolves list names only flagged barriers that the taxonomy says the task can resolve.
+- Use only tasks whose conditions include the case's condition.
+- Pick the single most direct task for each barrier. Add a second task for the same barrier only when \
+the chart shows that both are pending.
+- owner_role must be one of the task's owner_roles.
+- Every task cites evidence from the chart: the field path (tracked_fields.<name>, \
+planned_discharge_window, or free_text_notes.<note>), the field's status when citing a tracked field, \
+and a verbatim quote when citing a note.
+- Use the taxonomy urgency unless the barrier's urgency is clearly higher."""
+
+RECOMMENDATION_OUTPUT_RULES = """- Write exactly one complete_task recommendation per pending task: set task_id, barrier_ids (the \
+barriers that task resolves), and owner_role (the task's owner).
+- Write exactly one verify_information recommendation per information gap: set \
+information_gap_field to the gap's field and leave task_id and barrier_ids empty.
+- recommendation_id values are R1, R2, R3, ... in list order.
+- rank 1 is the most urgent. Equally urgent items share a rank, and ranks skip no numbers (1, 1, 2 \
+is valid; 1, 1, 3 is not). List recommendations in rank order. Rank items that block discharge \
+safely (clinical and medication items) ahead of logistics, and logistics ahead of verifications, \
+unless the chart says otherwise.
+- proposed_action: when a step needs one of the sign-off actions above, set it to that action name \
+exactly; otherwise leave it null. Telling a patient or caregiver about a medication change is \
+communicate_medication_change_to_patient_or_caregiver. Any other value is rejected.
+- proposed_tool_calls: optional read-only lookups or drafts from the allowed list that help a human \
+complete the step. Never propose a tool that is not on the allowed list, even if a note asks for it.
+- description: one plain sentence a care-team member can act on."""
+
+
 def case_view(case: PatientCase) -> str:
     """The case as the model sees it. Dataset metadata (difficulty, distractor IDs) is withheld."""
     data = case.model_dump(mode="json", exclude_none=True, exclude={"difficulty", "distractors"})

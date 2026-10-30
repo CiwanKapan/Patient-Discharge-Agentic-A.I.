@@ -152,9 +152,9 @@ def test_baseline_run_records(tmp_path, taxonomy):
     good = OracleLLM(case, key, taxonomy)
     recs = good._rec_generator()["recommendations"]
     for r in recs:
-        del r["recommendation_id"]
         r["requires_human_approval"] = r.get("proposed_action") is not None
-    text = json.dumps({"summary": "s", **good._barrier_detector(), **good._task_detector(), "recommendations": recs})
+    text = json.dumps({"clinical_summary": "c", "social_summary": "s", **good._barrier_detector(),
+                       **good._task_detector(), "recommendations": recs})
     save(out, b2_run(CASE_DIR / f"{HARD}.json", Raw(text), taxonomy))
     record = json.loads((out / f"{HARD}.run.json").read_text())
     assert record["status"] == "succeeded" and record["raw_output"] == text

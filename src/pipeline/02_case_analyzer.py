@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from src.models.messages import AgentMessage, CaseSummary, EvidenceRef, Stage
 from src.pipeline._common import (
+    SUMMARY_OUTPUT_RULES,
     Rejected,
     RunContext,
     call_llm,
@@ -22,15 +23,12 @@ from src.utils.case_checks import snapshot_fields, time_constraints
 
 STAGE = Stage.CASE_ANALYZER
 
-SYSTEM = """You are the case analyzer in a supervised hospital discharge-coordination pipeline. \
+SYSTEM = f"""You are the case analyzer in a supervised hospital discharge-coordination pipeline. \
 You read one synthetic patient chart and write a structured summary that later stages use to find \
 discharge barriers and pending tasks.
 
 Write:
-- clinical_summary: diagnosis, hospital course, clinical stability, medications, and any pending \
-labs, imaging, or consults. Two to five sentences.
-- social_summary: caregiver support, transport, home situation, finances, insurance, and education \
-status. Two to five sentences.
+{SUMMARY_OUTPUT_RULES}
 - notes_of_interest: passages in the free-text notes that matter for discharge readiness, such as a \
 medication change, a contradiction with a tracked field, or a timing constraint. Use the field path \
 (for example free_text_notes.case_manager_note) and copy the passage verbatim into quote.

@@ -11,6 +11,7 @@ from __future__ import annotations
 from src.models.case import FieldReading
 from src.models.messages import AgentMessage, BarrierDetection, CaseSummary, Stage, check_against_taxonomy
 from src.pipeline._common import (
+    BARRIER_OUTPUT_RULES,
     CHART_READING_RULES,
     Rejected,
     RunContext,
@@ -37,15 +38,7 @@ You decide which discharge barriers a synthetic patient case has, using only the
 {CHART_READING_RULES}
 
 ## Output rules
-- Use only barrier IDs whose conditions include the case's condition.
-- Set cross_field exactly as the taxonomy says. A cross_field barrier must cite at least two \
-distinct evidence fields.
-- Every barrier cites evidence: the field path (tracked_fields.<name>, planned_discharge_window, or \
-free_text_notes.<note>), the field's status when citing a tracked field, and a verbatim quote when \
-citing a note.
-- Never report the same barrier ID as both a barrier and an information gap.
-- information_gaps[].field is the path of the undocumented field.
-- Use the taxonomy urgency unless the chart clearly supports a different one."""
+{BARRIER_OUTPUT_RULES}"""
 
 
 def run(ctx: RunContext, summary: AgentMessage[CaseSummary]) -> AgentMessage[BarrierDetection]:
