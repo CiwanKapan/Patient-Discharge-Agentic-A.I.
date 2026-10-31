@@ -140,6 +140,17 @@ How the evaluator applies it (`evaluation/stats.py`, `outcome.json`):
   system on any primary hypothesis: Holm-adjusted two-sided p < 0.05, a non-negligible effect, in the
   baseline's favor. It does not change the label.
 
+## 9. Limitations
+
+**No clinician review or sign-off.** The project uses only synthetic cases and has no clinical lead. No
+clinician wrote or reviewed the cases, the answer keys, the taxonomy, or the task-to-sign-off list; decisions
+with clinical content were made by the team (recorded in the taxonomy's `task_approval_rationale` and the
+amendment notes). The results therefore measure agreement with the team's answer keys, not clinical
+correctness. The pipeline's sign-off stage (stage 9) requests clinician sign-off and emits every plan as
+`pending_clinician_signoff`; the study scores whether the system requests sign-off correctly, and no clinician
+ever signs a plan. The scope statement (§1) limits the system to documented status and stated policy, which
+narrows but does not remove this limitation.
+
 ## Amendments
 
 ### Amendment 1 — 2026-10-29 (recorded before the evaluation-set run)
